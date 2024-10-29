@@ -28,7 +28,6 @@ class Shared::Product < ApplicationRecord
             presence: true
 
   validates :to,
-            uniqueness: true,
             presence: true
     
   validates :roles,
