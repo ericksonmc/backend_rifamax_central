@@ -51,42 +51,10 @@ class Rifamax::Raffle < ApplicationRecord
   scope :expired, -> { where('expired_date < ?', Date.today) }
   scope :active, -> { where('init_date <= ? AND expired_date >= ?', Date.today, Date.today) }
 
-  # Validations
-  validates :title,
-            presence: true,
-            length: { minimum: 3, maximum: 35 }
-    
-  validates :currency,
-            presence: true,
-            inclusion: { in: %w[USD VES COP] }
+  # Important variables
+  CURRENCIES = %w[USD VES COP].freeze
 
-  validates :lotery,
-            presence: true,
-            inclusion: { in: ['Zulia 7A', 'Zulia 7B', 'Triple Pelotica'] }
-
-  validates :init_date,
-            presence: true,
-            comparison: { greater_than: Date.yesterday },
-            on: :create
-            
-  validates :numbers,
-            presence: true,
-            numericality: { 
-              only_integer: true, 
-              greater_than: 0, 
-              less_than: 1000 
-            }
-          
-  validates :price,
-            presence: true,
-            numericality: {
-              greater_than: 0
-            }
-
-  validate :validates_user
-  validate :validates_seller
-  validate :validates_prizes
-  validate :validates_payment_info
+  LOTERIES = ['Zulia 7A', 'Zulia 7B', 'Triple Pelotica'].freeze 
 
   ZODIAC = %w[
     Aries
@@ -117,6 +85,43 @@ class Rifamax::Raffle < ApplicationRecord
     'Ping Pong',
     'Hockey'
   ].freeze
+
+  # Validations
+  validates :title,
+            presence: true,
+            length: { minimum: 3, maximum: 35 }
+    
+  validates :currency,
+            presence: true,
+            inclusion: { in: CURRENCIES }
+
+  validates :lotery,
+            presence: true,
+            inclusion: { in: LOTERIES }
+
+  validates :init_date,
+            presence: true,
+            comparison: { greater_than: Date.yesterday },
+            on: :create
+            
+  validates :numbers,
+            presence: true,
+            numericality: { 
+              only_integer: true, 
+              greater_than: 0, 
+              less_than: 1000 
+            }
+          
+  validates :price,
+            presence: true,
+            numericality: {
+              greater_than: 0
+            }
+
+  validate :validates_user
+  validate :validates_seller
+  validate :validates_prizes
+  validate :validates_payment_info
 
   def self.filter_by_status(user_id, endpoint = 'newest')
     begin

@@ -81,6 +81,7 @@ Rails.application.routes.draw do
       get 'close_day_info', on: :collection
       get 'close_day', on: :collection
       get 'report', on: :collection
+      get 'is_blocked', on: :collection
       post 'pay', on: :collection
       post 'unpay', on: :collection
       post 'refund', on: :collection
@@ -99,6 +100,7 @@ Rails.application.routes.draw do
   end
 
   namespace :shared do
+    resources :lobby
     resources :exchanges
     resources :users do
       post 'sign_up', on: :collection

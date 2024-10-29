@@ -117,6 +117,16 @@ module Shared
       end
     end
 
+    def zodiacal_is_blocked
+      raffles = Rifamax::Raffle.filter_by_status(self.id, 'to_close').where('expired_date < ?', Date.today)
+    
+      if raffles.count > 0
+        return { is_blocked: true }
+      end
+
+      { is_blocked: false }
+    end
+
     def rafflers
       return "Can't show riferos, user are not taquilla or admin." unless %w[Taquilla Admin].include?(role)
 

@@ -106,10 +106,16 @@ module Rifamax
       end
     end
 
+    # GET /rifamax/raffles/is_block
+    def is_blocked
+      render json: @current_user.zodiacal_is_blocked, status: :ok
+    end
+
     # POST /rifamax/raffles/print
     def print
       @rifamax_raffle = Rifamax::Raffle.find(params[:raffle_id])
       if @rifamax_raffle.sold!
+        @rifamax_raffle.update(expired_date: Date.today + 3.days)
         render json: @rifamax_raffle
       else
         render json: @rifamax_raffle.errors, status: :unprocessable_entity
