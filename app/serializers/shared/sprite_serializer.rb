@@ -13,10 +13,10 @@ class Shared::SpriteSerializer < ActiveModel::Serializer
   end
 
   def each_dimensions
-    "#{each_width}x#{each_height}"
+    "#{object.each_width}x#{object.each_height}"
   end
 
   def image_dimensions
-    "#{width}x#{height}"
+    "#{object.width}x#{object.height}"
   end
 end
