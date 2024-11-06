@@ -43,12 +43,12 @@ class Shared::SpritesController < ApplicationController
   end
 
   def shared_sprite_params
-    params.require(:sprite).permit(
+    params.require(:shared_sprite).permit(
       :asset,
       :each_width,
       :each_height,
       :height,
-      :width
+      :width,
       :identifier
     )
   end
