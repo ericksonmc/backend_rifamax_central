@@ -100,6 +100,7 @@ Rails.application.routes.draw do
   end
 
   namespace :shared do
+    resources :sprites
     resources :lobby
     resources :exchanges
     resources :users do

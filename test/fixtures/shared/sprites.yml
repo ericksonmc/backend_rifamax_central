@@ -1,0 +1,30 @@
+# == Schema Information
+#
+# Table name: shared_sprites
+#
+#  id          :bigint           not null, primary key
+#  asset       :string
+#  each_height :integer
+#  each_width  :integer
+#  height      :integer
+#  identifier  :string
+#  width       :integer
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
+one:
+  asset: MyString
+  each_width: 1
+  each_height: 1
+  width: 1
+  height: 1
+  identifier: MyString
+
+two:
+  asset: MyString
+  each_width: 1
+  each_height: 1
+  width: 1
+  height: 1
+  identifier: MyString

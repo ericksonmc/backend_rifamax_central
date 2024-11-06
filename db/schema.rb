@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_29_040625) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_06_161107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -131,6 +131,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_29_040625) do
     t.string "to"
     t.string "roles", default: [], array: true
     t.string "devices", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shared_sprites", force: :cascade do |t|
+    t.string "asset"
+    t.integer "each_width"
+    t.integer "each_height"
+    t.integer "width"
+    t.integer "height"
+    t.string "identifier"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
