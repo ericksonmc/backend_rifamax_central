@@ -51,4 +51,5 @@ class Shared::SpritesController < ApplicationController
       :width
       :identifier
     )
+  end
 end
