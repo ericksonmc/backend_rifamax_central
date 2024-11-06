@@ -5,6 +5,7 @@ class Shared::SpriteSerializer < ActiveModel::Serializer
              :each_dimensions, 
              :height, 
              :width, 
+             :quantity,
              :image_dimensions, 
              :identifier
 
@@ -18,5 +19,9 @@ class Shared::SpriteSerializer < ActiveModel::Serializer
 
   def image_dimensions
     "#{object.width}x#{object.height}"
+  end
+
+  def quantity
+    (object.width / object.each_width).round(0)
   end
 end
