@@ -119,7 +119,7 @@ class Rifamax::Raffle < ApplicationRecord
             }
 
   # validate :validates_user
-  validate :validates_seller
+  # validate :validates_seller
   validate :validates_prizes
   validate :validates_payment_info
 
@@ -249,10 +249,10 @@ class Rifamax::Raffle < ApplicationRecord
   #   errors.add(:user_id, 'You are not allowed to perform this action') unless shared_user.role == 'Taquilla'
   # end
 
-  def validates_seller
-    errors.add(:seller_id, 'You are not allowed to perform this action') unless seller.role == 'Rifero'
-    errors.add(:seller_id, 'Must be belongs to user') unless user.rifero_ids.include?(seller.id)
-  end
+  # def validates_seller
+  #   errors.add(:seller_id, 'You are not allowed to perform this action') unless seller.role == 'Rifero'
+  #   errors.add(:seller_id, 'Must be belongs to user') unless user.rifero_ids.include?(seller.id)
+  # end
 
   def validates_prizes
     errors.add(:prizes, 'Prizes must be an array') unless prizes.is_a?(Array)
