@@ -92,6 +92,7 @@ Rails.application.routes.draw do
     end
     resources :tickets do 
       get 'get_tickets', on: :collection
+      post 'sell_all', on: :collection
     end
   end
 
