@@ -33,11 +33,10 @@ module Rifamax
       begin
         @raffle = Rifamax::Raffle.find(params[:raffle_id])
         @raffle.user_who_requested = @current_user.id
-      rescue e
-        render json: { message: e }, status: :unauthorized
-      else
         render json: @raffle.sell_all_tickets, status: :ok
-      end
+      rescue StandardError => e
+        render json: { message: e }, status: :unauthorized
+      end  
     end
 
     # GET /rifamax/tickets/1
