@@ -33,10 +33,11 @@ module Rifamax
       begin
         @raffle = Rifamax::Raffle.find(params[:raffle_id])
         @raffle.user_who_requested = @current_user.id
-
-        render json: @raffle.sell_all_tickets, status: :ok
       rescue e
         render json: { message: e }, status: :unauthorized
+      else
+        render json: @raffle.sell_all_tickets, status: :ok
+      end
     end
 
     # GET /rifamax/tickets/1
@@ -79,7 +80,7 @@ module Rifamax
     # Only allow a list of trusted parameters through.
     def rifamax_ticket_params
       params.require(:rifamax_ticket).permit(
-        
+        :is_sold
       )
     end
   end
