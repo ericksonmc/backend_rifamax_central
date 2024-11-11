@@ -217,9 +217,7 @@ module Rifamax
     def create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.user_id = @current_user.id
-      @rifamax_raffle.sell_status = :sent
-      @rifamax_raffle.expired_date = 3.days.from_now
-      
+
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
       else
@@ -231,6 +229,10 @@ module Rifamax
     def seller_create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.seller_id = @current_user.id
+      @rifamax_raffle.sell_status = 1
+      @rifamax_raffle.admin_status = 0
+      @rifamax_raffle.expired_date = 3.days.from_now
+      @rifamax_raffle.skip_status = true
       @rifamax_raffle.user_id = Shared::User.where(role: 'Taquilla').select { |taquilla| taquilla.rifero_ids.include?(@current_user.id) }.last.id
 
       if @rifamax_raffle.save

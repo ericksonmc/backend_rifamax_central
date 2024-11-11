@@ -35,9 +35,11 @@ class Rifamax::Raffle < ApplicationRecord
   # Enums
   enum sell_status: { available: 0, sent: 1, sold: 2 }
   enum admin_status: { pending: 0, payed: 1, unpayed: 2, refunded: 3 }
+  
+  attr_accessor :skip_status 
 
   # Triggers and Callbacks
-  before_create :initiliaze_statues
+  before_create :initiliaze_statues, :unless => :skip_status
   before_create :generate_uniq_identifier_serial
   after_create :generate_tickets
 
