@@ -179,7 +179,7 @@ class Rifamax::Raffle < ApplicationRecord
   end
 
   def sell_all_tickets
-    raise raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id = self.user_who_requested
+    raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested
   
     self.tickets.update_all(
       is_sold: true
