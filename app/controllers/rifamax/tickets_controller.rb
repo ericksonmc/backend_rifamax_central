@@ -2,6 +2,7 @@
 
 module Rifamax
   class TicketsController < ActionController::Base
+    before_action :authorize_request, only: %i[sell_all]
     before_action :set_rifamax_ticket, only: %i[show update destroy]
 
     # GET /rifamax/tickets
@@ -25,6 +26,17 @@ module Rifamax
       else
         render json: "Raffle doesn't exist", status: :not_found
       end
+    end
+
+    # POST /rifamax/tickets/sell_all
+    def sell_all
+      begin
+        @raffle = Rifamax::Raffle.find(params[:raffle_id])
+        @raffle.user_who_requested = @current_user.id
+
+        render json: @raffle.sell_all_tickets, status: :ok
+      rescue e
+        render json: { message: e }, status: :unauthorized
     end
 
     # GET /rifamax/tickets/1

@@ -37,6 +37,7 @@ class Rifamax::Raffle < ApplicationRecord
   enum admin_status: { pending: 0, payed: 1, unpayed: 2, refunded: 3 }
   
   attr_accessor :skip_status 
+  attr_accessor :user_who_requested 
 
   # Triggers and Callbacks
   before_create :initiliaze_statues, :unless => :skip_status
@@ -175,6 +176,16 @@ class Rifamax::Raffle < ApplicationRecord
     end
     
     return total_amounts
+  end
+
+  def sell_all_tickets
+    raise "You are not the seller! This incident will be reported to admins." unless self.seller_id = self.user_who_requested
+  
+    self.tickets.update_all(
+      is_sold: true
+    )  
+
+    return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(self.tickets).object }
   end
 
   private
