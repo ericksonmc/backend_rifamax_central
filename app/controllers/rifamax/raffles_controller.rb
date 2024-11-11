@@ -229,6 +229,7 @@ module Rifamax
     def seller_create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.seller_id = @current_user.id
+      @rifamax_raffle.user_id = Shared::User.where(role: 'Taquilla').select { |taquilla| taquilla.rifero_ids.include?(@current_user.id) }.last.id
 
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
