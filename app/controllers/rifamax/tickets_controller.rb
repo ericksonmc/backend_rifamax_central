@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Rifamax
-  class TicketsController < ActionController::Base
+  class TicketsController < ApplicationController
     before_action :authorize_request, only: %i[sell_all]
     before_action :set_rifamax_ticket, only: %i[show update destroy]
 
@@ -11,7 +11,7 @@ module Rifamax
       @rifa = @tickets.rifamax_raffle
 
       if  @tickets.nil?
-        render json: { message: 'Not found', status: 404 }, stauts: :not_found
+        render json: { message: 'Not found', status: 404 }, status: :not_found
       else
         render 'layouts/x100/orders/index', locals: { rifa: @rifa, tickets: @tickets }
       end
