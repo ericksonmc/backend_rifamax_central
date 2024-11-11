@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_06_161107) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_09_212447) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -186,6 +186,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_06_161107) do
     t.boolean "is_integration", default: false
     t.boolean "is_first_entry", default: false
     t.boolean "welcoming", default: true
+    t.integer "structure_id"
+    t.integer "integrator_id"
   end
 
   create_table "shared_wallets", force: :cascade do |t|

@@ -21,10 +21,12 @@
 #  welcoming       :boolean          default(TRUE)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  integrator_id   :integer
+#  structure_id    :integer
 #
 module Shared
   class UserSerializer < ActiveModel::Serializer
-    attributes :id, :avatar, :name, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :is_first_entry, :welcoming
+    attributes :id, :integrator_id, :avatar, :name, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :structure, :is_first_entry, :welcoming
 
     def influencer_id
       object.social_influencer&.id
@@ -38,6 +40,10 @@ module Shared
 
     def content_code
       object.social_influencer&.content_code
+    end
+
+    def structure
+      object&.structure_id === nil ? nil : Shared::Structure.find(object&.structure_id)
     end
 
     # def riferos

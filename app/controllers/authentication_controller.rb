@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AuthenticationController < ApplicationController
-  before_action :authorize_request, except: %i[login social_login refresh]
+  before_action :authorize_request, except: %i[login social_login refresh integrator_login]
   before_action :soft_authorize_request, only: %i[refresh social_refresh]
   
   # POST /auth/login
@@ -29,6 +29,30 @@ class AuthenticationController < ApplicationController
                      user: Shared::UserSerializer.new(@user) }, status: :ok
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
+  end
+
+  # POST /auth/connect/login
+  def integrator_login
+    @email = params[:email]
+    @password = params[:password]
+    @token = params[:token]
+    @structure = Shared::Structure.find_by(token: @token)
+
+    if @token.nil? || @structure.nil?
+      @user = Shared::User.where(structure: @structure.id).find_by_email(params[:email])
+
+      if @user&.authenticate(params[:password])
+        token = JsonWebToken.encode(user_id: @user.id)
+        time = Time.now + 7.days.to_i
+        render json: { token:, exp: time.strftime('%m-%d-%Y %H:%M'),
+                       user: Shared::UserSerializer.new(@user) }, status: :ok
+      else
+        render json: { error: 'Unauthorized' }, status: :unauthorized
+      end
+
+    else
+      render json: { message: 'Integrator token not found' }, status: :not_found
     end
   end
 

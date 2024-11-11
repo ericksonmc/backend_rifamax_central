@@ -118,7 +118,7 @@ class Rifamax::Raffle < ApplicationRecord
               greater_than: 0
             }
 
-  validate :validates_user
+  # validate :validates_user
   validate :validates_seller
   validate :validates_prizes
   validate :validates_payment_info
@@ -245,9 +245,9 @@ class Rifamax::Raffle < ApplicationRecord
 
   # Validations
 
-  def validates_user
-    errors.add(:user_id, 'You are not allowed to perform this action') unless user.role == 'Taquilla'
-  end
+  # def validates_user
+  #   errors.add(:user_id, 'You are not allowed to perform this action') unless shared_user.role == 'Taquilla'
+  # end
 
   def validates_seller
     errors.add(:seller_id, 'You are not allowed to perform this action') unless seller.role == 'Rifero'

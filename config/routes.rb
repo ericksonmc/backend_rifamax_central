@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   post '/login', to: 'authentication#login'
   post '/social/login', to: 'authentication#social_login'
   post '/social/auth/refresh', to: 'authentication#social_refresh'
+  post '/auth/connect/login', to: 'authentication#integrator_login'
   post '/refresh', to: 'authentication#refresh'
  
   namespace :social do

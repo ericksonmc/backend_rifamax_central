@@ -21,6 +21,8 @@
 #  welcoming       :boolean          default(TRUE)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  integrator_id   :integer
+#  structure_id    :integer
 #
 require 'test_helper'
 

@@ -5,7 +5,5 @@ class Shared::StructuresController < ApplicationController
     @integrator_type = params[:integrator]
     @integrator_user_id = params[:player_id]
     @currency = params[:currency] | 'USD'
-    
-    
   end
 end
