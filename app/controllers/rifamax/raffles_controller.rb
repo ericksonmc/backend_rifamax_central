@@ -217,6 +217,8 @@ module Rifamax
     def create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.user_id = @current_user.id
+      @rifamax_raffle.sell_status = 1
+      @rifamax_raffle.expired_date = 3.days.from_now
       
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
