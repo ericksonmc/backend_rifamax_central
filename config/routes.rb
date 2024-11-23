@@ -59,6 +59,7 @@ Rails.application.routes.draw do
       post 'apart', on: :collection
       post 'apart_integrator', on: :collection
       post 'buy_infinite', on: :collection
+      post 'sell_series', on: :collection
       post 'clear', on: :collection
       post 'refresh', on: :collection
       post 'available', on: :collection

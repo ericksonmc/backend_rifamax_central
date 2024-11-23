@@ -40,12 +40,14 @@ module X100
     require 'httparty'
     require 'uri'
 
+    attr_accessor :tickets_serie
+
     belongs_to :shared_user, class_name: 'Shared::User', foreign_key: 'shared_user_id'
     belongs_to :x100_client, class_name: 'X100::Client', foreign_key: 'x100_client_id'
     belongs_to :x100_raffle, class_name: 'X100::Raffle', foreign_key: 'x100_raffle_id'
     belongs_to :shared_exchange, class_name: 'Shared::Exchange', foreign_key: 'shared_exchange_id'
 
-    after_save :generate_order_infinity
+    before_save :generate_serie
     # after_commit :integrator_layer
   
     validates :money,
@@ -67,6 +69,16 @@ module X100
 
     def x100_tickets
       X100::Ticket.where(position: products, x100_raffle_id: x100_raffle_id)
+    end
+
+    def serie_tickets
+      result = []
+
+      self.products.each do |product|
+        result << JSON.parse($redis.hget("serie:#{self.x100_raffle_id}", product.to_s.rjust(4, '0')))
+      end
+
+      return result
     end
 
     def sell_integrator
@@ -100,6 +112,62 @@ module X100
           self.destroy
           return
         end
+      end
+    end
+
+    def generate_serie
+      cda_url = ENV['cda_url_base']
+
+      return unless integrator.present? || integrator_player_id.present?
+
+      case integrator
+      when 'CDA'
+        @payload = {
+          id: id,
+          amount: amount,
+          serial: serial,
+          tickets: serie_tickets,
+          tx_transaction: 'DEBIT',
+          currency: money,
+          player_id: integrator_player_id,
+          x100_raffle: {
+            raffle_image: "https://api.rifa-max.com/#{x100_raffle.ad.url}",
+            title: x100_raffle.title,
+            status: x100_raffle.status,
+            money: x100_raffle.money,
+            raffle_type: x100_raffle.raffle_type,
+            price_unit: x100_raffle.price_unit,
+            tickets_count: x100_raffle.tickets_count,
+            lotery: x100_raffle.lotery,
+            draw_type: x100_raffle.draw_type,
+            expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
+          }
+        }
+        url = "#{cda_url}/wallets_rifas/debit"
+
+        response = HTTParty.post(url, :body => @payload.to_json, :headers => { 'Content-Type' => 'application/json' })
+
+        return { raffle: x100_raffle, tickets: @payload, message: 'Purchase successfully' } if response.code == 200
+        
+        self.products.each do |product|
+          product_parsed = product.to_s.rjust(4, '0')
+
+          data = {
+            :position => product_parsed,
+            :serial => SecureRandom.uuid,
+            :price => nil,
+            :money => nil,
+            :status => 'available'
+          }
+
+          serie_sold = eval($redis.get("sold_serie:#{x100_raffle_id}")).excluding(product)
+
+          $redis.hset("serie:#{self.id}", product_parsed, data.to_json)
+          $redis.set("sold_serie:#{self.id}", serie_sold)
+        end
+        return false
+      else
+        raise StandardError.new "Integrator not found"
       end
     end
 
@@ -310,7 +378,7 @@ module X100
             status: x100_raffle.status,
             money: x100_raffle.money,
             raffle_type: x100_raffle.raffle_type,
-            price_unit: x100_raffle.price_unit,
+            price_unit: x100_raffle.price_unit, 
             tickets_count: x100_raffle.tickets_count,
             lotery: x100_raffle.lotery,
             draw_type: x100_raffle.draw_type,

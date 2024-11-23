@@ -43,8 +43,13 @@ class AuthenticationController < ApplicationController
       @user = Shared::User.where(structure: @structure.id).find_by_email(params[:email])
 
       if @user&.authenticate(params[:password])
-        token = JsonWebToken.encode(user_id: @user.id)
-        time = Time.now + 7.days.to_i
+        time = 7.days.from_now
+        token = JsonWebToken.encode(
+          {
+            user_id: @user.id
+          }, 
+          time
+        )
         render json: { token:, exp: time.strftime('%m-%d-%Y %H:%M'),
                        user: Shared::UserSerializer.new(@user) }, status: :ok
       else

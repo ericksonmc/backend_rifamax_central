@@ -22,6 +22,33 @@ module X100
       end
     end
 
+    def sell_series
+      ActiveRecord::Base.transaction do 
+        client_id = sell_series_ticket_params[:client_id]
+        integrator = sell_series_ticket_params[:integrator]
+        raffle_id = sell_series_ticket_params[:raffle_id]
+        quantity = sell_series_ticket_params[:quantity]
+        currency = sell_series_ticket_params[:money]
+
+        @raffle = X100::Raffle.find(raffle_id)
+        @client = X100::Client.find(client_id)
+        @client_integrator = X100::Client.find_by(
+          integrator_id: client_id, 
+          integrator_type: integrator
+        )
+
+        @result = @raffle.sell_series(
+          quantity,
+          currency,
+          @client_integrator,
+          integrator,
+          @client_integrator.present? == false ? @client.id : client_id
+        )
+
+        render json: @result, status: :ok
+      end
+    end
+
     def sell
       positions = sell_x100_ticket_params[:positions]
       success_sold = []
@@ -289,6 +316,10 @@ module X100
 
     def render_not_found(message)
       render json: { message: "Resource can't be found" }, status: :not_found
+    end
+
+    def sell_series_ticket_params
+      params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator :money, :quantity)
     end
 
     def sell_x100_ticket_params

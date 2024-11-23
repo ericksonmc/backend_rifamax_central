@@ -31,6 +31,8 @@ module X100
   class Raffle < ApplicationRecord # rubocop:disable Metrics/ClassLength
     self.table_name = 'x100_raffles'
 
+    attr_accessor :requestor_id
+
     scope :active, -> { where(status: 'En venta') }
     scope :closing, -> { where(status: 'Finalizando') }
     scope :closed, -> { where(status: 'Cerrado') }
@@ -42,10 +44,11 @@ module X100
 
     before_validation :validates_raffle_type
 
+    before_create :initialize_raffle_type
     after_create :generate_tickets
     after_create :initialize_status
+    after_create :initialize_serie
     after_create :initialize_winners
-    after_create :initialize_raffle_type
 
     validates :title,
               presence: true,
@@ -164,6 +167,83 @@ module X100
 
     def tickets_sold
       x100_tickets.where(status: 'sold').order(id: :asc)
+    end
+
+    def sell_series(quantity, currency, integrator_id, integrator_type, client_id)
+      begin
+        @semaphore ||= Mutex.new
+
+        currencies = %w[USD VES COP]
+
+        currency_today = Shared::Exchange.last
+
+        price_calculated = case currency
+        when 'USD'
+          self.price_unit
+        when 'VES'
+          self.price_unit * currency_today.value_bs
+        when 'COP'
+          self.price_unit * currency_today.value_cop
+        else
+          self.price_unit
+        end
+
+        @semaphore.synchronize {
+          result = []
+          positions = []
+        
+          sold_series = eval($redis.get("sold_serie:#{self.id}"))
+
+          raise StandardError.new "Sold series is null" unless sold_series.is_a?(Array)
+          raise StandardError.new "Raffle is not a serie" unless self.raffle_type === 'Infinito'
+          raise StandardError.new "Currency is not on list" unless currencies.include?(currency)
+          raise StandardError.new "All series tickets are sold" if sold_series.length === 10000
+          raise StandardError.new "Insufficient series to sort" if (10000 - sold_series.length) < quantity
+
+          quantity.times do |i|
+            position = ([*1..10000] - sold_series).sample
+
+            position_parsed = position.to_s.rjust(4, '0')
+            
+            positions << position
+
+            sold_series << position
+
+            data = {
+              :position => position_parsed,
+              :serial => SecureRandom.uuid,
+              :price => price_calculated,
+              :money => currency,
+              :status => 'available'
+            }
+            
+            result << data
+            $redis.hset("serie:#{self.id}", position_parsed, data.to_json)
+            $redis.set("sold_serie:#{self.id}", sold_series)
+          end
+
+          order = X100::Order.new(
+            amount: (price_calculated * quantity).round(2),
+            integrator: integrator_type,
+            products: positions,
+            serial: "ORD-#{SecureRandom.hex(8).upcase}",
+            ordered_at: DateTime.now,
+            tickets_serie: result,
+            money: money,
+            integrator_player_id: integrator_id,
+            x100_raffle_id: self.id,
+            x100_client_id: client_id,
+            shared_exchange_id: Shared::Exchange.last.id,
+            shared_user_id: self.shared_user_id
+          )
+
+          return { raffle: self, tickets: result, order: order, message: 'Purchase successfully!' } if order.save
+
+          raise StandardError.new "Error when generate order"
+        }
+      rescue StandardError => e
+        return { error: e.message }
+      end
     end
 
     def select_winner
@@ -293,7 +373,6 @@ module X100
       rescue StandardError => e
         return { message: e.message, tickets_selected: [] }
       end
-
     end
 
     def select_combos(quantity)
@@ -373,6 +452,27 @@ module X100
                          else
                            'Infinito'
                          end
+    end
+
+    def initialize_serie
+      if self.raffle_type == 'Infinito'
+        10000.times do |a|
+          num = a.to_s.rjust(4, '0')
+
+          data = {
+            :position => num,
+            :serial => SecureRandom.uuid,
+            :price => nil,
+            :money => nil,
+            :status => 'available'
+          }
+
+          $redis.hset("serie:#{self.id}", num, data.to_json)
+          $redis.set("sold_serie:#{self.id}", [])
+        end
+      else
+        raise StandardError.new 'Not a serie'
+      end
     end
 
     def change_first_prize
@@ -557,7 +657,5 @@ module X100
 
       errors.add(:shared_user_id, 'El usuario no es administrador')
     end
-
-    def sell_tickets; end
   end
 end

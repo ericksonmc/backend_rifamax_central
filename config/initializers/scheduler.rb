@@ -11,9 +11,18 @@ scheduler.cron '0 8 * * *' do
   )
 end
 
-# ----- Verify winners scheduler every 45 minutes
-scheduler.every '45m' do
+# ----- Verify winners scheduler every 15 minutes
+scheduler.every '15m' do
   puts Time.now
 end
 
-puts ' RUFUS '
+puts "
++--------------------------+
+|           RUFUS          |
++--------------------------+
+|    SCHEDULERS ACTIVOS    |
++--------------------------+
+|       Daily currency     |
+|  Verify triples winners  |
++--------------------------+
+"

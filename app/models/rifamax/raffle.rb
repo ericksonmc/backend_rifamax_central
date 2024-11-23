@@ -193,6 +193,8 @@ class Rifamax::Raffle < ApplicationRecord
     return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(self.tickets).object }
   end
 
+  # Shared::User.where(role: 'Taquilla').select { |taquilla| taquilla.rifero_ids.include?(@current_user.id) }.last.id
+
   private
 
   def self.statues_by_endpoint(endpoint)

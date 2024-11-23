@@ -129,6 +129,25 @@ module Shared
       { is_blocked: false }
     end
 
+    def self.cda_login(email, password)
+      url = 'https://www.testcda.com/api/v1/login'
+      body = {
+        :email => email,
+        :password => password
+      }.to_json
+      headers = { 
+        'Content-Type' => 'application/json'
+      }
+
+      response = HTTParty.post(
+        url,
+        :body => body,
+        :headers => headers
+      )
+
+      return response
+    end
+
     def rafflers
       return "Can't show riferos, user are not taquilla or admin." unless %w[Taquilla Admin].include?(role)
 
