@@ -319,7 +319,7 @@ module X100
     end
 
     def sell_series_ticket_params
-      params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator :money, :quantity)
+      params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator, :money, :quantity)
     end
 
     def sell_x100_ticket_params
