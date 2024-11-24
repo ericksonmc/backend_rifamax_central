@@ -31,7 +31,7 @@ module X100
         currency = sell_series_ticket_params[:money]
 
         @raffle = X100::Raffle.find(raffle_id)
-        @client = X100::Client.find(client_id)
+        # @client = X100::Client.find(client_id)
         @client_integrator = X100::Client.find_by(
           integrator_id: client_id, 
           integrator_type: integrator
@@ -42,7 +42,7 @@ module X100
           currency,
           @client_integrator,
           integrator,
-          @client_integrator.present? == false ? @client.id : client_id
+          client_id
         )
 
         render json: @result, status: :ok
