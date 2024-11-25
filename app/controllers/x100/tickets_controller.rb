@@ -40,9 +40,9 @@ module X100
         @result = @raffle.sell_series(
           quantity,
           currency,
-          client_id
+          client_id,
           integrator,
-          @client_integrator.id,
+          @client_integrator.id
         )
 
         render json: @result, status: :ok
