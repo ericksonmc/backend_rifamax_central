@@ -239,7 +239,7 @@ module X100
 
           return { raffle: self, tickets: result, order: order, message: 'Purchase successfully!' } if order.save
 
-          # raise StandardError.new "Error when generate order"
+          raise StandardError.new "Error when generate order"
         }
       rescue StandardError => e
         return { error: e.message }
