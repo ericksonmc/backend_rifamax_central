@@ -345,24 +345,38 @@ module X100
     end
 
     def refund_order!
-      @x100_tickets = x100_tickets
+      @x100_tickets = self.x100_raffle.draw_type == 'Infinito' ? serie_tickets : x100_tickets
       self.update(status: 'refunded', logs: JSON.parse(@x100_tickets.to_json), products: [])
 
       if self.x100_raffle.draw_type == 'Infinito'
-        @x100_tickets.destroy_all
+        self.products.each do |product|
+          product_parsed = product.to_s.rjust(4, '0')
+
+          data = {
+            :position => product_parsed,
+            :serial => SecureRandom.uuid,
+            :price => nil,
+            :money => nil,
+            :status => 'available'
+          }
+
+          serie_sold = eval($redis.get("sold_serie:#{x100_raffle_id}")).excluding(product)
+
+          $redis.hset("serie:#{self.id}", product_parsed, data.to_json)
+          $redis.set("sold_serie:#{self.id}", serie_sold)
+        end
       else
         @x100_tickets.update_all(price: nil, x100_client_id: nil, status: 'available')
       end
 
       @payload = {
-          # id: id,
           amount: amount,
           serial: serial,
-          tickets: x100_tickets.map do |ticket|
+          tickets: @x100_tickets.map do |ticket|
             {
-              id: ticket[:id],
-              position: ticket[:position],
-              serial: ticket[:serial],
+              id: self.x100_raffle.draw_type == 'Infinito' ? nil : ticket[:id],
+              position: self.x100_raffle.draw_type == 'Infinito' ? ticket.with_indifferent_access[:position] : ticket[:position],
+              serial: self.x100_raffle.draw_type == 'Infinito' ? ticket.with_indifferent_access[:serial] : ticket[:serial],
               price: nil,
               money: nil,
               status: 'available'
