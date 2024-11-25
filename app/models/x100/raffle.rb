@@ -229,7 +229,7 @@ module X100
             serial: "ORD-#{SecureRandom.hex(8).upcase}",
             ordered_at: DateTime.now,
             tickets_serie: result,
-            money: money,
+            money: currency,
             integrator_player_id: integrator_id,
             x100_raffle_id: self.id,
             x100_client_id: client_id,
