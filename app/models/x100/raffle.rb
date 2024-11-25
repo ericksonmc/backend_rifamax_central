@@ -192,7 +192,7 @@ module X100
           result = []
           positions = []
         
-          sold_series = eval($redis.get("sold_serie:#{self.id}"))
+          sold_series = eval($redis.get("sold_serie:#{self.id.to_s}"))
 
           raise StandardError.new "Sold series is null" unless sold_series.is_a?(Array)
           raise StandardError.new "Raffle is not a serie" unless self.raffle_type === 'Infinito'
