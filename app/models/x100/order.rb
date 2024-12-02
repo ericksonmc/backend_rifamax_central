@@ -294,11 +294,11 @@ module X100
           title: x100_raffle.title,
           status: x100_raffle.status,
           money: x100_raffle.money,
-          raffle_type: x100_raffle.raffle_type,
+          raffle_type: 'Serie',
           price_unit: x100_raffle.price_unit,
           tickets_count: x100_raffle.tickets_count,
           lotery: x100_raffle.lotery,
-          draw_type: x100_raffle.draw_type,
+          draw_type: 'Serie',
           expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
         }
       }
@@ -391,11 +391,11 @@ module X100
             title: x100_raffle.title,
             status: x100_raffle.status,
             money: x100_raffle.money,
-            raffle_type: x100_raffle.raffle_type,
+            raffle_type: 'Serie',
             price_unit: x100_raffle.price_unit, 
             tickets_count: x100_raffle.tickets_count,
             lotery: x100_raffle.lotery,
-            draw_type: x100_raffle.draw_type,
+            draw_type: 'Serie',
             expired_date: x100_raffle.expired_date,
           }
         }
