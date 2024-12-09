@@ -27,7 +27,7 @@
 #
 module Shared
   class UserSerializer < ActiveModel::Serializer
-    attributes :id, :integrator_id, :avatar, :name, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :structure, :is_first_entry, :welcoming
+    attributes :id, :integrator_id, :avatar, :name, :integrator_type, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :structure, :is_first_entry, :welcoming
 
     def influencer_id
       object.social_influencer&.id
