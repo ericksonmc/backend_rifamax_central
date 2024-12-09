@@ -57,6 +57,23 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def validate_integration_token
+    header = request.headers['Authorization']
+    header = header.split(' ').last if header
+
+    begin
+      @structure_find = Shared::Structure.find_by(token: header.to_s)
+      if @structure_find
+        @structure = @structure_find
+        @structure_user = @structure_find.shared_user
+      else
+        @structure = nil
+        @structure_user = nil
+        render json: { error: 'Not allowed' }, status: :unauthorized
+      end
+    end
+  end
+
   def soft_authorize_request
     header = request.headers['Authorization']
     header = header.split(' ').last if header

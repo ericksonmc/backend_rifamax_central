@@ -3,6 +3,7 @@
 class AuthenticationController < ApplicationController
   before_action :authorize_request, except: %i[login social_login refresh integrator_login]
   before_action :soft_authorize_request, only: %i[refresh social_refresh]
+  before_action :validate_integration_token, only: %i[integrator_login]
   
   # POST /auth/login
   def login
@@ -34,31 +35,14 @@ class AuthenticationController < ApplicationController
 
   # POST /auth/connect/login
   def integrator_login
-    @email = params[:email]
+    @username = params[:username]
     @password = params[:password]
-    @token = params[:token]
-    @structure = Shared::Structure.find_by(token: @token)
+    @structure_id = params[:structure_id]
+    @structure_type = params[:structure_type]
 
-    if @token.nil? || @structure.nil?
-      @user = Shared::User.where(structure: @structure.id).find_by_email(params[:email])
+    result = Shared::User.login_integration(@username, @password, @structure_id, @structure_type)
 
-      if @user&.authenticate(params[:password])
-        time = 7.days.from_now
-        token = JsonWebToken.encode(
-          {
-            user_id: @user.id
-          }, 
-          time
-        )
-        render json: { token:, exp: time.strftime('%m-%d-%Y %H:%M'),
-                       user: Shared::UserSerializer.new(@user) }, status: :ok
-      else
-        render json: { error: 'Unauthorized' }, status: :unauthorized
-      end
-
-    else
-      render json: { message: 'Integrator token not found' }, status: :not_found
-    end
+    render json: result, status: :ok
   end
 
   # POST /social/auth/refresh

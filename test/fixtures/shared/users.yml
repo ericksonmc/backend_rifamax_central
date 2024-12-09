@@ -6,6 +6,7 @@
 #  avatar          :string
 #  dni             :string
 #  email           :string
+#  integrator_type :string
 #  is_active       :boolean
 #  is_first_entry  :boolean          default(FALSE)
 #  is_integration  :boolean          default(FALSE)

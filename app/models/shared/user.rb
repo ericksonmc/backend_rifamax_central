@@ -8,6 +8,7 @@
 #  avatar          :string
 #  dni             :string
 #  email           :string
+#  integrator_type :string
 #  is_active       :boolean
 #  is_first_entry  :boolean          default(FALSE)
 #  is_integration  :boolean          default(FALSE)
@@ -81,21 +82,17 @@ module Shared
               if: -> { phone[0..3] == '+58 ' }
 
     validates :phone,
-              presence: {
-                message: 'Debe introducir un número de teléfono'
-              },
-              uniqueness: {
-                message: 'Ya existe un cliente con este número de teléfono'
-              },
               format: {
                 with: /\A\+\d{1,4} \(\d{1,4}\) \d{1,10}-\d{1,10}\z/,
                 message: 'Introduzca un número de teléfono válido en el formato: +prefijo telefónico (codigo de area) tres primeros dígitos - dígitos restantes, por ejemplo: +58 (416) 000-0000'
-              }
+              },
+              if: -> { !is_integration }
 
     validates :email,
               presence: true,
               uniqueness: { case_sensitive: false },
-              format: { with: EMAIL_REGEX }
+              format: { with: EMAIL_REGEX },
+              if: -> { !is_integration }
 
     validates :password,
               length: { minimum: 6 },
@@ -104,7 +101,8 @@ module Shared
     validates :dni,
               presence: true,
               uniqueness: { case_sensitive: false },
-              length: { minimum: 6 }
+              length: { minimum: 6 },
+              if: -> { !is_integration }
 
     validate :validate_riferos
 
@@ -146,6 +144,56 @@ module Shared
       )
 
       return response
+    end
+
+    def self.login_integration(username, password, structure_id, structure_type)
+      raise StandardError.new("Add username") if username.blank?
+      raise StandardError.new("Add password") if password.blank?
+      raise StandardError.new("Add structure_id") if structure_id.nil?
+      raise StandardError.new("Add structure_type") if structure_type.blank?
+
+      @user = Shared::User.find_by(name: username, integrator_type: structure_type)
+
+      if @user.nil?
+        @new_integration = Shared::User.new(
+          id: Shared::User.last.id + 1,
+          name: username,
+          role: 'Taquilla',
+          dni: nil,
+          email: nil,
+          phone: '',
+          password: password,
+          password_confirmation: password,
+          slug: username.parameterize,
+          is_active: true,
+          rifero_ids: [],
+          module_assigned: [2],
+          is_integration: true,
+          is_first_entry: true,
+          welcoming: false,
+          structure_id: 1,
+          integrator_id: structure_id,
+          integrator_type: structure_type,
+        )
+
+        if @new_integration.save
+          time = 7.days.from_now
+          token = JsonWebToken.encode({ user_id: @new_integration.id }, time)
+
+          return { token: token, exp: time.strftime('%m-%d-%Y %H:%M'), user: Shared::UserSerializer.new(@new_integration) }
+        else
+          raise StandardError.new("Unauthorized")
+        end
+      else
+        if @user&.authenticate(password)
+          time = 7.days.from_now
+          token = JsonWebToken.encode({ user_id: @user.id }, time)
+          
+          return { token: token, exp: time.strftime('%m-%d-%Y %H:%M'), user: Shared::UserSerializer.new(@user) }
+        else
+          raise StandardError.new("Unauthorized")
+        end
+      end
     end
 
     def rafflers
