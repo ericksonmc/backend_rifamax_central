@@ -2,7 +2,7 @@
 
 module Rifamax
   class TicketsController < ApplicationController
-    before_action :authorize_request, only: %i[sell_all]
+    before_action :authorize_request, only: %i[sell_all sell_some]
     before_action :set_rifamax_ticket, only: %i[show update destroy]
 
     # GET /rifamax/tickets
@@ -61,6 +61,22 @@ module Rifamax
         render json: @rifamax_ticket
       else
         render json: @rifamax_ticket.errors, status: :unprocessable_entity
+      end
+    end
+
+    # PATCH/PUT /rifamax/tickets/sell_some
+    def sell_some
+      @tickets = Rifamax::Ticket.where(id: params[:ticket_ids])
+      @raffle = Rifamax::Raffle.find(params[:raffle_id])
+
+      if @raffle
+        @tickets.each do |ticket|
+          ticket.is_sold = true
+          ticket.save
+        end
+        render json: @tickets, status: :ok
+      else
+        render json: "Raffle doesn't exist", status: :not_found
       end
     end
 
