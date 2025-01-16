@@ -193,6 +193,24 @@ class Rifamax::Raffle < ApplicationRecord
     return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(self.tickets).object }
   end
 
+  def sell_some_tickets(tickets_ids = [])
+    raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested  
+    raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
+    raise StandardError.new "Ticket list is empty" if tickets_ids.empty?
+
+    tickets = self.tickets.where(id: tickets_ids).update_all(
+      is_sold: true
+    )
+
+    if self.tickets.where(is_sold: false).count == 0
+      self.update(
+        sell_status: 2
+      )
+    end
+
+    return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(tickets).object }
+  end
+
   # Shared::User.where(role: 'Taquilla').select { |taquilla| taquilla.rifero_ids.include?(@current_user.id) }.last.id
 
   private

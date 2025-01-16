@@ -22,6 +22,11 @@ module Rifamax
       @raffle = Rifamax::Raffle.find(params[:raffle_id])
 
       if @raffle
+        if @raffle.tickets.where(is_sold: false).count == 0
+          @raffle.update(
+            sell_status: 2
+          )
+        end
         render json: @raffle.tickets, status: :ok
       else
         render json: "Raffle doesn't exist", status: :not_found
@@ -66,18 +71,14 @@ module Rifamax
 
     # PATCH/PUT /rifamax/tickets/sell_some
     def sell_some
-      @tickets = Rifamax::Ticket.where(id: params[:ticket_ids])
-      @raffle = Rifamax::Raffle.find(params[:raffle_id])
-
-      if @raffle
-        @tickets.each do |ticket|
-          ticket.is_sold = true
-          ticket.save
-        end
-        render json: @tickets, status: :ok
-      else
-        render json: "Raffle doesn't exist", status: :not_found
-      end
+      begin
+        @tickets_ids = params[:tickets_ids] || []
+        @raffle = Rifamax::Raffle.find(params[:raffle_id])
+        @raffle.user_who_requested = @current_user.id
+        render json: @raffle.sell_some_tickets(@tickets_ids), status: :ok
+      rescue StandardError => e
+        render json: { message: e }, status: :unauthorized
+      end  
     end
 
     # DELETE /rifamax/tickets/1
