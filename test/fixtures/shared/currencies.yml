@@ -1,0 +1,19 @@
+# == Schema Information
+#
+# Table name: shared_currencies
+#
+#  id         :bigint           not null, primary key
+#  currency   :string
+#  label      :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  currency: MyString
+  label: MyString
+
+two:
+  currency: MyString
+  label: MyString
