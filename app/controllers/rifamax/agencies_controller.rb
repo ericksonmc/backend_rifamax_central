@@ -9,4 +9,5 @@ class Rifamax::AgenciesController < ApplicationController
 
   def serialize(data)
     ActiveModelSerializers::SerializableResource.new(data, each_serializer: Rifamax::AgencySerializer).as_json
+  end
 end
