@@ -232,6 +232,18 @@ module Shared
       self.save
     end
 
+    def sellers
+      raise NotAllowedException.new "Can't show sellers, user are not taquilla or admin." unless %w[Taquilla Admin].include?(role)
+
+      case role
+      when 'Taquilla'
+        Shared::User.where(id: rifero_ids)
+      when 'Admin'
+        Shared::User.where(role: 'Rifero')
+      end
+    end
+
+
     def self.has_role?(role)
       Shared::User.where(role:).count.positive?
     end
