@@ -284,6 +284,7 @@ module Rifamax
         :title,
         :init_date,
         :price,
+        :buy_amount,
         :numbers,
         :currency,
         :lotery,

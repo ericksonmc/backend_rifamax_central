@@ -4,6 +4,7 @@
 #
 #  id                     :bigint           not null, primary key
 #  admin_status           :integer
+#  buy_amount             :float
 #  currency               :string
 #  expired_date           :date
 #  init_date              :date

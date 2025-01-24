@@ -4,6 +4,7 @@
 #
 #  id                     :bigint           not null, primary key
 #  admin_status           :integer
+#  buy_amount             :float
 #  currency               :string
 #  expired_date           :date
 #  init_date              :date
@@ -121,6 +122,12 @@ class Rifamax::Raffle < ApplicationRecord
               greater_than: 0
             }
 
+  validates :buy_amount,
+            presence: true,
+            numericality: {
+              greater_than: 0
+            }
+
   # validate :validates_user
   # validate :validates_seller
   validate :validates_prizes
@@ -198,7 +205,9 @@ class Rifamax::Raffle < ApplicationRecord
     raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
     raise StandardError.new "Ticket list is empty" if tickets_ids.empty?
 
-    tickets = self.tickets.where(id: tickets_ids).update_all(
+    tickets = self.tickets.where(id: tickets_ids)
+    
+    tickets.update_all(
       is_sold: true
     )
 
@@ -208,7 +217,7 @@ class Rifamax::Raffle < ApplicationRecord
       )
     end
 
-    return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(tickets).object }
+    return { message: "Ticket has been sold!", tickets: ActiveModelSerializers::SerializableResource.new(tickets).as_json }
   end
 
   private
