@@ -104,6 +104,7 @@ Rails.application.routes.draw do
   end
 
   namespace :shared do
+    resources :lotteries
     resources :currencies
     resources :sprites
     resources :lobby
