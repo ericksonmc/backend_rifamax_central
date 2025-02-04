@@ -26,5 +26,9 @@
 module Rifamax
   class TicketSerializer < ActiveModel::Serializer
     attributes :id, :is_sold, :is_winner, :wildcard, :number_position, :uniq_identifier_serial
+
+    def uniq_identifier_serial
+      object.uniq_identifier_serial[0..5] + object.uniq_identifier_serial[-5..-1]
+    end
   end
 end
