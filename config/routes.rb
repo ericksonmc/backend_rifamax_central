@@ -6,10 +6,12 @@ require 'sidekiq/cron/web'
 # rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do 
   post '/login', to: 'authentication#login'
+  post '/refresh', to: 'authentication#refresh'
+  post '/auth/profile', to: 'authentication#profile'
   post '/social/login', to: 'authentication#social_login'
   post '/social/auth/refresh', to: 'authentication#social_refresh'
   post '/auth/connect/login', to: 'authentication#integrator_login'
-  post '/refresh', to: 'authentication#refresh'
+  post '/auth/verify_trz_access', to: 'authentication#verify_trz_access'
  
   namespace :social do
     get 'stats/index'

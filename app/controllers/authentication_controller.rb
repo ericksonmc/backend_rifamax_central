@@ -60,6 +60,22 @@ class AuthenticationController < ApplicationController
     end
   end
 
+  # POST /auth/profile
+  def profile
+    render json: Shared::UserSerializer.new(@current_user), status: :ok
+  end
+
+  # POST /auth/verify_trz_access
+  def verify_trz_access
+    roles_allowed = %w[Admin].freeze
+
+    if roles_allowed.include?(@current_user.role)
+      render json: Shared::UserSerializer.new(@current_user), status: :ok
+    else
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
+  end
+
   def refresh
     token = JsonWebToken.encode(user_id: @soft_user.id, exp: 15.days.from_now)
     time = Time.now + 15.days.to_i
