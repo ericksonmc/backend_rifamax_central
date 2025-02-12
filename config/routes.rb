@@ -8,11 +8,9 @@ Rails.application.routes.draw do
   post '/login', to: 'authentication#login'
   post '/refresh', to: 'authentication#refresh'
 
-  namespace :auth do
-    post 'profile', to: 'authentication#profile'
-    post 'connect/login', to: 'authentication#integrator_login'
-    post 'verify_trz_access', to: 'authentication#verify_trz_access'
-  end
+  post 'auth/profile', to: 'authentication#profile'
+  post 'auth/connect/login', to: 'authentication#integrator_login'
+  post 'auth/verify_trz_access', to: 'authentication#verify_trz_access'
  
   namespace :social do
     get 'stats/index'
