@@ -62,7 +62,7 @@ class AuthenticationController < ApplicationController
 
   # POST /auth/profile
   def profile
-    render json: Shared::UserSerializer.new(@current_user), status: :ok
+    render json: @current_user, status: :ok
   end
 
   # POST /auth/verify_trz_access
@@ -70,7 +70,7 @@ class AuthenticationController < ApplicationController
     roles_allowed = %w[Admin].freeze
 
     if roles_allowed.include?(@current_user.role)
-      render json: Shared::UserSerializer.new(@current_user), status: :ok
+      render json: @current_user, status: :ok
     else
       render json: { error: 'Unauthorized' }, status: :unauthorized
     end

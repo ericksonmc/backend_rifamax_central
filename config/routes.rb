@@ -7,16 +7,20 @@ require 'sidekiq/cron/web'
 Rails.application.routes.draw do 
   post '/login', to: 'authentication#login'
   post '/refresh', to: 'authentication#refresh'
-  post '/auth/profile', to: 'authentication#profile'
-  post '/social/login', to: 'authentication#social_login'
-  post '/social/auth/refresh', to: 'authentication#social_refresh'
-  post '/auth/connect/login', to: 'authentication#integrator_login'
-  post '/auth/verify_trz_access', to: 'authentication#verify_trz_access'
+
+  namespace :auth do
+    post 'profile', to: 'authentication#profile'
+    post 'connect/login', to: 'authentication#integrator_login'
+    post 'verify_trz_access', to: 'authentication#verify_trz_access'
+  end
  
   namespace :social do
     get 'stats/index'
     get 'details/index'
     get 'influencers/index'
+    post 'login', to: 'authentication#social_login'
+    post 'auth/refresh', to: 'authentication#social_refresh'
+
     resources :networks
     resources :raffles do
       get 'actives', on: :collection
