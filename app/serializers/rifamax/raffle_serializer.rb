@@ -8,6 +8,7 @@
 #  admin_status           :integer
 #  buy_amount             :float
 #  currency               :string
+#  details                :text
 #  expired_date           :date
 #  init_date              :date
 #  lotery                 :string
