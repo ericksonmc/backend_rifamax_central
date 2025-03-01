@@ -37,7 +37,7 @@
 #
 module Rifamax
   class RaffleSerializer < ActiveModel::Serializer
-    attributes :id, :admin_status, :currency, :expired_date, :init_date, :lotery, :numbers, :price, :prizes, :security, :sell_status, :title, :uniq_identifier_serial
+    attributes :id, :admin_status, :currency, :expired_date, :init_date, :lotery, :numbers, :price, :prizes, :security, :buy_amount, :sell_status, :title, :uniq_identifier_serial
 
     belongs_to :user, serializer: Shared::UserSerializer
     belongs_to :seller, serializer: Shared::UserSerializer
