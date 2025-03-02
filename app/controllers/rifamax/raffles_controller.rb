@@ -233,7 +233,7 @@ module Rifamax
       @rifamax_raffle.skip_status = true
       @rifamax_raffle.user_id = @current_user.id
       @rifamax_raffle.seller_id = @current_user.id
-      @rifamax_raffle.expired_date = 3.days.from_now
+      @rifamax_raffle.expired_date = 1.days.from_now
 
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
