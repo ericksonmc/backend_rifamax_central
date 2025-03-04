@@ -32,6 +32,7 @@ module X100
     attributes :id,
                :ad,
                :title,
+               :numbers,
                :draw_type,
                :status,
                :limit,

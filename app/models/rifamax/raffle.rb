@@ -38,6 +38,7 @@ class Rifamax::Raffle < ApplicationRecord
   enum sell_status: { available: 0, sent: 1, sold: 2 }
   enum admin_status: { pending: 0, payed: 1, unpayed: 2, refunded: 3 }
   
+  attr_accessor :need_buy
   attr_accessor :skip_status 
   attr_accessor :user_who_requested 
 
@@ -127,7 +128,8 @@ class Rifamax::Raffle < ApplicationRecord
             presence: true,
             numericality: {
               greater_than: 0
-            }
+            },
+            if: -> { buy_amount }
 
   # validate :validates_user
   # validate :validates_seller
