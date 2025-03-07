@@ -5,6 +5,7 @@
 #  id                     :bigint           not null, primary key
 #  admin_status           :integer
 #  buy_amount             :float
+#  buy_currency           :string
 #  currency               :string
 #  details                :text
 #  expired_date           :date
@@ -40,6 +41,10 @@ class Rifamax::Raffle < ApplicationRecord
   
   attr_accessor :need_buy
   attr_accessor :skip_status 
+  attr_accessor :cda_sell_type
+  attr_accessor :subdomain
+  attr_accessor :tokenspj
+  attr_accessor :payload
   attr_accessor :user_who_requested 
 
   # Triggers and Callbacks
@@ -60,7 +65,7 @@ class Rifamax::Raffle < ApplicationRecord
   # Important variables
   CURRENCIES = %w[USD VES COP].freeze
 
-  LOTERIES = ['Zulia 7A', 'Zulia 7B', 'Triple Pelotica'].freeze 
+  LOTERIES = ['Zulia 7A', 'Zulia 7B', 'Triple Pelotica', 'Triple Rifamax Zodiacal'].freeze 
 
   ZODIAC = %w[
     Aries
@@ -129,7 +134,12 @@ class Rifamax::Raffle < ApplicationRecord
             numericality: {
               greater_than: 0
             },
-            if: -> { buy_amount }
+            if: -> { need_buy }
+
+  validates :buy_currency,
+            presence: true,
+            inclusion: { in: CURRENCIES },
+            if: -> { need_buy }
 
   # validate :validates_user
   # validate :validates_seller
@@ -188,6 +198,16 @@ class Rifamax::Raffle < ApplicationRecord
     return total_amounts
   end
 
+  def handle_cda_payment
+    validate_sell_type!
+    validate_spj_token!
+    validate_raffle_status!
+    validate_payload!
+    validate_subdomain_presence!
+  
+    process_payment_action
+  end
+  
   def sell_all_tickets
     raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested  
     raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
@@ -225,6 +245,86 @@ class Rifamax::Raffle < ApplicationRecord
 
   private
 
+  PAYMENT_ACTIONS = %w[pay confirm].freeze
+  MISSING_SPJ_TOKEN = "Can't perform this action without a SPJ token".freeze
+  RAFFLE_NOT_PENDING = 'This raffle is not pending'.freeze
+  MISSING_PAYLOAD = 'Payload must be present in the request body'.freeze
+  INVALID_SELL_TYPE = 'Invalid sell type'.freeze
+  MISSING_SUBDOMAIN = 'Subdomain must be included to perform this action'.freeze
+
+  def pay_triple_body(payload = {}, tokenspj)
+    @result = HTTParty.post(
+      "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
+      :body => payload.to_json,
+      :headers => {
+        'Content-Type' => 'application/json',
+        'TokenSpj' => tokenspj.to_s
+      }
+    )
+
+    return unless @result.code == 200
+      raise StandardError, "Something failed in payment of triple"
+    else
+      @result.body
+    end
+  end
+
+  def confirm_triple_body(payload = {}, tokenspj, subdomain)
+    @result = HTTParty.post(
+      "#{ENV['cda_url_base']}/centinela/api/v1/ventas/confirmar_venta",
+      :body => payload.to_json,
+      :headers => {
+        'Content-Type' => 'application/json',
+        'subdomain' => subdomain.to_s,
+        'Tokenspj' => tokenspj.to_s
+      }
+    )
+
+    return unless @result.code == 200
+      raise StandardError, "Something failed in confirmation of triple"
+    else
+      @result.body
+    end
+  end
+
+  def validate_sell_type!
+    return if PAYMENT_ACTIONS.include?(cda_sell_type)
+
+    raise ArgumentError, INVALID_SELL_TYPE
+  end
+
+  def validate_spj_token!
+    return if tokenspj.present?
+
+    raise ArgumentError, MISSING_SPJ_TOKEN
+  end
+
+  def validate_raffle_status!
+    return if admin_status == 'pending'
+
+    raise ArgumentError, RAFFLE_NOT_PENDING
+  end
+
+  def validate_payload!
+    return if payload.present?
+
+    raise ArgumentError, MISSING_PAYLOAD
+  end
+
+  def validate_subdomain_presence!
+    return unless cda_sell_type == 'confirm'
+    return if subdomain.present?
+
+    raise ArgumentError, MISSING_SUBDOMAIN
+  end
+
+  def process_payment_action
+    case cda_sell_type
+    when 'pay'      then pay_triple_body(payload, tokenspj)
+    when 'confirm'  then confirm_triple_body(payload, tokenspj, subdomain)
+    end
+  end
+
   def self.statues_by_endpoint(endpoint)
     case endpoint
     when 'newest'
@@ -254,6 +354,9 @@ class Rifamax::Raffle < ApplicationRecord
       generate_tickets_for_category(ZODIAC)
       set_security(ZODIAC)
     when 'Zulia 7B'
+      generate_tickets_for_category(ZODIAC)
+      set_security(ZODIAC)
+    when 'Tripler Rifamax Zodiacal'
       generate_tickets_for_category(ZODIAC)
       set_security(ZODIAC)
     when 'Triple Pelotica'

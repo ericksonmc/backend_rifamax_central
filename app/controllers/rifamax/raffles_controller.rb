@@ -151,6 +151,29 @@ module Rifamax
       end
     end
 
+    # POST /rifamax/raffles/triple_pay
+    def triple_pay
+      @tokenspj = request.headers['Tokenspj']
+      @subdomain = request.headers['subdomain']
+      @cda_sell_type = rifamax_raffle_triple_pay_params[:cda_sell_type]
+      @payload = rifamax_raffle_triple_pay_params[:payload]
+      
+      @rifamax_raffle = Rifamax::Raffle.find(rifamax_raffle_triple_pay_params[:id])
+      
+      begin
+        @rifamax_raffle.cda_sell_type = @cda_sell_type
+        @rifamax_raffle.subdomain = @subdomain
+        @rifamax_raffle.tokenspj = @tokenspj
+        @rifamax_raffle.payload = @payload
+
+        result = @rifamax_raffle.handle_cda_payment
+      rescue StandardError => e
+        render json: { message: e }, status: :unprocessable_entity
+      else
+        render json: result, status: :ok
+      end
+    end
+
     # POST /rifamax/raffles/unpay
     def unpay
       @rifamax_raffle = Rifamax::Raffle.find(params[:raffle_id])
@@ -217,6 +240,7 @@ module Rifamax
     def create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.user_id = @current_user.id
+      @rifamax_raffle.need_buy = true
 
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
@@ -231,6 +255,9 @@ module Rifamax
       @rifamax_raffle.sell_status = 1
       @rifamax_raffle.admin_status = 0
       @rifamax_raffle.skip_status = true
+      @rifamax_raffle.lotery = 'Triple Rifamax Zodiacal'
+      @rifamax_raffle.currency = 'USD'
+      @rifamax_raffle.buy_currency = rifamax_raffle_params[:currency]
       @rifamax_raffle.user_id = @current_user.id
       @rifamax_raffle.seller_id = @current_user.id
       @rifamax_raffle.expired_date = 1.days.from_now
@@ -276,6 +303,16 @@ module Rifamax
       params.require(:rifamax_raffle).permit(
         :id,
         :details,
+        payment_info: [:price, :currency]
+      )
+    end
+
+    def rifamax_raffle_triple_pay_params
+      params.require(:rifamax_raffle).permit(
+        :id,
+        :details,
+        :cda_sell_type,
+        :payload,
         payment_info: [:price, :currency]
       )
     end

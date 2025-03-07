@@ -7,6 +7,7 @@
 #  id                     :bigint           not null, primary key
 #  admin_status           :integer
 #  buy_amount             :float
+#  buy_currency           :string
 #  currency               :string
 #  details                :text
 #  expired_date           :date
@@ -37,7 +38,7 @@
 #
 module Rifamax
   class RaffleSerializer < ActiveModel::Serializer
-    attributes :id, :admin_status, :currency, :expired_date, :init_date, :lotery, :numbers, :price, :prizes, :security, :buy_amount, :sell_status, :title, :uniq_identifier_serial
+    attributes :id, :admin_status, :currency, :expired_date, :init_date, :lotery, :numbers, :price, :buy_currency, :prizes, :security, :buy_amount, :sell_status, :title, :uniq_identifier_serial
 
     belongs_to :user, serializer: Shared::UserSerializer
     belongs_to :seller, serializer: Shared::UserSerializer

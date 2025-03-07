@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_16_152020) do
+ActiveRecord::Schema[7.0].define(version: 2025_03_07_221758) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -94,6 +94,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_16_152020) do
     t.datetime "updated_at", null: false
     t.float "buy_amount"
     t.text "details"
+    t.string "buy_currency"
     t.index ["seller_id"], name: "index_rifamax_raffles_on_seller_id"
     t.index ["user_id"], name: "index_rifamax_raffles_on_user_id"
   end
