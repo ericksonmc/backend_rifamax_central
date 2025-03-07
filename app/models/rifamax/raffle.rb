@@ -262,7 +262,7 @@ class Rifamax::Raffle < ApplicationRecord
       }
     )
 
-    return unless @result.code == 200
+    unless @result.code == 200
       raise StandardError, "Something failed in payment of triple"
     else
       @result.body
@@ -280,7 +280,7 @@ class Rifamax::Raffle < ApplicationRecord
       }
     )
 
-    return unless @result.code == 200
+    unless @result.code == 200
       raise StandardError, "Something failed in confirmation of triple"
     else
       @result.body
