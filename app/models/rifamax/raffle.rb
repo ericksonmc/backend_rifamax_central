@@ -44,6 +44,7 @@ class Rifamax::Raffle < ApplicationRecord
   attr_accessor :cda_sell_type
   attr_accessor :subdomain
   attr_accessor :tokenspj
+  attr_accessor :cda_jwt
   attr_accessor :payload
   attr_accessor :user_who_requested 
 
@@ -252,13 +253,14 @@ class Rifamax::Raffle < ApplicationRecord
   INVALID_SELL_TYPE = 'Invalid sell type'.freeze
   MISSING_SUBDOMAIN = 'Subdomain must be included to perform this action'.freeze
 
-  def pay_triple_body(payload = {}, tokenspj)
+  def pay_triple_body(payload = {}, tokenspj, jwt)
     @result = HTTParty.post(
       "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
       :body => payload.to_json,
       :headers => {
         'Content-Type' => 'application/json',
-        'TokenSpj' => tokenspj.to_s
+        'TokenSpj' => tokenspj.to_s,
+        'Authorization' => "Bearer #{jwt.to_s}"
       }
     )
 
@@ -269,14 +271,15 @@ class Rifamax::Raffle < ApplicationRecord
     end
   end
 
-  def confirm_triple_body(payload = {}, tokenspj, subdomain)
+  def confirm_triple_body(payload = {}, tokenspj, subdomain, jwt)
     @result = HTTParty.post(
       "#{ENV['cda_url_base']}/centinela/api/v1/ventas/confirmar_venta",
       :body => payload.to_json,
       :headers => {
         'Content-Type' => 'application/json',
         'subdomain' => subdomain.to_s,
-        'Tokenspj' => tokenspj.to_s
+        'Tokenspj' => tokenspj.to_s,
+        'Authorization' => "Bearer #{jwt.to_s}"
       }
     )
 
@@ -320,8 +323,8 @@ class Rifamax::Raffle < ApplicationRecord
 
   def process_payment_action
     case cda_sell_type
-    when 'pay'      then pay_triple_body(payload, tokenspj)
-    when 'confirm'  then confirm_triple_body(payload, tokenspj, subdomain)
+    when 'pay'      then pay_triple_body(payload, tokenspj, cda_jwt)
+    when 'confirm'  then confirm_triple_body(payload, tokenspj, subdomain, cda_jwt)
     end
   end
 

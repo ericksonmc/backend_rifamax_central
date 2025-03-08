@@ -154,6 +154,7 @@ module Rifamax
     # POST /rifamax/raffles/triple_pay
     def triple_pay
       @tokenspj = request.headers['Tokenspj']
+      @cda_jwt = request.headers['cdajwt']
       @subdomain = request.headers['subdomain']
       @cda_sell_type = rifamax_raffle_triple_pay_params[:cda_sell_type]
       @payload = rifamax_raffle_triple_pay_params[:payload]
@@ -164,6 +165,7 @@ module Rifamax
         @rifamax_raffle.cda_sell_type = @cda_sell_type
         @rifamax_raffle.subdomain = @subdomain
         @rifamax_raffle.tokenspj = @tokenspj
+        @rifamax_raffle.cda_jwt = @cda_jwt
         @rifamax_raffle.payload = @payload
 
         result = @rifamax_raffle.handle_cda_payment

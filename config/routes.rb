@@ -89,6 +89,7 @@ Rails.application.routes.draw do
       get 'report', on: :collection
       get 'is_blocked', on: :collection
       post 'pay', on: :collection
+      post 'triple_pay', on: :collection
       post 'unpay', on: :collection
       post 'refund', on: :collection
       post 'repeat', on: :collection
