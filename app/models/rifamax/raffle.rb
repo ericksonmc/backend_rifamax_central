@@ -359,7 +359,7 @@ class Rifamax::Raffle < ApplicationRecord
     when 'Zulia 7B'
       generate_tickets_for_category(ZODIAC)
       set_security(ZODIAC)
-    when 'Tripler Rifamax Zodiacal'
+    when 'Triple Rifamax Zodiacal'
       generate_tickets_for_category(ZODIAC)
       set_security(ZODIAC)
     when 'Triple Pelotica'

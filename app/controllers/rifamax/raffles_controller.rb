@@ -257,7 +257,7 @@ module Rifamax
       @rifamax_raffle.sell_status = 1
       @rifamax_raffle.admin_status = 0
       @rifamax_raffle.skip_status = true
-      @rifamax_raffle.lotery = 'Triple Rifamax Zodiacal'
+      # @rifamax_raffle.lotery = 'Triple Rifamax Zodiacal'
       @rifamax_raffle.currency = 'USD'
       @rifamax_raffle.buy_currency = rifamax_raffle_params[:currency]
       @rifamax_raffle.user_id = @current_user.id
@@ -312,7 +312,6 @@ module Rifamax
     def rifamax_raffle_triple_pay_params
       params.require(:rifamax_raffle).permit(
         :id,
-        :details,
         :cda_sell_type,
         :payload,
         payment_info: [:price, :currency]
