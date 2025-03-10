@@ -409,12 +409,10 @@ module X100
       return { raffle_id: self.id, progress: progress, current_solds: self.x100_tickets.where(status: 'sold').count }
     end
 
-    private
-
     def calculate_combo_total(quantity)
       return 0 if quantity <= 0
       
-      valid_combos = self.combos
+      valid_combos = (self.combos || [])
                       .select { |c| c['price'] < c['quantity'] * price_unit }
                       .sort_by { |c| -c['quantity'] }
       
@@ -437,6 +435,9 @@ module X100
       total += remaining * price_unit
       total.round(2)
     end
+
+    private
+
 
     def validates_raffle_type
       if tickets_count === 1000
