@@ -269,6 +269,9 @@ module X100
       tickets_selected = []
       exchange =  Shared::Exchange.last
 
+      combo_total = calculate_combo_total(quantity)
+      total_amount = (combo_total * rates[money.to_sym]).round(2)
+
       rates = {
         "VES": exchange.value_bs,
         "COP": exchange.value_cop,
@@ -295,7 +298,7 @@ module X100
 
       @order = X100::Order.new(
         products: tickets_selected.map(&:position),
-        amount: tickets_selected.map(&:price).sum,
+        amount: total_amount,
         serial: "ORD-#{SecureRandom.hex(8).upcase}",
         ordered_at: DateTime.now,
         money: money,
@@ -407,6 +410,33 @@ module X100
     end
 
     private
+
+    def calculate_combo_total(quantity)
+      return 0 if quantity <= 0
+      
+      valid_combos = self.combos
+                      .select { |c| c['price'] < c['quantity'] * price_unit }
+                      .sort_by { |c| -c['quantity'] }
+      
+      remaining = quantity
+      total = 0.0
+
+      valid_combos.each do |combo|
+        next if remaining <= 0
+
+        combo_quantity = combo['quantity'].to_i
+        combo_price = combo['price'].to_f
+
+        count = (remaining / combo_quantity).floor
+        next if count == 0
+
+        total += count * combo_price
+        remaining -= count * combo_quantity
+      end
+
+      total += remaining * price_unit
+      total.round(2)
+    end
 
     def validates_raffle_type
       if tickets_count === 1000
