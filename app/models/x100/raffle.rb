@@ -194,9 +194,9 @@ module X100
         when 'USD'
           combo_total
         when 'VES'
-          combo_total * currency.value_bs
+          combo_total * currency_today.value_bs
         when 'COP'
-          combo_total * currency.value_cop
+          combo_total * currency_today.value_cop
         else
           combo_total
         end
