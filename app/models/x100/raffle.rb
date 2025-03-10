@@ -188,6 +188,20 @@ module X100
           self.price_unit
         end
 
+        combo_total = calculate_combo_total(quantity)
+
+        order_total_price = case currency
+        when 'USD'
+          combo_total
+        when 'VES'
+          combo_total * currency.value_bs
+        when 'COP'
+          combo_total * currency.value_cop
+        else
+          combo_total
+        end
+
+
         @semaphore.synchronize {
           result = []
           positions = []
@@ -223,7 +237,7 @@ module X100
           end
 
           order = X100::Order.new(
-            amount: (price_calculated * quantity).round(2),
+            amount: order_total_price.round(2),
             integrator: integrator_type,
             products: positions,
             serial: "ORD-#{SecureRandom.hex(8).upcase}",
