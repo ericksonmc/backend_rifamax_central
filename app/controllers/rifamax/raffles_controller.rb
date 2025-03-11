@@ -153,7 +153,6 @@ module Rifamax
 
     # POST /rifamax/raffles/triple_pay
     def triple_pay
-      require byebug()
       @tokenspj = request.headers['Tokenspj']
       @cda_jwt = request.headers['cdajwt']
       @subdomain = request.headers['subdomain']
@@ -168,8 +167,6 @@ module Rifamax
         @rifamax_raffle.tokenspj = @tokenspj
         @rifamax_raffle.cda_jwt = @cda_jwt
         @rifamax_raffle.payload = @payload.to_json.to_s
-
-        byebug()
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
@@ -316,8 +313,14 @@ module Rifamax
       params.require(:rifamax_raffle).permit(
         :id,
         :cda_sell_type,
-        :payload,
-        payment_info: [:price, :currency]
+        payment_info: [:price, :currency],
+        payload: [
+          :fec, :ts, :correo, :compress, :cupon, :usa_cupon, :app, :jp, 
+          :ani, :tip, :uti, :cod, :ven, :ani_tipo, :producto_id, 
+          :beneficiencia, :cda, :loterias, :cajero_id, :cedula, 
+          :telefono, :banco_id, :ticket,
+          jug: [:i, :n, :s, :c, :m],
+        ]
       )
     end
 
