@@ -153,12 +153,13 @@ module Rifamax
 
     # POST /rifamax/raffles/triple_pay
     def triple_pay
+      require byebug()
       @tokenspj = request.headers['Tokenspj']
       @cda_jwt = request.headers['cdajwt']
       @subdomain = request.headers['subdomain']
       @cda_sell_type = rifamax_raffle_triple_pay_params[:cda_sell_type]
       @payload = rifamax_raffle_triple_pay_params[:payload]
-      
+
       @rifamax_raffle = Rifamax::Raffle.find(rifamax_raffle_triple_pay_params[:id])
       
       begin
@@ -166,7 +167,9 @@ module Rifamax
         @rifamax_raffle.subdomain = @subdomain
         @rifamax_raffle.tokenspj = @tokenspj
         @rifamax_raffle.cda_jwt = @cda_jwt
-        @rifamax_raffle.payload = @payload.to_json
+        @rifamax_raffle.payload = @payload.to_json.to_s
+
+        byebug()
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
