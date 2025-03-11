@@ -170,7 +170,7 @@ module Rifamax
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
-        render json: { message: e }, status: :unprocessable_entity
+        render json: { exception: e }, status: :unprocessable_entity
       else
         render json: result, status: :ok
       end

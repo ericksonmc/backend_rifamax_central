@@ -265,7 +265,7 @@ class Rifamax::Raffle < ApplicationRecord
     )
 
     unless @result.code == 200
-      raise StandardError, "Something failed in payment of triple"
+      raise StandardError, { message: "Something failed in payment of triple", data: @result.body, code: @result.code }
     else
       @result.body
     end
