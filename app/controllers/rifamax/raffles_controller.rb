@@ -166,7 +166,7 @@ module Rifamax
         @rifamax_raffle.subdomain = @subdomain
         @rifamax_raffle.tokenspj = @tokenspj
         @rifamax_raffle.cda_jwt = @cda_jwt
-        @rifamax_raffle.payload = @payload
+        @rifamax_raffle.payload = @payload.to_json
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e

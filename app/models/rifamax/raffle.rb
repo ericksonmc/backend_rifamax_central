@@ -200,13 +200,13 @@ class Rifamax::Raffle < ApplicationRecord
   end
 
   def handle_cda_payment
-    validate_sell_type!
-    validate_spj_token!
-    validate_raffle_status!
-    validate_payload!
-    validate_subdomain_presence!
+    validate_sell_type! #           Check
+    validate_spj_token! #           Check
+    validate_raffle_status! #       Check
+    validate_payload! #             Error
+    validate_subdomain_presence! #  Unknown
   
-    process_payment_action
+    process_payment_action #        Unknown
   end
   
   def sell_all_tickets
@@ -323,8 +323,8 @@ class Rifamax::Raffle < ApplicationRecord
 
   def process_payment_action
     case cda_sell_type
-    when 'pay'      then pay_triple_body(payload, tokenspj, cda_jwt)
-    when 'confirm'  then confirm_triple_body(payload, tokenspj, subdomain, cda_jwt)
+    when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, cda_jwt)
+    when 'confirm'  then confirm_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt)
     end
   end
 
