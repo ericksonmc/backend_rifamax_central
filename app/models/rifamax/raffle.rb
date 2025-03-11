@@ -264,8 +264,8 @@ class Rifamax::Raffle < ApplicationRecord
       }
     )
 
-    unless @result.code == 200
-      raise StandardError, { message: "Something failed in payment of triple", data: @result.body, code: @result.code }
+    unless @result.code == 200  
+      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     else
       @result.body
     end
@@ -284,7 +284,7 @@ class Rifamax::Raffle < ApplicationRecord
     )
 
     unless @result.code == 200
-      raise StandardError, "Something failed in confirmation of triple"
+      raise StandardError, JSON.parse({ message: "Something failed in confirmation of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     else
       @result.body
     end
