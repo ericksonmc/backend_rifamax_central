@@ -47,6 +47,7 @@ class Rifamax::Raffle < ApplicationRecord
   attr_accessor :cda_jwt
   attr_accessor :payload
   attr_accessor :user_who_requested 
+  attr_accessor :payment_pre_info
 
   # Triggers and Callbacks
   before_create :initiliaze_statues, :unless => :skip_status
@@ -253,7 +254,7 @@ class Rifamax::Raffle < ApplicationRecord
   INVALID_SELL_TYPE = 'Invalid sell type'.freeze
   MISSING_SUBDOMAIN = 'Subdomain must be included to perform this action'.freeze
 
-  def pay_triple_body(payload = {}, tokenspj, subdomain, jwt)
+  def pay_triple_body(payload = {}, tokenspj, subdomain, jwt, raffle_id, payment_info)
     @result = HTTParty.post(
       "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
       :body => payload.to_json,
@@ -268,11 +269,14 @@ class Rifamax::Raffle < ApplicationRecord
     unless @result.code == 200  
       raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     else
+      if @result["cmd"] == 'C10'
+        Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])
+      end
       @result.body
     end
   end
 
-  def confirm_triple_body(payload = {}, tokenspj, subdomain, jwt)
+  def confirm_triple_body(payload = {}, tokenspj, subdomain, jwt, raffle_id, payment_info)
     @result = HTTParty.post(
       "#{ENV['cda_url_base']}/centinela/api/v1/ventas/confirmar_venta",
       :body => payload.to_json,
@@ -287,6 +291,7 @@ class Rifamax::Raffle < ApplicationRecord
     unless @result.code == 200
       raise StandardError, JSON.parse({ message: "Something failed in confirmation of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     else
+      Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])
       @result.body
     end
   end
@@ -324,8 +329,8 @@ class Rifamax::Raffle < ApplicationRecord
 
   def process_payment_action
     case cda_sell_type
-    when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt)
-    when 'confirm'  then confirm_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt)
+    when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt, self.id, payment_pre_info)
+    when 'confirm'  then confirm_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt, self.id, payment_pre_info)
     end
   end
 

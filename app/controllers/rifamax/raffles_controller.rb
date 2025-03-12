@@ -158,6 +158,7 @@ module Rifamax
       @subdomain = request.headers['subdomain']
       @cda_sell_type = rifamax_raffle_triple_pay_params[:cda_sell_type]
       @payload = rifamax_raffle_triple_pay_params[:payload]
+      @payment_info = rifamax_raffle_triple_pay_params[:payment_info]
 
       @rifamax_raffle = Rifamax::Raffle.find(rifamax_raffle_triple_pay_params[:id])
       
@@ -167,6 +168,7 @@ module Rifamax
         @rifamax_raffle.tokenspj = @tokenspj
         @rifamax_raffle.cda_jwt = @cda_jwt
         @rifamax_raffle.payload = @payload.to_json.to_s
+        @rifamax_raffle.payment_pre_info = @payment_info
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
@@ -296,7 +298,6 @@ module Rifamax
       ActiveModelSerializers::SerializableResource.new(raffles, each_serializer: Rifamax::RaffleSerializer)
     end
 
-    # Use callbacks to share common setup or constraints between actions.
     def set_rifamax_raffle
       @rifamax_raffle = Rifamax::Raffle.find(params[:id])
     end
@@ -324,7 +325,6 @@ module Rifamax
       )
     end
 
-    # Only allow a list of trusted parameters through.
     def rifamax_raffle_params
       params.require(:rifamax_raffle).permit(
         :title,
