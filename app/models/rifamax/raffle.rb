@@ -253,12 +253,13 @@ class Rifamax::Raffle < ApplicationRecord
   INVALID_SELL_TYPE = 'Invalid sell type'.freeze
   MISSING_SUBDOMAIN = 'Subdomain must be included to perform this action'.freeze
 
-  def pay_triple_body(payload = {}, tokenspj, jwt)
+  def pay_triple_body(payload = {}, tokenspj, subdomain, jwt)
     @result = HTTParty.post(
       "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
       :body => payload.to_json,
       :headers => {
         'Content-Type' => 'application/json',
+        'subdomain' => subdomain.to_s,
         'TokenSpj' => tokenspj.to_s,
         'Authorization' => "Bearer #{jwt.to_s}"
       }
@@ -323,7 +324,7 @@ class Rifamax::Raffle < ApplicationRecord
 
   def process_payment_action
     case cda_sell_type
-    when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, cda_jwt)
+    when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt)
     when 'confirm'  then confirm_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt)
     end
   end
