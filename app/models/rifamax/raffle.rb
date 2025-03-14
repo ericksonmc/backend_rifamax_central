@@ -212,7 +212,7 @@ class Rifamax::Raffle < ApplicationRecord
   
   def sell_all_tickets
     raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested  
-    raise StandardError.new "You can't sold tickets if you don't pay the raffle first" if admin_status == 'payed'
+    raise StandardError.new "You can't sold tickets if you don't pay the raffle first" unless admin_status == 'payed'
     raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
     raise StandardError.new "Ticket list is empty" if tickets_ids.empty?
 
@@ -229,7 +229,7 @@ class Rifamax::Raffle < ApplicationRecord
 
   def sell_some_tickets(tickets_ids = [])
     raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested  
-    raise StandardError.new "You can't sold tickets if you don't pay the raffle first" if admin_status == 'payed'
+    raise StandardError.new "You can't sold tickets if you don't pay the raffle first" unless admin_status == 'payed'
     raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
     raise StandardError.new "Ticket list is empty" if tickets_ids.empty?
 
