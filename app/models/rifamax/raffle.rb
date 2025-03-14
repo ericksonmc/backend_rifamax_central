@@ -201,13 +201,13 @@ class Rifamax::Raffle < ApplicationRecord
   end
 
   def handle_cda_payment
-    validate_sell_type! #           Check
-    validate_spj_token! #           Check
-    validate_raffle_status! #       Check
-    validate_payload! #             Error
-    validate_subdomain_presence! #  Unknown
+    validate_sell_type!
+    validate_spj_token!
+    validate_raffle_status!
+    validate_payload!
+    validate_subdomain_presence!
   
-    process_payment_action #        Unknown
+    process_payment_action
   end
   
   def sell_all_tickets
@@ -321,7 +321,6 @@ class Rifamax::Raffle < ApplicationRecord
   end
 
   def validate_subdomain_presence!
-    return unless cda_sell_type == 'confirm'
     return if subdomain.present?
 
     raise ArgumentError, MISSING_SUBDOMAIN
