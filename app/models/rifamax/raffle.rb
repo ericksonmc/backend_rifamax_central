@@ -250,7 +250,7 @@ class Rifamax::Raffle < ApplicationRecord
 
   private
 
-  PAYMENT_ACTIONS = %w[pay confirm].freeze
+  PAYMENT_ACTIONS = %w[pay confirm refund].freeze
   MISSING_SPJ_TOKEN = "Can't perform this action without a SPJ token".freeze
   RAFFLE_NOT_PENDING = 'This raffle is not pending'.freeze
   MISSING_PAYLOAD = 'Payload must be present in the request body'.freeze
@@ -276,6 +276,28 @@ class Rifamax::Raffle < ApplicationRecord
         Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])
       end
       @result.body
+    end
+  end
+
+  def refund_triple_body(payload = {}, tokenspj, subdomain, jwt, raffle_id)
+    @result = HTTParty.post(
+      "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
+      :body => payload.to_json,
+      :headers => {
+        'Content-Type' => 'application/json',
+        'subdomain' => subdomain.to_s,
+        'TokenSpj' => tokenspj.to_s,
+        'Authorization' => "Bearer #{jwt.to_s}"
+      }
+    )
+
+    unless @result.code == 200  
+      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
+    else
+      if @result["cmd"] == 'C16'
+        Rifamax::Raffle.find(raffle_id).update(admin_status: 3, details: @result["ticket"])
+      end
+      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     end
   end
 
@@ -333,6 +355,7 @@ class Rifamax::Raffle < ApplicationRecord
     case cda_sell_type
     when 'pay'      then pay_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt, self.id, payment_pre_info)
     when 'confirm'  then confirm_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt, self.id, payment_pre_info)
+    when 'refund'      then refund_triple_body(JSON.parse(payload), tokenspj, subdomain, cda_jwt, self.id)
     end
   end
 
