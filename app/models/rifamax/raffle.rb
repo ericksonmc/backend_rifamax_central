@@ -297,7 +297,7 @@ class Rifamax::Raffle < ApplicationRecord
       if @result["cmd"] == 'C16'
         Rifamax::Raffle.find(raffle_id).update(admin_status: 3, details: @result["ticket"])
       end
-      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
+      raise StandardError, JSON.parse({ message: "Something failed reversing triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     end
   end
 
