@@ -275,6 +275,7 @@ class Rifamax::Raffle < ApplicationRecord
       if @result["cmd"] == 'C10'
         Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])
       end
+      rails.logger.debug @result.body
       @result.body
     end
   end
@@ -317,6 +318,7 @@ class Rifamax::Raffle < ApplicationRecord
       raise StandardError, JSON.parse({ message: "Something failed in confirmation of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
     else
       Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])
+      rails.logger.debug @result.body
       @result.body
     end
   end

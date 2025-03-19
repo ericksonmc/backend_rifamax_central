@@ -30,6 +30,8 @@ module RifamaxCentralBackend
     config.global_thread = Mutex.new
     config.global_queue = []
 
+    config.logger = Logger.new(STDOUT)
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
