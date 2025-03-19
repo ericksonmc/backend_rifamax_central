@@ -281,7 +281,7 @@ class Rifamax::Raffle < ApplicationRecord
 
   def refund_triple_body(payload = {}, tokenspj, subdomain, jwt, raffle_id)
     @result = HTTParty.post(
-      "#{ENV['cda_url_base']}/centinela/api/v1/ventas/nueva_venta_v2",
+      "#{ENV['cda_url_base']}/centinela/api/v1/ventas/reversar_venta",
       :body => payload.to_json,
       :headers => {
         'Content-Type' => 'application/json',
