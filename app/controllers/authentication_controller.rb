@@ -18,7 +18,7 @@ class AuthenticationController < ApplicationController
     end
   end
 
-  # POST /admin/login
+  # POST /social/login
   def social_login
     @user = Shared::User.find_by_email(params[:email])
     allowed_roles = %w[Admin Influencer]

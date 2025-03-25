@@ -7,6 +7,7 @@ require 'sidekiq/cron/web'
 Rails.application.routes.draw do 
   post '/login', to: 'authentication#login'
   post '/refresh', to: 'authentication#refresh'
+  post '/social/login', to: 'authentication#social_login'
 
   post 'auth/profile', to: 'authentication#profile'
   post 'auth/connect/login', to: 'authentication#integrator_login'
