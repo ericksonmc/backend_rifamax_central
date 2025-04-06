@@ -3,6 +3,8 @@
 # Table name: x100_tickets
 #
 #  id             :bigint           not null, primary key
+#  apart_ends     :datetime
+#  aparted_by     :integer
 #  money          :string
 #  position       :integer
 #  price          :float

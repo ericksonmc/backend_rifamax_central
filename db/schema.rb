@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_03_07_221758) do
+ActiveRecord::Schema[7.0].define(version: 2025_04_06_214408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -418,6 +418,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_07_221758) do
     t.bigint "x100_client_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "apart_ends"
+    t.integer "aparted_by"
     t.index ["x100_client_id"], name: "index_x100_tickets_on_x100_client_id"
     t.index ["x100_raffle_id"], name: "index_x100_tickets_on_x100_raffle_id"
   end

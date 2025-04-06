@@ -226,8 +226,10 @@ module X100
         render_not_found("Ticket with position: #{find_raffles_by_params[:position]} can't be apart")
       elsif @x100_ticket.available?
         return raffle_is_closed_error if @x100_ticket.status == 'Cerrada'
-
+        
+        @x100_ticket.requester_id = @current_user.id
         X100::Ticket.apart_ticket(@x100_ticket.id)
+        @x100_ticket.apart_ends = DateTime.now + 5.minutes
         broadcast_transaction
         render json: { message: 'Ticket aparted', ticket: @x100_ticket }, status: :ok
       else

@@ -586,20 +586,26 @@ module X100
     end
 
     def self.all_sold_tickets
-      raffles = X100::Raffle.where(status: ['En venta', 'Finalizando'])
-
-      result = []
-
-      raffles.each do |raffle|
-        result << {
+      raffles = X100::Raffle
+        .where(status: ['En venta', 'Finalizando'])
+        .includes(:x100_tickets)
+    
+      raffles.map do |raffle|
+        tickets_by_status = raffle.x100_tickets.group_by(&:status)
+        
+        {
           raffle_id: raffle.id,
-          sold: raffle.x100_tickets.where(status: 'sold').map(&:position).flatten,
-          reserved: raffle.x100_tickets.where(status: 'reserved').map(&:position).flatten,
-          winners: raffle.x100_tickets.where(status: 'winner').map(&:position).flatten
+          sold: (tickets_by_status['sold'] || []).map(&:position),
+          reserved: (tickets_by_status['reserved'] || []).map do |ticket|
+            {
+              position: ticket.position,
+              aparted_by: ticket.aparted_by,
+              apart_ends: ticket.apart_ends
+            }
+          end,
+          winners: (tickets_by_status['winner'] || []).map(&:position)
         }
       end
-
-      result
     end
 
     def self.current_progress_of_actives

@@ -5,6 +5,8 @@
 # Table name: x100_tickets
 #
 #  id             :bigint           not null, primary key
+#  apart_ends     :datetime
+#  aparted_by     :integer
 #  money          :string
 #  position       :integer
 #  price          :float
@@ -28,6 +30,8 @@
 module X100
   class Ticket < ApplicationRecord
     include AASM
+
+    attr_accessor :requester_id
 
     belongs_to :x100_raffle, class_name: 'X100::Raffle', foreign_key: 'x100_raffle_id'
     belongs_to :x100_client, class_name: 'X100::Client', foreign_key: 'x100_client_id', optional: true
@@ -68,20 +72,26 @@ module X100
     end
 
     def self.all_sold_tickets
-      raffles = X100::Raffle.where(status: ['En venta', 'Finalizando'])
-
-      result = []
-
-      raffles.each do |raffle|
-        result << {
+      raffles = X100::Raffle
+        .where(status: ['En venta', 'Finalizando'])
+        .includes(:x100_tickets)
+    
+      raffles.map do |raffle|
+        tickets_by_status = raffle.x100_tickets.group_by(&:status)
+        
+        {
           raffle_id: raffle.id,
-          sold: raffle.x100_tickets.where(status: 'sold').map(&:position).flatten,
-          reserved: raffle.x100_tickets.where(status: 'reserved').map(&:position).flatten,
-          winners: raffle.x100_tickets.where(status: 'winner').map(&:position).flatten
+          sold: (tickets_by_status['sold'] || []).map(&:position),
+          reserved: (tickets_by_status['reserved'] || []).map do |ticket|
+            {
+              position: ticket.position,
+              aparted_by: ticket.aparted_by,
+              apart_ends: ticket.apart_ends
+            }
+          end,
+          winners: (tickets_by_status['winner'] || []).map(&:position)
         }
       end
-
-      result
     end
 
     def self.all_reserved_tickets
@@ -103,6 +113,9 @@ module X100
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
         ticket.apart!
+        ticket.apart_ends = DateTime.now + 5.minutes
+        ticket.aparted_by = requester_id
+        ticket.save!
         $redis.setex("ticket_#{ticket.id}", 300, ticket.id)
       end
     end
@@ -146,6 +159,8 @@ module X100
         end
         ticket.x100_client_id = client.id
         ticket.apart!
+        ticket.apart_ends = DateTime.now + 5.minutes
+        ticket.aparted_by = requester_id
         ticket.save!
         $redis.setex("ticket_#{ticket.id}", 300, ticket.id)
         return true
@@ -156,6 +171,8 @@ module X100
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
         ticket.turn_available!
+        ticket.apart_ends = nil
+        ticket.aparted_by = nil
         ticket.x100_client_id = nil
         ticket.save!
       end
