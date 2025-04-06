@@ -227,9 +227,7 @@ module X100
       elsif @x100_ticket.available?
         return raffle_is_closed_error if @x100_ticket.status == 'Cerrada'
         
-        @x100_ticket.requester_id = @current_user.id
-        X100::Ticket.apart_ticket(@x100_ticket.id)
-        @x100_ticket.apart_ends = DateTime.now + 5.minutes
+        X100::Ticket.apart_ticket(@x100_ticket.id, @current_user.id)
         broadcast_transaction
         render json: { message: 'Ticket aparted', ticket: @x100_ticket }, status: :ok
       else

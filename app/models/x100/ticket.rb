@@ -31,8 +31,6 @@ module X100
   class Ticket < ApplicationRecord
     include AASM
 
-    attr_accessor :requester_id
-
     belongs_to :x100_raffle, class_name: 'X100::Raffle', foreign_key: 'x100_raffle_id'
     belongs_to :x100_client, class_name: 'X100::Client', foreign_key: 'x100_client_id', optional: true
 
@@ -109,12 +107,12 @@ module X100
       result
     end
 
-    def self.apart_ticket(id)
+    def self.apart_ticket(id, user_id)
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
         ticket.apart!
         ticket.apart_ends = DateTime.now + 5.minutes
-        ticket.aparted_by = requester_id
+        ticket.aparted_by = user_id
         ticket.save!
         $redis.setex("ticket_#{ticket.id}", 300, ticket.id)
       end
@@ -160,7 +158,7 @@ module X100
         ticket.x100_client_id = client.id
         ticket.apart!
         ticket.apart_ends = DateTime.now + 5.minutes
-        ticket.aparted_by = requester_id
+        ticket.aparted_by = integrator_id
         ticket.save!
         $redis.setex("ticket_#{ticket.id}", 300, ticket.id)
         return true
