@@ -260,6 +260,32 @@ module X100
       end
     end
 
+    def calculate_final_amount(quantity)
+      if combos.nil? || combos.empty?
+        return quantity * price_unit
+      end
+
+      sorted_combos = combos.sort_by { |combo| combo["price"].to_f / combo["quantity"].to_f }
+  
+      remaining_tickets = quantity
+      total_cost = 0.0
+  
+      sorted_combos.each do |combo|
+        combo_quantity = combo["quantity"]
+        combo_price = combo["price"]
+  
+        if remaining_tickets >= combo_quantity
+          num_combos = remaining_tickets / combo_quantity
+          total_cost += num_combos * combo_price
+          remaining_tickets %= combo_quantity
+        end
+      end
+
+      total_cost += remaining_tickets * price_unit if remaining_tickets > 0
+  
+      total_cost
+    end
+
     def select_winner
       ActiveRecord::Base.transaction do
         raise 'No pueden haber más ganadores' if winners&.size == prizes.size
