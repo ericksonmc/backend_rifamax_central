@@ -260,7 +260,15 @@ module X100
       end
     end
 
-    def calculate_final_amount(quantity)
+    def calculate_final_amount(quantity, money)
+      exchange = Shared::Exchange.last
+
+      rates = {
+        "VES": exchange.value_bs,
+        "COP": exchange.value_cop,
+        "USD": 1
+      }
+
       if combos.nil? || combos.empty?
         return quantity * price_unit
       end
@@ -282,7 +290,9 @@ module X100
       end
 
       total_cost += remaining_tickets * price_unit if remaining_tickets > 0
-  
+
+      total_cost = (total_cost * rates[money.to_sym]).round(2)
+
       total_cost
     end
 

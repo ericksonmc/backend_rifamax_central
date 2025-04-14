@@ -53,6 +53,8 @@ module X100
       positions = sell_x100_ticket_params[:positions]
       success_sold = []
 
+      raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
+
       if positions.blank?
         parameter_require_error
       else
@@ -60,21 +62,28 @@ module X100
         ActiveRecord::Base.transaction do
           success_sold = validates_positions(positions)
           @integrator_client = X100::Client.find_by(
-            integrator_id: sell_x100_ticket_params[:x100_client_id], integrator_type: sell_x100_ticket_params[:integrator]
+            integrator_id: sell_x100_ticket_params[:x100_client_id], 
+            integrator_type: sell_x100_ticket_params[:integrator]
           )
 
           render_ticket_not_sold(positions) if success_sold == 'Error'
 
+          raise ActiveRecord::Rollback, 'Raffle is closed' if raffle.status == 'Cerrado'
+          raise ActiveRecord::Rollback, 'Raffle not found' if raffle.nil?
+
+          
           if success_sold.length == positions.length
+            quantity = success_sold.length
+            money = sell_x100_ticket_params[:money]
+
             if !sell_x100_ticket_params[:integrator].nil?
               raise ActiveRecord::Rollback, 'Failed to sell ticket' if sell_x100_ticket_params[:player_id].nil?
-
               @orders = X100::Order.new(
                 products: success_sold,
-                amount: sell_x100_ticket_params[:price],
+                amount: raffle.calculate_final_amount(quantity, money),
                 serial: "ORD-#{SecureRandom.hex(8).upcase}",
                 ordered_at: DateTime.now,
-                money: sell_x100_ticket_params[:money],
+                money: money,
                 shared_user_id: @current_user.id,
                 x100_client_id: @integrator_client.id,
                 x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id],
@@ -86,9 +95,9 @@ module X100
               @orders.sell_integrator
               broadcast_transaction
             else
-              X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]).update_all(
+              X100::Ticket.where(position: success_sold, x100_raffle_id: raffle.id).update_all(
                 price: X100::Raffle.find(@x100_ticket.x100_raffle_id).price_unit,
-                money: ticket_params[:money],
+                money: money,
                 status: 'sold',
                 x100_raffle_id: ticket_params[:x100_raffle_id],
                 x100_client_id: if sell_x100_ticket_params[:integrator].nil?
@@ -99,13 +108,13 @@ module X100
               )
               @orders = X100::Order.new(
                 products: success_sold,
-                amount: sell_x100_ticket_params[:price],
+                amount: raffle.calculate_final_amount(quantity, money),
                 serial: "ORD-#{SecureRandom.hex(8).upcase}",
                 ordered_at: DateTime.now,
-                money: sell_x100_ticket_params[:money],
+                money: money,
                 shared_user_id: @current_user.id,
                 x100_client_id: sell_x100_ticket_params[:x100_client_id],
-                x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id],
+                x100_raffle_id: raffle.id,
                 shared_exchange_id: Shared::Exchange.last.id
               )
               @orders.save!
