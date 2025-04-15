@@ -63,9 +63,9 @@ module X100
       end
     end
 
-    LAST_EXCHANGE = Shared::Exchange.last
-    INTEGRATORS_ALLOWED = ['CDA']
-    CURRENCIES = {
+    last_exchange = Shared::Exchange.last
+    integrators_allowed = ['CDA']
+    currencies = {
       'USD' => 1,
       'COP' => LAST_EXCHANGE.value_cop,
       'VES' => LAST_EXCHANGE.value_bs
@@ -126,13 +126,12 @@ module X100
       end
     end
 
-    def self.apart_ticket_integrator(id, integrator_id, integrator_type = 'CDA', money)
+    def self.apart_ticket_integrator(id, integrator_id, integrator_type, money)
       client = X100::Client.find_by(integrator_id: integrator_id, integrator_type: integrator_type)
       
-      return 'Integrator Type is not defined' unless INTEGRATORS_ALLOWED.include?(integrator_type)
+      return 'Integrator Type is not defined' unless integrators_allowed.include?(integrator_type)
       return 'Integrator not found' if client.nil?
 
-      
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
         
@@ -143,7 +142,7 @@ module X100
         if actions[integrator_type].is_a?(String)
           return actions[integrator_type]
         end
-        
+
         return 'Ticket already reserved' if ticket.status == 'reserved'
         return 'Ticket already sold' if ticket.status == 'sold'
         return 'Ticket already winner' if ticket.status == 'winner'
@@ -234,7 +233,7 @@ module X100
       balance = res["balance"].to_f
       
       if res.code == 200
-        if (balance < (ticket.x100_raffle.price_unit * CURRENCIES[money]))
+        if (balance < (ticket.x100_raffle.price_unit * currencies[money]))
           return "Insufficient fund: money = #{money}"
           # raise ActiveRecord::Rollback, 'Insufficient funds'
         end
