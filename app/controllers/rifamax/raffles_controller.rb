@@ -260,7 +260,6 @@ module Rifamax
       @rifamax_raffle.admin_status = 0
       @rifamax_raffle.skip_status = true
       # @rifamax_raffle.lotery = 'Triple Rifamax Zodiacal'
-      @rifamax_raffle.currency = 'USD'
       @rifamax_raffle.buy_currency = rifamax_raffle_params[:currency]
       @rifamax_raffle.user_id = @current_user.id
       @rifamax_raffle.seller_id = @current_user.id
