@@ -67,8 +67,8 @@ module X100
     integrators_allowed = ['CDA']
     currencies = {
       'USD' => 1,
-      'COP' => LAST_EXCHANGE.value_cop,
-      'VES' => LAST_EXCHANGE.value_bs
+      'COP' => last_exchange.value_cop,
+      'VES' => last_exchange.value_bs
     }
 
     def create_position_when_infinite
