@@ -63,12 +63,12 @@ module X100
       end
     end
 
-    last_exchange = Shared::Exchange.last
-    integrators_allowed = ['CDA']
-    currencies = {
+    @last_exchange = Shared::Exchange.last
+    @integrators_allowed = ['CDA']
+    @currencies = {
       'USD' => 1,
-      'COP' => last_exchange.value_cop,
-      'VES' => last_exchange.value_bs
+      'COP' => @last_exchange.value_cop,
+      'VES' => @last_exchange.value_bs
     }
 
     def create_position_when_infinite
@@ -129,7 +129,7 @@ module X100
     def self.apart_ticket_integrator(id, integrator_id, integrator_type, money)
       client = X100::Client.find_by(integrator_id: integrator_id, integrator_type: integrator_type)
       
-      return 'Integrator Type is not defined' unless integrators_allowed.include?(integrator_type)
+      return 'Integrator Type is not defined' unless @integrators_allowed.include?(integrator_type)
       return 'Integrator not found' if client.nil?
 
       ActiveRecord::Base.transaction do
@@ -231,7 +231,7 @@ module X100
       balance = res["balance"].to_f
       
       if res.code == 200
-        if (balance < (ticket.x100_raffle.price_unit * currencies[money]))
+        if (balance < (ticket.x100_raffle.price_unit * @currencies[money]))
           return "Insufficient fund: money = #{money}"
           # raise ActiveRecord::Rollback, 'Insufficient funds'
         end
