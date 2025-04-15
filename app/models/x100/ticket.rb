@@ -223,8 +223,6 @@ module X100
       schedule_prizes_awards(raffle) unless raffle.expired_date.nil?
     end
 
-    private
-
     def cda_cashier_action(integrator_id, money, ticket)
       url = ENV["cda_url_base"]
 
@@ -242,6 +240,8 @@ module X100
         # raise ActiveRecord::Rollback, "Integrator Job is down or not responding, integrator: #{integrator_type}"
       end
     end
+
+    private
 
     def schedule_prizes_awards(raffle)
       raffle.prizes.each do |prize|
