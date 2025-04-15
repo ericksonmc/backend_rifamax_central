@@ -158,14 +158,7 @@ module X100
       elsif @x100_ticket.available?
         return raffle_is_closed_error if @x100_ticket.status == 'Cerrada'
 
-        if (
-          X100::Ticket.apart_ticket_integrator(
-            @x100_ticket.id, 
-            apart_integrator_params[:integrator_id], 
-            apart_integrator_params[:integrator_type], 
-            apart_integrator_params[:money]
-          ) == true
-        )
+        if (X100::Ticket.apart_ticket_integrator(@x100_ticket.id, apart_integrator_params[:integrator_id], apart_integrator_params[:integrator_type], apart_integrator_params[:money]) == true)
           broadcast_transaction
           render json: { message: 'Ticket aparted', ticket: @x100_ticket }, status: :ok
         else
