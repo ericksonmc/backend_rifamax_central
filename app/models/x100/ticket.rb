@@ -122,28 +122,30 @@ module X100
       client = X100::Client.find_by(integrator_id: integrator_id, integrator_type: integrator_type)
       url = ENV["cda_url_base"]
       integrador = 'CDA'
-
-      last_exchange = Shared::Exchange.last
-
-      currencies = {
-        'USD' => 1,
-        'COP' => last_exchange.value_cop,
-        'VES' => last_exchange.value_bs
-      }
+      currency = money.to_s.upcase!
 
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
         case integrador
         when 'CDA'
           res = HTTParty.get("#{url}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}")
-
-          if res.code == 200
-            balance = res["balance"].to_f
-            last_price = (ticket.x100_raffle.price_unit * currencies[money]).round(2)
           
-            if (last_price > balance)
-              return "Insufficient fund: money = #{money}"
-              # raise ActiveRecord::Rollback, 'Insufficient funds'
+          if res.code == 200
+            if money == 'USD'
+              if (res["balance"].to_f < (ticket.x100_raffle.price_unit))
+                return "Insufficient fund: money = #{money}"
+                # raise ActiveRecord::Rollback, 'Insufficient funds'
+              end
+            elsif money == 'COP'
+              if (res["balance"].to_f < (ticket.x100_raffle.price_unit * Shared::Exchange.last.value_cop))
+                return "Insufficient fund: money = #{money}"
+                # raise ActiveRecord::Rollback, 'Insufficient funds'
+              end
+            else
+              if (res["balance"].to_f < (ticket.x100_raffle.price_unit * Shared::Exchange.last.value_bs))
+                return "Insufficient fund: money = #{money}"
+                # raise ActiveRecord::Rollback, 'Insufficient funds'
+              end
             end
           else
             return "Integrator Job is down or not responding, integrator: #{integrador}"
