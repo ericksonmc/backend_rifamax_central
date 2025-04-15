@@ -139,8 +139,9 @@ module X100
 
           if res.code == 200
             balance = res["balance"].to_f
-            
-            if (balance < (ticket.x100_raffle.price_unit * currencies[money]))
+            last_price = (ticket.x100_raffle.price_unit * currencies[money]).round(2)
+          
+            if (last_price > balance)
               return "Insufficient fund: money = #{money}"
               # raise ActiveRecord::Rollback, 'Insufficient funds'
             end
