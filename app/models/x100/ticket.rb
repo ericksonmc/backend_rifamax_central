@@ -63,6 +63,14 @@ module X100
       end
     end
 
+    LAST_EXCHANGE = Shared::Exchange.last
+    INTEGRATORS_ALLOWED = ['CDA']
+    CURRENCIES = {
+      'USD' => 1,
+      'COP' => LAST_EXCHANGE.value_cop,
+      'VES' => LAST_EXCHANGE.value_bs
+    }
+
     def create_position_when_infinite
       return unless x100_raffle.draw_type == 'Infinito'
 
@@ -120,41 +128,27 @@ module X100
 
     def self.apart_ticket_integrator(id, integrator_id, integrator_type = 'CDA', money)
       client = X100::Client.find_by(integrator_id: integrator_id, integrator_type: integrator_type)
-      url = ENV["cda_url_base"]
-      integrador = 'CDA'
-      currency = money.to_s.upcase!
+      
+      return 'Integrator Type is not defined' unless INTEGRATORS_ALLOWED.include?(integrator_type)
+      return 'Integrator not found' if client.nil?
 
+      
       ActiveRecord::Base.transaction do
         ticket = X100::Ticket.lock('FOR UPDATE NOWAIT').find(id)
-        case integrador
-        when 'CDA'
-          res = HTTParty.get("#{url}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}")
-          
-          if res.code == 200
-            if money == 'USD'
-              if (res["balance"].to_f < (ticket.x100_raffle.price_unit))
-                return "Insufficient fund: money = #{money}"
-                # raise ActiveRecord::Rollback, 'Insufficient funds'
-              end
-            elsif money == 'COP'
-              if (res["balance"].to_f < (ticket.x100_raffle.price_unit * Shared::Exchange.last.value_cop))
-                return "Insufficient fund: money = #{money}"
-                # raise ActiveRecord::Rollback, 'Insufficient funds'
-              end
-            else
-              if (res["balance"].to_f < (ticket.x100_raffle.price_unit * Shared::Exchange.last.value_bs))
-                return "Insufficient fund: money = #{money}"
-                # raise ActiveRecord::Rollback, 'Insufficient funds'
-              end
-            end
-          else
-            return "Integrator Job is down or not responding, integrator: #{integrador}"
-            # raise ActiveRecord::Rollback, "Integrator Job is down or not responding, integrator: #{integrator_type}"
-          end
-        else
-          # raise ActiveRecord::Rollback, 'Integrator Type is not defined'
-          return 'Integrator Type is not defined'
+        
+        actions = {
+          'CDA' => cda_cashier_action(integrator_id, money, ticket)
+        }
+
+        if actions[integrator_type].is_a?(String)
+          return actions[integrator_type]
         end
+        
+        return 'Ticket already reserved' if ticket.status == 'reserved'
+        return 'Ticket already sold' if ticket.status == 'sold'
+        return 'Ticket already winner' if ticket.status == 'winner'
+        return 'Ticket already aparted' if ticket.status == 'reserved' && ticket.aparted_by != integrator_id
+
         ticket.x100_client_id = client.id
         ticket.apart!
         ticket.apart_ends = DateTime.now + 5.minutes
@@ -231,6 +225,24 @@ module X100
     end
 
     private
+
+    def cda_cashier_action(integrator_id, money, ticket)
+      url = ENV["cda_url_base"]
+
+      res = HTTParty.get("#{url}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}")
+
+      balance = res["balance"].to_f
+      
+      if res.code == 200
+        if (balance < (ticket.x100_raffle.price_unit * CURRENCIES[money]))
+          return "Insufficient fund: money = #{money}"
+          # raise ActiveRecord::Rollback, 'Insufficient funds'
+        end
+      else
+        return "Integrator Job is down or not responding, integrator: CDA"
+        # raise ActiveRecord::Rollback, "Integrator Job is down or not responding, integrator: #{integrator_type}"
+      end
+    end
 
     def schedule_prizes_awards(raffle)
       raffle.prizes.each do |prize|
