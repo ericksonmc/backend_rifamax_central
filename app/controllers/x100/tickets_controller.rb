@@ -70,7 +70,6 @@ module X100
 
           raise ActiveRecord::Rollback, 'Raffle is closed' if raffle.status == 'Cerrado'
           raise ActiveRecord::Rollback, 'Raffle not found' if raffle.nil?
-
           
           if success_sold.length == positions.length
             quantity = success_sold.length
@@ -122,9 +121,6 @@ module X100
             end
             render json: { message: 'Tickets sold', tickets: X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]), order: @orders.serial },
                    status: :ok
-          # else
-          #   render json: { message: "Oops! An error has occurred: #{success_sold.length} of #{positions.length} tickets sold" },
-          #          status: :unprocessable_entity
           end
         end
       end
@@ -304,7 +300,7 @@ module X100
     end
     
     def render_ticket_not_sold(position)
-      render json: { message: "Ticket with position: #{position} can't be sold" }, status: :unprocessable_entity
+      render json: { message: "Tickets with position: #{position} can't be sold" }, status: :unprocessable_entity
     end
     
     def refund_params
