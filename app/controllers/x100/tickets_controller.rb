@@ -122,9 +122,9 @@ module X100
             end
             render json: { message: 'Tickets sold', tickets: X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]), order: @orders.serial },
                    status: :ok
-          else
-            render json: { message: "Oops! An error has occurred: #{success_sold.length} of #{positions.length} tickets sold" },
-                   status: :unprocessable_entity
+          # else
+          #   render json: { message: "Oops! An error has occurred: #{success_sold.length} of #{positions.length} tickets sold" },
+          #          status: :unprocessable_entity
           end
         end
       end
