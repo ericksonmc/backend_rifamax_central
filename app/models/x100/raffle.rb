@@ -201,7 +201,6 @@ module X100
           combo_total
         end
 
-
         @semaphore.synchronize {
           result = []
           positions = []
