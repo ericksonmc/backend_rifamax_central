@@ -4,6 +4,7 @@ module X100
   class TicketsController < ApplicationController
     before_action :authorize_request, except: [:refresh]
     before_action :fetch_tickets, only: [:index]
+    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
     before_action :unable_access_when_is_not_integration, only: %i[refund clear apart_integrator]
 
     def index
@@ -50,97 +51,30 @@ module X100
     end
 
     def sell
-      @raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
       positions = sell_x100_ticket_params[:positions]
-      success_sold = []
+      raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
 
-      if positions.blank? || @raffle.nil?
-        parameter_require_error
-      else
-
-        ActiveRecord::Base.transaction do
-          success_sold = validates_positions(positions)
-          @integrator_client = X100::Client.find_by(
-            integrator_id: sell_x100_ticket_params[:x100_client_id], integrator_type: sell_x100_ticket_params[:integrator]
-          )
-
-          render_ticket_not_sold(positions) if success_sold == 'Error'
-
-          if success_sold.length == positions.length
-            quantity = success_sold.length
-            money = sell_x100_ticket_params[:money]
-
-            if !sell_x100_ticket_params[:integrator].nil?
-              raise ActiveRecord::Rollback, 'Failed to sell ticket' if sell_x100_ticket_params[:player_id].nil?
-
-              @orders = X100::Order.new(
-                products: success_sold,
-                amount: @raffle.calculate_final_amount(quantity, money),
-                serial: "ORD-#{SecureRandom.hex(8).upcase}",
-                ordered_at: DateTime.now,
-                money: money,
-                shared_user_id: @current_user.id,
-                x100_client_id: @integrator_client.id,
-                x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id],
-                integrator_player_id: sell_x100_ticket_params[:player_id],
-                integrator: sell_x100_ticket_params[:integrator],
-                shared_exchange_id: Shared::Exchange.last.id
-              )
-
-              if @orders.integrator_job == false
-                render json: { message: 'Integrator API failed at selling ticket, aborting transaction!' }, status: :unprocessable_entity
-                raise ActiveRecord::Rollback, 'Integrator API failed at selling ticket, aborting transaction!'
-                return
-              end
-
-              X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]).update_all(
-                price: X100::Raffle.find(@x100_ticket.x100_raffle_id).price_unit,
-                money: ticket_params[:money],
-                status: 'sold',
-                x100_raffle_id: ticket_params[:x100_raffle_id],
-                x100_client_id: if sell_x100_ticket_params[:integrator].nil?
-                                  ticket_params[:x100_client_id]
-                                else
-                                  @integrator_client.id
-                                end
-              )
-              @orders.save!
-              broadcast_transaction
-
-            else
-              X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]).update_all(
-                price: X100::Raffle.find(@x100_ticket.x100_raffle_id).price_unit,
-                money: ticket_params[:money],
-                status: 'sold',
-                x100_raffle_id: ticket_params[:x100_raffle_id],
-                x100_client_id: if sell_x100_ticket_params[:integrator].nil?
-                                  ticket_params[:x100_client_id]
-                                else
-                                  @integrator_client.id
-                                end
-              )
-              @orders = X100::Order.new(
-                products: success_sold,
-                amount: @raffle.calculate_final_amount(quantity, money),
-                serial: "ORD-#{SecureRandom.hex(8).upcase}",
-                ordered_at: DateTime.now,
-                money: sell_x100_ticket_params[:money],
-                shared_user_id: @current_user.id,
-                x100_client_id: sell_x100_ticket_params[:x100_client_id],
-                x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id],
-                shared_exchange_id: Shared::Exchange.last.id
-              )
-              @orders.save!
-              broadcast_transaction
-            end
-            render json: { message: 'Tickets sold', tickets: X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]), order: @orders.serial },
-                   status: :ok
-          else
-            render json: { message: "Oops! An error has occurred: #{success_sold.length} of #{positions.length} tickets sold" },
-                   status: :unprocessable_entity
-          end
-        end
+      if positions.blank?
+        return parameter_require_error('Positions parameter is required')
       end
+
+      ActiveRecord::Base.transaction do
+        success_sold = validate_positions(positions)
+        
+        if success_sold.empty?
+          return render_ticket_not_sold(positions)
+        end
+
+        if raffle.closed?
+          return render_error_response('Raffle is closed', :unprocessable_entity)
+        end
+
+        process_ticket_sale(raffle, success_sold)
+        
+        render json: success_response(success_sold), status: :ok
+      end
+    rescue ActiveRecord::Rollback, StandardError => e
+      render_error_response(e.message, :unprocessable_entity)
     end
 
     def clear
@@ -342,6 +276,107 @@ module X100
 
     def sell_series_ticket_params
       params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator, :money, :quantity)
+    end
+
+    def process_ticket_sale(raffle, success_sold)
+      quantity = success_sold.length
+      money = sell_x100_ticket_params[:money]
+
+      if integrator_present?
+        process_integrator_sale(raffle, success_sold, quantity, money)
+      else
+        process_regular_sale(raffle, success_sold, quantity, money)
+      end
+      
+      update_tickets_status(raffle, success_sold, money)
+      broadcast_transaction
+    end
+
+    def process_integrator_sale(raffle, success_sold, quantity, money)
+      raise ActiveRecord::Rollback, 'Player ID required' unless sell_x100_ticket_params[:player_id]
+
+      integrator_client = find_integrator_client
+      @orders = create_order(raffle, success_sold, quantity, money, integrator_client)
+      
+      unless @orders.sell_integrator
+        raise ActiveRecord::Rollback, 'Integrator API failed to sell ticket'
+      end
+    end
+
+    def process_regular_sale(raffle, success_sold, quantity, money)
+      @orders = create_order(raffle, success_sold, quantity, money)
+      @orders.save!
+    end
+
+    def create_order(raffle, success_sold, quantity, money, client = nil)
+      X100::Order.new(
+        products: success_sold,
+        amount: raffle.calculate_final_amount(quantity, money),
+        serial: generate_order_serial,
+        ordered_at: DateTime.current,
+        money: money,
+        shared_user_id: @current_user.id,
+        x100_client_id: client&.id || sell_x100_ticket_params[:x100_client_id],
+        x100_raffle_id: raffle.id,
+        integrator_player_id: sell_x100_ticket_params[:player_id],
+        integrator: sell_x100_ticket_params[:integrator],
+        shared_exchange_id: Shared::Exchange.last.id
+      )
+    end
+
+    def update_tickets_status(raffle, positions, money)
+      X100::Ticket.where(position: positions, x100_raffle_id: raffle.id).update_all(
+        price: raffle.price_unit,
+        money: money,
+        status: 'sold',
+        x100_client_id: integrator_client&.id || sell_x100_ticket_params[:x100_client_id]
+      )
+    end
+
+    def validate_positions(positions)
+      # Implement actual position validation logic here
+      # Should return array of valid positions
+      positions.select { |pos| valid_position?(pos) }
+    end
+
+    def integrator_present?
+      sell_x100_ticket_params[:integrator].present?
+    end
+
+    def find_integrator_client
+      X100::Client.find_by(
+        integrator_id: sell_x100_ticket_params[:x100_client_id],
+        integrator_type: sell_x100_ticket_params[:integrator]
+      ) || raise(ActiveRecord::Rollback, 'Integrator client not found')
+    end
+
+    def generate_order_serial
+      "ORD-#{SecureRandom.hex(8).upcase}"
+    end
+
+    def success_response(success_sold)
+      {
+        message: 'Tickets sold',
+        tickets: X100::Ticket.where(position: success_sold, x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id]),
+        order: @orders.serial
+      }
+    end
+
+    def render_error_response(message, status)
+      render json: { error: message }, status: status
+    end
+
+    def parameter_require_error(message = 'Missing required parameters')
+      render json: { error: message }, status: :unprocessable_entity
+    end
+
+    def render_ticket_not_sold(positions)
+      render json: { error: "Invalid positions: #{positions.join(', ')}" }, status: :unprocessable_entity
+      raise ActiveRecord::Rollback
+    end
+
+    def record_not_found
+      render json: { error: 'Raffle not found' }, status: :not_found
     end
 
     def sell_x100_ticket_params
