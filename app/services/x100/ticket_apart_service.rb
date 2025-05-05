@@ -34,7 +34,7 @@ module X100
 
     def self.reserve_via_integration(raffle_id, position, integrator_id, integrator_type, money)
       @raffle = X100::Raffle.find(raffle_id)
-      @ticket = X100::Ticket.find_by(x100_Raffle_id: raffle_id, position: position)
+      @ticket = X100::Ticket.find_by(x100_raffle_id: raffle_id, position: position)
 
       raise RaffleNotFoundError.new "Raffle not found" if @raffle.nil? 
       raise TicketNotFoundError.new "Ticket not found" if @ticket.nil? 
