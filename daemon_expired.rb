@@ -17,7 +17,11 @@ $redis.psubscribe('__keyevent@0__:expired') do |on|
       ticket = X100::Ticket.find(ticket_id)
 
       if ticket.reserved?
+        ticket.x100_client_id = nil
+        ticket.aparted_by = nil
+        ticket.apart_ends = nil
         ticket.turn_available!
+        ticket.save!
       end
       
       url = 'https://api.rifa-max.com/x100/tickets/refresh'

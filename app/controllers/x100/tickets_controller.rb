@@ -51,29 +51,36 @@ module X100
     end
 
     def sell
+      money = sell_x100_ticket_params[:money]
       positions = sell_x100_ticket_params[:positions]
+      client_id = sell_x100_ticket_params[:client_id]
       raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
-
+    
       if positions.blank?
         return parameter_require_error('Positions parameter is required')
       end
-
-      ActiveRecord::Base.transaction do
-        success_sold = validate_positions(positions)
-        
-        if success_sold.empty?
-          return render_ticket_not_sold(positions)
-        end
-
-        if raffle.closed?
-          return render_error_response('Raffle is closed', :unprocessable_entity)
-        end
-
-        process_ticket_sale(raffle, success_sold)
-        
-        render json: success_response(success_sold), status: :ok
-      end
-    rescue ActiveRecord::Rollback, StandardError => e
+    
+      order = X100::TicketSellingService.sell(
+        money: money,
+        raffle: raffle,
+        products: positions,
+        user: @current_user,
+        client_id: client_id,
+      )
+    
+      render json: {
+        success: true,
+        message: 'Tickets successfully purchased',
+        details: {
+          order: order,
+          amount: order&.amount,
+          currency: money,
+          raffle_title: raffle.title,
+          purchased_positions: positions,
+          purchased_at: Time.current.iso8601
+        }
+      }, status: :ok
+    rescue X100::TicketSellingService::TicketSellingError, StandardError => e
       render_error_response(e.message, :unprocessable_entity)
     end
 
@@ -89,7 +96,7 @@ module X100
             raise ActiveRecord::Rollback, 'Tickets not found'
           end
           @x100_tickets.update_all(status: 'available', x100_client_id: nil)
-          broadcast_transaction
+          X100::BroadcastingService.refresh
           render json: { message: 'Tickets cleared!', is_cleared: true }, status: :ok
         rescue StandardError => e
           render json: { message: "Tickets can't be cleared!", is_cleared: false, error: e }, status: :unprocessable_entity
@@ -98,29 +105,43 @@ module X100
     end
 
     def apart_integrator
-      @x100_ticket = X100::Ticket.find_by(position: apart_integrator_params[:position], x100_raffle_id: apart_integrator_params[:x100_raffle_id])
+      money = apart_integrator_params[:money]
+      position = apart_integrator_params[:position]
+      raffle_id = apart_integrator_params[:x100_raffle_id]
+      integrator_id = apart_integrator_params[:integrator_id]
+      integrator_type = apart_integrator_params[:integrator_type]
 
-      if @x100_ticket.nil?
-        render_not_found("Ticket with position: #{apart_integrator_params[:position]} can't be apart")
-      elsif @x100_ticket.available?
-        return raffle_is_closed_error if @x100_ticket.status == 'Cerrada'
+      @ticket = X100::Ticket.find_by(
+        position: position,
+        x100_raffle_id: raffle_id
+      )
 
-        if (X100::Ticket.apart_ticket_integrator(@x100_ticket.id, apart_integrator_params[:integrator_id], apart_integrator_params[:integrator_type], apart_integrator_params[:money]) == true)
-          broadcast_transaction
-          render json: { message: 'Ticket aparted', ticket: @x100_ticket }, status: :ok
-        else
-          broadcast_transaction
-          render json: { message: "Ticket with position: #{apart_integrator_params[:position]} can't be apart", error: X100::Ticket.apart_ticket_integrator(@x100_ticket.id, apart_integrator_params[:integrator_id], apart_integrator_params[:integrator_type], apart_integrator_params[:money]) },
-                 status: :unprocessable_entity
-        end
-      else
-        render json: { message: "Ticket with position: #{apart_integrator_params[:position]} can't be apart" },
-               status: :unprocessable_entity
+      render_not_found("Ticket with position: #{position} can't be apart") if @ticket.nil?
+
+      X100::TicketApartService.reserve_via_integration(
+        raffle_id,
+        position,
+        integrator_id,
+        integrator_type,
+        money
+      )
+
+      @ticket.status = 'reserved'
+      @ticket.aparted_by = user.id
+      @ticket.apart_ends = DateTime.now + 5.minutes
+
+      render json: {
+        message: 'Ticket was reserved successfully!',
+        ticket: @ticket
+      }
+
+      rescue X100::TicketApartService::TicketReservingError, StandardError => e
+        render_error_response(e.message, 401)
       end
     end
 
     def refresh
-      broadcast_transaction
+      X100::BroadcastingService.refresh
 
       render json: { message: 'Ok!' }, status: :ok
     end
@@ -137,7 +158,7 @@ module X100
         else
           if @x100_order.integrator_credit_job
             @x100_order.refund_order!
-            broadcast_transaction
+            X100::BroadcastingService.refresh
             render json: { message: 'Tickets refunded!', order: @x100_order }, status: :ok
           else
             render json: { message: 'Order can not be refunded', order: @x100_order }, status: :unprocessable_entity
@@ -169,7 +190,7 @@ module X100
     def combo
       @quantity = combos_params[:quantity].to_i
       @tickets_combo = X100::Raffle.find(combos_params[:x100_raffle_id]).select_combos(@quantity)
-      broadcast_transaction
+      X100::BroadcastingService.refresh
       render json: { message: 'Tickets already selected!', ticket: @tickets_combo }, status: :ok
     rescue StandardError => e
       render json: { message: 'Oops! An error has been occurred', error: e }, status: :unprocessable_entity
@@ -184,7 +205,7 @@ module X100
         return raffle_is_closed_error if @x100_ticket.status == 'Cerrada'
         
         X100::Ticket.apart_ticket(@x100_ticket.id, @current_user.id)
-        broadcast_transaction
+        X100::BroadcastingService.refresh
         render json: { message: 'Ticket aparted', ticket: @x100_ticket }, status: :ok
       else
         render json: { message: "Ticket with position: #{find_raffles_by_params[:position]} can't be apart" },
@@ -216,14 +237,6 @@ module X100
 
     private
 
-    def broadcast_transaction
-      @tickets = X100::Ticket.all_sold_tickets
-      @raffles = X100::Raffle.current_progress_of_actives
-
-      ActionCable.server.broadcast('x100_raffles', @raffles)
-      ActionCable.server.broadcast('x100_tickets', @tickets)
-    end
-
     def validates_positions(positions = [])
       result = []
 
@@ -237,7 +250,6 @@ module X100
 
       result
     end
-
     
     def find_reserved_ticket(position)
       X100::Ticket.find_by(x100_raffle_id: sell_x100_ticket_params[:x100_raffle_id], position: position,
@@ -289,7 +301,7 @@ module X100
       end
       
       update_tickets_status(raffle, success_sold, money)
-      broadcast_transaction
+      X100::BroadcastingService.refresh
     end
 
     def process_integrator_sale(raffle, success_sold, quantity, money)
@@ -380,7 +392,7 @@ module X100
     end
 
     def sell_x100_ticket_params
-      params.require(:x100_ticket).permit(:x100_raffle_id, :x100_client_id, :price, :money, :integrator, :player_id,
+      params.require(:x100_ticket).permit(:x100_raffle_id, :x100_client_id, :money, :integrator, :player_id,
                                           positions: [])
     end
 

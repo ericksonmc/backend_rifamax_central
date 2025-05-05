@@ -1,5 +1,5 @@
 module X100
-  class TestAvailable < ApplicationController
+  class TestAvailableService < ApplicationController
     def self.available(raffle_id, positions)
       positions.each do |position|
         @x100_ticket = X100::Ticket.find_by(x100_raffle_id: raffle_id, position: position)

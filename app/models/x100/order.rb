@@ -118,12 +118,11 @@ module X100
     def generate_serie
       cda_url = ENV['cda_url_base']
 
-      return unless integrator.present? || integrator_player_id.present?
+      return unless integrator.present? || integrator_player_id.present? || x100_raffle.raffle_type == 'Infinito'
 
       case integrator
       when 'CDA'
         @payload = {
-          id: id,
           amount: amount,
           serial: serial,
           tickets: serie_tickets,
