@@ -122,10 +122,6 @@ module X100
         raffle_id,
         position,
         integrator_id,
-        integrator_type,
-        money
-      )
-
       @ticket.status = 'reserved'
       @ticket.aparted_by = user.id
       @ticket.apart_ends = DateTime.now + 5.minutes
