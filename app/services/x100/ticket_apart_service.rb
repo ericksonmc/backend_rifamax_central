@@ -81,14 +81,19 @@ module X100
         'CDA' => "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}"
       }
 
-      url = "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}"
+      url = "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{713}&currency=#{money}"
       raise IntegratorNotFoundError.new "Integrator not found" unless url
 
       response = HTTParty.get(url)
-      raise ExternalServiceError.new(
+
+      error = {
         message: "Integrator #{integrator_type} is throwing error",
         body: JSON.parse(response.body),
         code: response.code
+      }
+
+      raise ExternalServiceError.new(
+        JSON.parse(error)  
       ) unless response.code == 200
 
       response
