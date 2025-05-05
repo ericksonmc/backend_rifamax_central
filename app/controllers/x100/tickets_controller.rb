@@ -61,14 +61,15 @@ module X100
         return parameter_require_error('Positions parameter is required')
       end
     
-      order = if integrator.nil? ? 
+      order = if integrator.nil? 
         X100::TicketSellingService.sell(
           money: money,
           raffle: raffle,
           products: positions,
           user: @current_user,
           client_id: client_id,
-        ) : 
+        ) 
+      else
         X100::TicketSellingService.sell(
           money: money,
           raffle: raffle,
@@ -77,6 +78,7 @@ module X100
           integrator_id: client_id,
           integrator_type: integrator,
         )
+      end
     
       render json: {
         success: true,
