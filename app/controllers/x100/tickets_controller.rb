@@ -123,7 +123,7 @@ module X100
         position,
         integrator_id,
       @ticket.status = 'reserved'
-      @ticket.aparted_by = user.id
+      @ticket.aparted_by = @current_user.id
       @ticket.apart_ends = DateTime.now + 5.minutes
 
       render json: {
