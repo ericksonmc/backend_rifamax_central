@@ -183,7 +183,7 @@ module X100
         # integrator_player_id: integrator_id.to_i,
         x100_raffle_id: raffle.id,
         x100_client_id: client.id
-      )2
+      )
 
       raise TicketSellingError.new "Error trying to generate order" unless order.valid?
 
