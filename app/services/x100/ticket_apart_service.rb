@@ -1,6 +1,7 @@
 module X100
   class TicketApartService
     class RaffleNotFoundError < StandardError; end
+    class TicketNotFoundError < StandardError; end
     class ClientNotFoundError < StandardError; end
     class InvalidPositionError < StandardError; end
     class ExternalServiceError < StandardError; end
@@ -33,8 +34,10 @@ module X100
 
     def self.reserve_via_integration(raffle_id, position, integrator_id, integrator_type, money)
       @raffle = X100::Raffle.find(raffle_id)
+      @ticket = X100::Ticket.find_by(x100_Raffle_id: raffle_id, position: position)
 
       raise RaffleNotFoundError.new "Raffle not found" if @raffle.nil? 
+      raise TicketNotFoundError.new "Ticket not found" if @ticket.nil? 
       
       verify_valid_position(@raffle, position)
       verify_ticket_status(@raffle, position)
@@ -54,8 +57,14 @@ module X100
         ticket.save!
         $redis.setex("ticket_#{ticket.id}", 300, ticket.id)
 
+        @ticket.apart_ends = DateTime.now + 5.minutes
+        @ticket.aparted_by = integrator_id
+        @ticket.status = 'reserved'
+
         X100::BroadcastingService.refresh
       end
+
+      return @ticket
     
     rescue => e
       raise TicketReservingError, e.message 

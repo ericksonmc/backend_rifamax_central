@@ -111,24 +111,25 @@ module X100
       integrator_id = apart_integrator_params[:integrator_id]
       integrator_type = apart_integrator_params[:integrator_type]
 
-      @ticket = X100::Ticket.find_by(
+      ticket = X100::Ticket.exists?(
         position: position,
         x100_raffle_id: raffle_id
       )
 
-      render_not_found("Ticket with position: #{position} can't be apart") if @ticket.nil?
+      render_not_found("Ticket with position: #{position} can't be apart") unless ticket
 
-      X100::TicketApartService.reserve_via_integration(
+      ticket_result = X100::TicketApartService.reserve_via_integration(
         raffle_id,
         position,
         integrator_id,
-      @ticket.status = 'reserved'
-      @ticket.aparted_by = @current_user.id
-      @ticket.apart_ends = DateTime.now + 5.minutes
+        integrator_type,
+        money
+      )
 
       render json: {
         message: 'Ticket was reserved successfully!',
-        ticket: @ticket
+        ticket: ticket_result
+
       }
 
       rescue X100::TicketApartService::TicketReservingError, StandardError => e
