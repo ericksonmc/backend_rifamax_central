@@ -54,19 +54,29 @@ module X100
       money = sell_x100_ticket_params[:money]
       positions = sell_x100_ticket_params[:positions]
       client_id = sell_x100_ticket_params[:client_id]
+      integrator = sell_x100_ticket_params[:integrator]
       raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
     
       if positions.blank?
         return parameter_require_error('Positions parameter is required')
       end
     
-      order = X100::TicketSellingService.sell(
-        money: money,
-        raffle: raffle,
-        products: positions,
-        user: @current_user,
-        client_id: client_id,
-      )
+      order = if integrator.nil? ? 
+        X100::TicketSellingService.sell(
+          money: money,
+          raffle: raffle,
+          products: positions,
+          user: @current_user,
+          client_id: client_id,
+        ) : 
+        X100::TicketSellingService.sell(
+          money: money,
+          raffle: raffle,
+          products: positions,
+          user: @current_user,
+          integrator_id: client_id,
+          integrator_type: integrator,
+        )
     
       render json: {
         success: true,
