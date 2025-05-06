@@ -39,7 +39,7 @@ module X100
         )
       end
     rescue => e
-      raise TicketSellingError, e.message
+      raise TicketSellingError, e
     end
 
     def self.sell_via_integrator(products:, money:, raffle:, integrator_id:, integrator_type:, user:)
@@ -69,7 +69,7 @@ module X100
         ) 
       end
     rescue => e
-      raise TicketSellingError, e.message
+      raise TicketSellingError, e
     end
 
     private_class_method
