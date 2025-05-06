@@ -53,7 +53,7 @@ module X100
     def sell
       money = sell_x100_ticket_params[:money]
       positions = sell_x100_ticket_params[:positions]
-      client_id = sell_x100_ticket_params[:client_id]
+      client_id = sell_x100_ticket_params[:x100_client_id]
       integrator = sell_x100_ticket_params[:integrator]
       raffle = X100::Raffle.find(sell_x100_ticket_params[:x100_raffle_id])
     
