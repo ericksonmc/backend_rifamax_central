@@ -70,7 +70,7 @@ module X100
           client_id: client_id,
         ) 
       else
-        X100::TicketSellingService.sell(
+        X100::TicketSellingService.sell_via_integrator(
           money: money,
           raffle: raffle,
           products: positions,
