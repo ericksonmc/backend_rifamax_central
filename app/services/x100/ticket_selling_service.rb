@@ -39,13 +39,7 @@ module X100
         )
       end
     rescue => e
-      error_message = if e.respond_to?(:message) && e.message
-                        e.message
-                      else
-                        "Unknown error: #{e.inspect}"
-                      end
-      Rails.logger.error "Ticket selling failed: #{error_message}"
-      raise TicketSellingError, error_message
+      raise TicketSellingError, "Unexpected error happens: #{e}"
     end
 
     def self.sell_via_integrator(products:, money:, raffle:, integrator_id:, integrator_type:, user:)
@@ -75,13 +69,7 @@ module X100
         ) 
       end
     rescue => e
-      error_message = if e.respond_to?(:message) && e.message
-                        e.message
-                      else
-                        "Unknown error: #{e.inspect}"
-                      end
-      Rails.logger.error "Ticket selling failed: #{error_message}"
-      raise TicketSellingError, error_message
+      raise TicketSellingError, "Unexpected error happens: #{e}"
     end
 
     private_class_method
