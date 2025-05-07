@@ -60,6 +60,8 @@ module X100
       if positions.blank?
         return parameter_require_error('Positions parameter is required')
       end
+
+      record_not_found unless raffle
     
       order = if integrator.nil? 
         X100::TicketSellingService.sell(

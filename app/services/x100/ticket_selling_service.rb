@@ -38,8 +38,8 @@ module X100
           client_id: client_id,
         )
       end
-    rescue => e
-      raise TicketSellingError, "Unexpected error happens: #{e}"
+    # rescue => e
+    #   raise TicketSellingError, "Unexpected error happens: #{e}"
     end
 
     def self.sell_via_integrator(products:, money:, raffle:, integrator_id:, integrator_type:, user:)
@@ -68,8 +68,8 @@ module X100
         ) 
         integration_consumer(raffle, integrator_id, integrator_type, products, money)
       end
-    rescue => e
-      raise TicketSellingError, "Unexpected error happens: #{e}"
+    # rescue => e
+    #   raise TicketSellingError, "Unexpected error happens: #{e}"
     end
 
     private_class_method
