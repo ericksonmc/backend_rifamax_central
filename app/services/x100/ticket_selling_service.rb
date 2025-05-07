@@ -70,8 +70,8 @@ module X100
         ) 
         integration_consumer(raffle, integrator_id, integrator_type, products, money)
       end
-    # rescue => e
-    #   raise TicketSellingError, e.message
+    rescue => e
+      raise TicketSellingError, e.message
     end
 
     private_class_method

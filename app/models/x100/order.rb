@@ -47,7 +47,7 @@ module X100
     belongs_to :x100_raffle, class_name: 'X100::Raffle', foreign_key: 'x100_raffle_id'
     belongs_to :shared_exchange, class_name: 'Shared::Exchange', foreign_key: 'shared_exchange_id'
 
-    before_save :generate_serie
+    before_save :generate_serie, if: -> { x100_raffle.raffle_type == 'Infinito' }
     # after_commit :integrator_layer
   
     validates :money,
@@ -344,10 +344,10 @@ module X100
     end
 
     def refund_order!
-      @x100_tickets = self.x100_raffle.draw_type == 'Infinito' ? serie_tickets : x100_tickets
+      @x100_tickets = self.x100_raffle.raffle_type == 'Infinito' ? serie_tickets : x100_tickets
       self.update(status: 'refunded', logs: JSON.parse(@x100_tickets.to_json), products: [])
 
-      if self.x100_raffle.draw_type == 'Infinito'
+      if self.x100_raffle.raffle_type == 'Infinito'
         self.products.each do |product|
           product_parsed = product.to_s.rjust(4, '0')
 
