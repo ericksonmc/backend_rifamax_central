@@ -70,8 +70,8 @@ module X100
         ) 
         integration_consumer(raffle, integrator_id, integrator_type, products, money)
       end
-    rescue => e
-      raise TicketSellingError, "Unexpected error happens: #{e.message}"
+    # rescue => e
+    #   raise TicketSellingError, e.message
     end
 
     private_class_method
@@ -142,7 +142,7 @@ module X100
     
       tickets.pluck(:position)
     rescue => e
-      Rails.logger.error e.message
+      Rails.logger.error "Ticket sell failed: #{e.message}"
       raise
     end
 
