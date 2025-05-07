@@ -300,6 +300,8 @@ module X100
 
       response = HTTParty.post(url, body: payload.to_json, headers: { 'Content-Type' => 'application/json' })
       
+      X100::Order.find_by(products: products, x100_raffle_id: raffle.id)
+
       raise IntegrationJobIsDownError.new({ 
         message: "Integration is down",
         code: response.code,
