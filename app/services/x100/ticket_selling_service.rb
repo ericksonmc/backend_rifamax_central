@@ -39,7 +39,7 @@ module X100
         )
       end
     rescue => e
-      raise TicketSellingError, "Unexpected error happens: #{e.message}"
+      raise TicketSellingError, e.message
     end
 
     def self.sell_via_integrator(products:, money:, raffle:, integrator_id:, integrator_type:, user:)
@@ -142,7 +142,7 @@ module X100
     
       tickets.pluck(:position)
     rescue => e
-      Rails.logger.error "Ticket sell failed: #{e.message}"
+      Rails.logger.error e.message
       raise
     end
 
