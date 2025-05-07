@@ -38,16 +38,18 @@ module X100
           client_id: client_id,
         )
       end
-    # rescue => e
-    #   raise TicketSellingError, "Unexpected error happens: #{e}"
+    rescue => e
+      raise TicketSellingError, "Unexpected error happens: #{e.message}"
     end
 
     def self.sell_via_integrator(products:, money:, raffle:, integrator_id:, integrator_type:, user:)
+      final_price = X100::TicketPricingService.final_amount(raffle, products.length, money)
+
       validate_user(user)
       validate_raffle(raffle)
       validate_currencies(money)
       validate_integrator_client(integrator_id, integrator_type)
-      validate_sufficient_funds_before_tx(integrator_id, money, X100::TicketPricingService.final_amount(raffle, products.length, money))
+      validate_sufficient_funds_before_tx(integrator_id, money, final_price)
       
       ActiveRecord::Base.transaction do
         process_sell(
@@ -68,8 +70,8 @@ module X100
         ) 
         integration_consumer(raffle, integrator_id, integrator_type, products, money)
       end
-    # rescue => e
-    #   raise TicketSellingError, "Unexpected error happens: #{e}"
+    rescue => e
+      raise TicketSellingError, "Unexpected error happens: #{e.message}"
     end
 
     private_class_method
@@ -160,8 +162,8 @@ module X100
       )
 
       raise TicketSellingError.new "Error trying to generate order" unless order.save
-
-      add_sold_to_list(raffle, products)
+ 
+      add_sold_to_list(raffle, products) if raffle.raffle_type = 'Infinito'
 
       return order
     end
@@ -179,8 +181,8 @@ module X100
         money: money,
         shared_user_id: user.id,
         shared_exchange_id: Shared::Exchange.last.id,
-        # integrator: integrator_type.to_s,
-        # integrator_player_id: integrator_id.to_i,
+        integrator: integrator_type.to_s,
+        integrator_player_id: integrator_id.to_i,
         x100_raffle_id: raffle.id,
         x100_client_id: client.id
       )
@@ -189,7 +191,7 @@ module X100
 
       order.save!
 
-      add_sold_to_list(raffle, products)
+      add_sold_to_list(raffle, products) if raffle.raffle_type == 'Infinito'
 
       return order
     end

@@ -94,8 +94,8 @@ module X100
           purchased_at: Time.current.iso8601
         }
       }, status: :ok
-    # rescue X100::TicketSellingService::TicketSellingError, StandardError => e
-    #   render_error_response(e.message, :unprocessable_entity)
+    rescue X100::TicketSellingService::TicketSellingError, StandardError => e
+      render_error_response(e.message, :unprocessable_entity)
     end
 
     def clear
