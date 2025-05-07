@@ -57,7 +57,6 @@ module X100
           client_id: integrator_id,
           integrator_type: integrator_type
         )
-        integration_consumer(raffle, integrator_id, integrator_type, products, money)
         integration_process_order(
           user: user,
           money: money,
@@ -67,6 +66,7 @@ module X100
           integrator_id: integrator_id.to_i,
           integrator_type: integrator_type.to_s
         ) 
+        integration_consumer(raffle, integrator_id, integrator_type, products, money)
       end
     rescue => e
       raise TicketSellingError, "Unexpected error happens: #{e}"
@@ -185,7 +185,7 @@ module X100
         x100_client_id: client.id
       )
 
-      raise TicketSellingError.new "Error trying to generate order" unless order.valid?
+      raise TicketSellingError.new "Error trying to generate order: #{order.errors.full_messages.join(', ')}" unless order.valid?
 
       order.save!
 

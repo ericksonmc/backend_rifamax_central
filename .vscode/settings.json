@@ -8,7 +8,7 @@
     "java": false,
     "javascript": true,
     "javascriptreact": true,
-    "ruby": false,
+    "ruby": true,
     "css": false,
     "typescript": false,
     "typescriptreact": false
