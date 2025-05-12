@@ -216,6 +216,12 @@ module X100
           raise StandardError.new "Invalid quantity" unless quantity.positive?
           raise StandardError.new "This serie just have #{quantity_available} tickets available!" if quantity > quantity_available
 
+          if quantity_available + quantity === 10000
+            self.raffle_type = 'Cerrado'
+            self.status = 'Cerrado'
+            self.save
+          end
+
           quantity.times do |i|
             position = ([*1..10000] - sold_series).sample
 
