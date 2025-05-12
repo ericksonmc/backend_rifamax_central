@@ -207,11 +207,15 @@ module X100
         
           sold_series = eval($redis.get("sold_serie:#{id}"))
 
+          quantity_available = 10000 - sold_series.length
+
           raise StandardError.new "Sold series is null" unless sold_series.is_a?(Array)
           raise StandardError.new "Raffle is not a serie" unless self.raffle_type === 'Infinito'
           raise StandardError.new "Currency is not on list" unless currencies.include?(currency)
           raise StandardError.new "All series tickets are sold" if sold_series.length === 10000
           raise StandardError.new "Insufficient series to sort" if (10000 - sold_series.length) < quantity
+          raise StandardError.new "Invalid quantity" if quantity <= 0
+          raise StandardError.new "This serie just have #{quantity_available} tickets available!" if quantity > quantity_available
 
           quantity.times do |i|
             position = ([*1..10000] - sold_series).sample
