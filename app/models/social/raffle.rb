@@ -60,15 +60,16 @@ class Social::Raffle < ApplicationRecord
   after_create :generate_tickets
 
   # ------ Validations
-  # validates :ad,
-  #           presence: true
-
   validates :status,
             presence: true,
             inclusion: { in: ['En venta', 'Finalizando', 'Cerrado'] }
 
+  validates :draw_type,
+            presence: true,
+            inclusion: { in: %w[Progresiva Limitada] }
+
   validates :raffle_type,
-            inclusion: { in: %w[Infinito Terminal Triple] }
+            inclusion: { in: %w[Serie Infinito Terminal Triple] }
 
   validates :limit,
             presence: true,
@@ -106,11 +107,10 @@ class Social::Raffle < ApplicationRecord
             comparison: {
               greater_than_or_equal_to: :init_date
             }
+            if -> { draw_type == 'Limitada'}
 
   validates :social_influencer_id,
             presence: true
-
-  validate :validates_winners_structure
   
   validate :validates_influencer
   
@@ -189,13 +189,17 @@ class Social::Raffle < ApplicationRecord
                          'Terminal'
                        when 1000
                          'Triple'
+                       when 10000
+                         'Serie'
                        else
                          'Infinito'
                        end
   end
 
   def generate_tickets
-    if self.raffle_type != 'Infinito'
+    raffle_type_unaccepted = ['Infinito', 'Serie']
+    
+    unless self.raffle_type.includes?(raffle_type_unaccepted)
       tickets = []
 
       tickets_count.times do |position|
@@ -211,12 +215,6 @@ class Social::Raffle < ApplicationRecord
 
       X100::Ticket.insert_all(tickets)
     end
-  end
-
-  def validates_winners_structure
-    return if winners.nil?
-
-    nil unless winners.length.positive?
   end
   
 
