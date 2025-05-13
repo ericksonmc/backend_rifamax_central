@@ -22,7 +22,11 @@ class Social::RafflesController < ApplicationController
     page = params[:page] || 1
 
     if influencer
-      @raffles = influencer.actives_raffles
+      @raffles = ActiveModel::Serializer::CollectionSerializer.new(
+        influencer.actives_raffles,
+        each_serializer: Social::RaffleSerializer,
+        scope: { current_user: @current_user }
+      )
       @pagy, @records = pagy(@raffles, items: count, page: page)
       render json: { 
         social_raffles: @raffles, 
