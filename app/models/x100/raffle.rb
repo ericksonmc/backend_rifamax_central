@@ -181,7 +181,7 @@ module X100
       available_series = 10000 - sold_series
 
       {
-        raffle_id: raffle_id,
+        raffle_id: raffle_id.to_i,
         available: available_series,
         sold: sold_series
       }
