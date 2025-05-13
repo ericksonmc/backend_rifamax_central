@@ -106,7 +106,7 @@ class Social::Raffle < ApplicationRecord
             },
             comparison: {
               greater_than_or_equal_to: :init_date
-            }
+            }.
             if -> { draw_type == 'Limitada'}
 
   validates :social_influencer_id,
