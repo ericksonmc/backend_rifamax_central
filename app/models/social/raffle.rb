@@ -97,8 +97,9 @@ class Social::Raffle < ApplicationRecord
               message: 'Could be provide an init date param'
             },
             comparison: {
-              greater_than_or_equal_to: -> { Date.current }
-            }
+              greater_than_or_equal_to: Date.current 
+            },
+            if: -> { new_record? || will_save_change_to_init_date? }
               
   validates :expired_date,
             presence: {
