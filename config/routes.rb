@@ -22,6 +22,7 @@ Rails.application.routes.draw do
 
     resources :networks
     resources :raffles do
+      put 'add_ad', on: :collection
       get 'actives', on: :collection
       get 'live', on: :collection
     end
