@@ -98,7 +98,7 @@ class Social::Raffle < ApplicationRecord
             },
             comparison: {
               greater_than_or_equal_to: -> { Date.current }
-            },
+            }
               
   validates :expired_date,
             presence: {
