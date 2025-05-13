@@ -169,6 +169,24 @@ module X100
       x100_tickets.where(status: 'sold').order(id: :asc)
     end
 
+    def self.series_available(raffle_id)
+      return {} unless raffle_id.present?
+
+      sold_series = begin
+        JSON.parse($redis.get("sold_serie:#{raffle_id}") || '[]').length
+      rescue JSON::ParserError
+        0
+      end
+
+      available_series = 10000 - sold_series
+
+      {
+        raffle_id: raffle_id,
+        available: available_series,
+        sold: sold_series
+      }
+    end
+
     def sell_series(quantity, currency, integrator_id, integrator_type, client_id)
       begin
         @semaphore ||= Mutex.new

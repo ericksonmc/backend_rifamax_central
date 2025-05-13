@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impresión WebSocket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    textarea {
+      width: 80%;
+      height: 150px;
+      margin-bottom: 20px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cliente de Impresión</h1>
+  <textarea id="printText" placeholder="Escribe el texto que quieres imprimir..."></textarea>
+  <div class="manager">
+    <button id="connectButton">Conectar</button>
+    <button id="printButton">Enviar a Imprimir</button>
+  </div>
+  <div class="status" id="status">Estado: Desconectado</div>
+
+  <script>
+    let ws = null;
+
+    const printButton = document.getElementById('printButton');
+    const printText = document.getElementById('printText');
+    const statusDiv = document.getElementById('status');
+    const connectButton = document.getElementById('connectButton');
+
+    printButton.disabled = true;
+    printButton.style.backgroundColor = '#ccc';
+
+    printButton.addEventListener('click', () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('No hay conexión con el servidor.');
+        return;
+      }
+
+      const text = printText.value.trim();
+      if (!text) {
+        alert('Por favor, escribe algo para imprimir.');
+        return;
+      }
+
+      const message = { text: text };
+      ws.send(JSON.stringify(message));
+    });
+
+    function websocketAction() {
+      if (ws) {
+        ws.close();
+      }
+
+      ws = new WebSocket(`ws://localhost:1315`);
+
+      ws.onopen = () => {
+        statusDiv.textContent = 'Estado: Conectado al servidor';
+        statusDiv.style.color = 'green';
+        connectButton.disabled = true;
+        printButton.disabled = false;
+        printButton.style.backgroundColor = '#4CAF50';
+        connectButton.textContent = 'Conectado';
+        connectButton.style.backgroundColor = '#ccc';
+      };
+
+      ws.onclose = () => {
+        statusDiv.textContent = 'Estado: Desconectado del servidor';
+        statusDiv.style.color = 'red';
+        printButton.disabled = true;
+        printButton.style.backgroundColor = '#ccc';
+        connectButton.disabled = false;
+        connectButton.textContent = 'Conectar';
+        connectButton.style.backgroundColor = '#4CAF50';
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+        statusDiv.textContent = 'Estado: Error en la conexión';
+        statusDiv.style.color = 'red';
+        printButton.disabled = true;
+        printButton.style.backgroundColor = '#ccc';
+        connectButton.disabled = false;
+        connectButton.textContent = 'Conectar';
+        connectButton.style.backgroundColor = '#4CAF50';
+      };
+
+      ws.onmessage = (message) => {
+        const response = JSON.parse(message.data);
+        if (response.status === 'success') {
+          alert('Impresión completada con éxito.');
+        } else {
+          alert('Error en la impresión: ' + response.message);
+        }
+      };
+    }
+
+    connectButton.addEventListener('click', () => {
+      if (!connectButton.disabled) {
+        websocketAction();
+      }
+    });
+
+  </script>
+</body>
+</html>
