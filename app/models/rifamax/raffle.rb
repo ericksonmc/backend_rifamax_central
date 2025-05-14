@@ -115,15 +115,15 @@ class Rifamax::Raffle < ApplicationRecord
             inclusion: { in: CURRENCIES }
 
   validates :lotery,
+            on: :create,
             presence: true,
             inclusion: { in: LOTERIES },
-            on: :create,
-            if -> { is_integration.nil? }
+            if: -> { is_integration.nil? }
 
   validates :init_date,
+            on: :create,
             presence: true,
-            comparison: { greater_than: Date.yesterday },
-            on: :create
+            comparison: { greater_than: Date.yesterday }
             
   validates :numbers,
             presence: true,
@@ -407,12 +407,10 @@ class Rifamax::Raffle < ApplicationRecord
       generate_tickets_for_category(WILDCARDS)
       set_security(WILDCARDS)
     else
-      if is_integration.nil?
-        errors.add(:lotery, 'Lotery is not valid')
-      else
-        generate_tickets_for_category(ZODIAC)
-        set_security(ZODIAC)
-      end
+      return errors.add(:lotery, 'Lotery is not valid') if is_integration.nil?
+
+      generate_tickets_for_category(ZODIAC)
+      set_security(ZODIAC)
     end
   end
 
