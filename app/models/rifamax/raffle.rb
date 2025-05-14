@@ -116,7 +116,8 @@ class Rifamax::Raffle < ApplicationRecord
 
   validates :lotery,
             presence: true,
-            inclusion: { in: LOTERIES }
+            inclusion: { in: LOTERIES },
+            on: :create,
             if -> { is_integration.nil? }
 
   validates :init_date,
