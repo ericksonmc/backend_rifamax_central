@@ -42,6 +42,7 @@ class Rifamax::Raffle < ApplicationRecord
   attr_accessor :need_buy
   attr_accessor :skip_status 
   attr_accessor :cda_sell_type
+  attr_accessor :is_integration
   attr_accessor :subdomain
   attr_accessor :tokenspj
   attr_accessor :cda_jwt
@@ -67,7 +68,12 @@ class Rifamax::Raffle < ApplicationRecord
   # Important variables
   CURRENCIES = %w[USD VES COP].freeze
 
-  LOTERIES = ['Zulia 7A', 'Zulia 7B', 'Triple Pelotica', 'Triple Rifamax Zodiacal'].freeze 
+  LOTERIES = [
+    'Zulia 7A', 
+    'Zulia 7B', 
+    'Triple Pelotica', 
+    'Triple Rifamax Zodiacal'
+  ].freeze 
 
   ZODIAC = %w[
     Aries
@@ -111,6 +117,7 @@ class Rifamax::Raffle < ApplicationRecord
   validates :lotery,
             presence: true,
             inclusion: { in: LOTERIES }
+            if -> { is_integration.nil? }
 
   validates :init_date,
             presence: true,
@@ -399,7 +406,12 @@ class Rifamax::Raffle < ApplicationRecord
       generate_tickets_for_category(WILDCARDS)
       set_security(WILDCARDS)
     else
-      errors.add(:lotery, 'Lotery is not valid')
+      if is_integration.nil?
+        errors.add(:lotery, 'Lotery is not valid')
+      else
+        generate_tickets_for_category(ZODIAC)
+        set_security(ZODIAC)
+      end
     end
   end
 

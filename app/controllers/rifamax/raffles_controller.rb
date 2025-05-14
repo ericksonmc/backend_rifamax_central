@@ -169,6 +169,7 @@ module Rifamax
         @rifamax_raffle.cda_jwt = @cda_jwt
         @rifamax_raffle.payload = @payload.to_json.to_s
         @rifamax_raffle.payment_pre_info = @payment_info
+        @rifamax_raffle.is_integration = true
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
@@ -265,6 +266,7 @@ module Rifamax
       @rifamax_raffle.seller_id = @current_user.id
       @rifamax_raffle.expired_date = 1.days.from_now
       @rifamax_raffle.need_buy = true
+      @rifamax_raffle.is_integration = true
 
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
