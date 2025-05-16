@@ -33,6 +33,7 @@ class Social::PaymentMethod < ApplicationRecord
   # ------ Triggers
   before_validation :initialize_currency
   before_create :initialize_status
+  before_create :calculate_amount
 
   # ------ Belongs to association
   belongs_to :social_client, class_name: 'Social::Client', foreign_key: 'social_client_id'
@@ -42,6 +43,9 @@ class Social::PaymentMethod < ApplicationRecord
 
   # ------ Associations/relationships between tables
   has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_payment_method_id', dependent: :destroy
+
+  # ------ Attribute acessors
+  attr_accessor :quantity_requested
 
   # ------ Validations
   validates :payment, 
@@ -147,6 +151,23 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   private
+
+  def calculate_amount
+    exchange = Shared::Exchange.last
+    raffle = Social::Raffle.find(social_raffle_id)
+    base_amount = (quantity_requested * raffle.price_unit)
+
+    self.amount =  case currency
+    when 'USD'
+      base_amount
+    when 'VES'
+      base_amount * exchange.value_bs
+    when 'COP'
+      base_amount * exchange.value_cop
+    else
+      base_amount
+    end.round(2)
+  end
 
   def initialize_status
     self.status = "active"

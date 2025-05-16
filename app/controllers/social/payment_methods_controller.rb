@@ -114,13 +114,14 @@ class Social::PaymentMethodsController < ApplicationController
 
   def social_payment_method_params
     params.require(:social_payment_method).permit(
-      :payment, 
       :amount, 
-      :currency, 
       :status, 
+      :payment, 
+      :currency, 
       :content_code,
       :social_raffle_id,
       :social_client_id,
+      :quantity_requested,
       details: [:bank, :name, :last_digits, :dni, :phone, :email, :reference]
     )
   end
