@@ -119,6 +119,7 @@ class Social::PaymentMethodsController < ApplicationController
       :currency, 
       :status, 
       :content_code,
+      :social_raffle_id,
       :social_client_id,
       details: [:bank, :name, :last_digits, :dni, :phone, :email, :reference]
     )
