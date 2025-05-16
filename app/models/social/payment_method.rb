@@ -32,6 +32,7 @@
 class Social::PaymentMethod < ApplicationRecord
   # ------ Triggers
   before_validation :initialize_currency
+  before_validation :initialize_exchange
   before_create :initialize_status
   before_create :calculate_amount
 
@@ -91,7 +92,7 @@ class Social::PaymentMethod < ApplicationRecord
     raise "Invalid user data type" if user.nil?
     raise "Invalid payment data type" unless payment.is_a?(String)
 
-    payments_accepted =  ["Stripe", "Pago Móvil", "Zelle", "Paypal"]
+    payments_accepted =  ["Stripe", "Pago Movil", "Zelle", "Paypal"]
 
     raise "Invalid payment method" unless payments_accepted.include?(payment)
   
@@ -173,16 +174,20 @@ class Social::PaymentMethod < ApplicationRecord
     self.status = "active"
   end
 
+  def initialize_exchange
+    self.shared_exchange_id = Shared::Exchange.last.id
+  end
+
   def initialize_currency
-    case payment
+    self.currency = case payment
     when "Stripe"
-      self.currency = "USD"
+      "USD"
     when "Pago Movil"
-      self.currency = "VES"
+      "VES"
     when "Zelle"
-      self.currency = "USD"
+      "USD"
     when "Paypal"
-      self.currency = "USD"
+      "USD"
     end
   end
   
