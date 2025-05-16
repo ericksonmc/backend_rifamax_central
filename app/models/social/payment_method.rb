@@ -188,6 +188,7 @@ class Social::PaymentMethod < ApplicationRecord
     errors.add(:details, "Bank is not present") unless details["bank"].present?
     errors.add(:details, "Phone is not present") unless details["phone"].present?
     errors.add(:details, "DNI is not present") unless details["dni"].present?
+    errors.add(:details, "References is not present") unless details["reference"].present?
   end
 
   def validates_zelle
