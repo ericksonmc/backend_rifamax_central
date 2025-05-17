@@ -173,9 +173,6 @@ module Rifamax
 
         result = @rifamax_raffle.handle_cda_payment
       rescue StandardError => e
-        # add logger for error
-        Rails.logger.error("Error in triple_pay: #{e.message}")
-        Rails.logger.error(e.backtrace.join("\n"))
         render json: { exception: e }, status: :unprocessable_entity
       else
         render json: result, status: :ok
