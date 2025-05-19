@@ -218,6 +218,9 @@ class Social::Raffle < ApplicationRecord
     end
   end
   
+  def initialize_ticket
+    $redis.set("social_sold_serie:#{self.id}", [])
+  end
 
   def validates_influencer
     return unless Social::Influencer.find(social_influencer_id).shared_user.role != 'Influencer'

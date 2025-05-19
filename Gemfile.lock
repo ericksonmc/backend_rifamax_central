@@ -97,6 +97,8 @@ GEM
       ssrf_filter (~> 1.0)
     case_transform (0.2)
       activesupport
+    childprocess (5.1.0)
+      logger (~> 1.5)
     chronic (0.10.2)
     climate_control (0.2.0)
     coercible (1.0.0)
@@ -164,6 +166,13 @@ GEM
     jwt (2.7.1)
     kartograph (0.2.8)
     language_server-protocol (3.17.0.3)
+    launchy (3.1.1)
+      addressable (~> 2.8)
+      childprocess (~> 5.0)
+      logger (~> 1.6)
+    letter_opener (1.10.0)
+      launchy (>= 2.2, < 4)
+    logger (1.7.0)
     loofah (2.21.4)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -376,6 +385,7 @@ DEPENDENCIES
   haml (~> 6.2)
   httparty
   jwt
+  letter_opener
   mechanize (~> 2.9)
   nokogiri (~> 1.15)
   open-uri (~> 0.4.0)

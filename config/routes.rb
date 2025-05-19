@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   post 'auth/verify_trz_access', to: 'authentication#verify_trz_access'
  
   namespace :social do
+    get 'order/search'
+    get 'order/purchase'
     get 'stats/index'
     get 'details/index'
     get 'influencers/index'

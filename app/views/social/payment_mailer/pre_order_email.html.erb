@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <meta name="color-scheme" content="light dark">
+    <style>
+      :root {
+        font-family: sans-serif;
+        color-scheme: light dark;
+        --radius: calc(0.5rem * 1);
+        --shadow: 0 calc(0.0625rem * 1) calc(0.1875rem * 1) rgba(0, 0, 0, .05), rgba(0, 0, 0, .05) 0 calc(0.625rem * 1) calc(0.9375rem * 1) calc(-0.3125rem * 1), rgba(0, 0, 0, .04) 0 calc(0.4375rem * 1) calc(0.4375rem * 1) calc(-0.3125rem * 1);
+        --padding: calc(1rem * 1);
+        --logoBg: #2f2f2f;
+      }
+
+      body {
+        background-color: #1e1e1e;
+      }
+
+      main {
+        padding: 20px;
+        margin: 0 auto; 
+        max-width: 600px; 
+      }
+
+      .card {
+        background: #202020;
+        padding: 20px
+      }
+
+      .titleContainer {
+        text-align: center; 
+        margin-bottom: 30px;
+      }
+
+      .logoContainer {
+        display: flex;
+        padding: var(--padding);
+        justify-content: center;
+        background: var(--logoBg);
+        border-radius: var(--radius) var(--radius) 0 0;
+      }
+
+      .mainText {
+        text-align: center;
+        font-size: 2rem;
+      }
+
+      .paragraph {
+        text-align: center;
+        font-size: 1rem;
+      }
+
+      .image {
+        max-height: 40px;
+      }
+
+      .raffleContainer {
+        display: flex;
+        justify-content: center;
+      }
+
+      .imagePrize {
+        max-width: 350px;
+        max-height: 600px;
+        border-radius: var(--radius);
+      }
+
+      footer {
+        background: var(--logoBg);
+        padding: 20px;
+        border-radius: var(--radius) var(--radius) 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .contactButton {
+        padding: 15px;
+        background-color: #FF9500;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        color: white;
+        border-radius: var(--radius);
+        border: none;
+      }
+      
+      hr {
+        background-color: #FF9500;
+        border: none;
+        border-radius: 0 0 var(--radius) var(--radius);
+        margin-top: -6px;
+        height: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="logoContainer">
+        <img 
+          src="<%=ENV["url_base"]%>/logo-rifamax.png"
+          class="image"
+        >
+      </div>
+      <div class="card">
+        <p class="mainText">
+          <%= @greeting %>
+        </p>
+        <p class="paragraph">
+          En un plazo no mayor a 24 horas se le notificará sobre tu compra.
+        </p>
+        <div class="raffleContainer">
+          <img 
+            src="<%=ENV["url_base"]%>/<%=@raffle.ad.url%>"
+            class="imagePrize"
+            alt="prize"
+          >
+        </div>
+
+        <% if @client.present? %>
+          <div style="margin-bottom: 20px; text-align: center">
+            <h2>Detalles</h3>
+            <p>Nombre: <%= @client.name %></p>
+            <p>Monto: <%= @amount.round(1) %>0 <%= @currency%></p>
+            <p>Rifa: <%= @raffle.title %></p>
+          </div>
+        <% end %>
+      </div>
+      <footer>
+        <p class="paragraph">
+          Al usar nuestros servicios, acepta los téminos de uso.Puede contactar con nuestro equipo de soporte si tiene alguna inquietud.
+        </p>
+        <a 
+          href="https://google.com/" 
+          class="contactButton"
+        >
+          Contáctanos aquí
+        </a>
+      </footer>
+      <hr>
+    </main>
+  </body>
+</html>

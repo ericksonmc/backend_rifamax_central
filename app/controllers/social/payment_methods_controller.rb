@@ -75,12 +75,22 @@ class Social::PaymentMethodsController < ApplicationController
   # POST /social/payment_methods
   def create
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
+    client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
+    raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
 
+    return render json: { message: 'Client must exists' }, status: :not_found unless client
+    return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
 
     @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code))
     @social_payment_method.social_influencer_id = influencer.id
     if @social_payment_method.save
+      Social::PaymentMailer.pre_order_email(
+        client,
+        raffle,
+        @social_payment_method[:amount],
+        @social_payment_method[:currency]
+      )
       render json: @social_payment_method, status: :created
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity

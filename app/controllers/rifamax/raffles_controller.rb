@@ -296,7 +296,7 @@ module Rifamax
     def serialize(raffles)
       ActiveModelSerializers::SerializableResource.new(raffles, each_serializer: Rifamax::RaffleSerializer)
     end
-
+    
     # def set_rifamax_raffle
     #   @rifamax_raffle = Rifamax::Raffle.find(params[:id])
     # end
