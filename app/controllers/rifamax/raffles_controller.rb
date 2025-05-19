@@ -4,7 +4,7 @@ module Rifamax
   class RafflesController < ApplicationController
     include Pagy::Backend
 
-    before_action :set_rifamax_raffle, only: %i[show update destroy]
+    # before_action :set_rifamax_raffle, only: %i[show update destroy]
     before_action :authorize_request, except: %i[report]
 
     # GET /rifamax/raffles
@@ -297,9 +297,9 @@ module Rifamax
       ActiveModelSerializers::SerializableResource.new(raffles, each_serializer: Rifamax::RaffleSerializer)
     end
 
-    def set_rifamax_raffle
-      @rifamax_raffle = Rifamax::Raffle.find(params[:id])
-    end
+    # def set_rifamax_raffle
+    #   @rifamax_raffle = Rifamax::Raffle.find(params[:id])
+    # end
 
     def rifamax_raffle_pay_params
       params.require(:rifamax_raffle).permit(
