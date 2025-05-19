@@ -90,7 +90,7 @@ class Social::PaymentMethodsController < ApplicationController
         raffle,
         @social_payment_method[:amount],
         @social_payment_method[:currency]
-      )
+      ).deliver_now
       render json: @social_payment_method, status: :created
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity
