@@ -278,7 +278,8 @@ class Rifamax::Raffle < ApplicationRecord
     )
 
     unless @result.code == 200  
-      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", data: @result.body, code: @result.code, req_body: payload }.to_json)
+      byebug
+      raise StandardError, JSON.parse({ message: "Something failed in payment of triple", code: @result.code, req_body: payload }.to_json)
     else
       if @result["cmd"] == 'C10'
         Rifamax::Raffle.find(raffle_id).update(admin_status: 1, payment_info: payment_info, details: @result["ticket"])

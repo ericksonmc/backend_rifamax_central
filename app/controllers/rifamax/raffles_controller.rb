@@ -162,21 +162,19 @@ module Rifamax
 
       @rifamax_raffle = Rifamax::Raffle.find(rifamax_raffle_triple_pay_params[:id])
       
-      begin
-        @rifamax_raffle.cda_sell_type = @cda_sell_type
-        @rifamax_raffle.subdomain = @subdomain
-        @rifamax_raffle.tokenspj = @tokenspj
-        @rifamax_raffle.cda_jwt = @cda_jwt
-        @rifamax_raffle.payload = @payload.to_json.to_s
-        @rifamax_raffle.payment_pre_info = @payment_info
-        @rifamax_raffle.is_integration = true
+      @rifamax_raffle.cda_sell_type = @cda_sell_type
+      @rifamax_raffle.subdomain = @subdomain
+      @rifamax_raffle.tokenspj = @tokenspj
+      @rifamax_raffle.cda_jwt = @cda_jwt
+      @rifamax_raffle.payload = @payload.to_json.to_s
+      @rifamax_raffle.payment_pre_info = @payment_info
+      @rifamax_raffle.is_integration = true
 
-        result = @rifamax_raffle.handle_cda_payment
-      rescue StandardError => e
+      result = @rifamax_raffle.handle_cda_payment
+
+      render json: result, status: :ok
+    rescue StandardError => e
         render json: { exception: e }, status: :unprocessable_entity
-      else
-        render json: result, status: :ok
-      end
     end
 
     # POST /rifamax/raffles/unpay
