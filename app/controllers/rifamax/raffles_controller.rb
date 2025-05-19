@@ -320,7 +320,7 @@ module Rifamax
           :fec, :ts, :correo, :compress, :cupon, :usa_cupon, :app, :jp, 
           :ani, :tip, :uti, :cod, :ven, :ani_tipo, :producto_id, :codagen,
           :beneficiencia, :cda, :loterias, :cajero_id, :cedula, :nt,
-          :telefono, :banco_id, :ticket,
+          :telefono, :banco_id, :ticket, :moneda_id,
           jug: [:i, :n, :s, :c, :m],
         ]
       )
