@@ -47,17 +47,17 @@ class Social::Client < ApplicationRecord
               in: ['Venezuela', 'Colombia', 'Perú', 'Ecuador', 'Chile', 'Argentina', 'Uruguay', 'Paraguay', 'Bolivia', 'Brasil', 'México', 'USA', 'Canadá']
             }
 
-  validates :province,
-            presence: true,
-            length: { minimum: 3, maximum: 50 }
+  # validates :province,
+  #           presence: true,
+  #           length: { minimum: 3, maximum: 50 }
 
-  validates :zip_code,
-            presence: true,
-            length: { minimum: 3, maximum: 10 }
+  # validates :zip_code,
+  #           presence: true,
+  #           length: { minimum: 3, maximum: 10 }
 
-  validates :address,
-            presence: true,
-            length: { minimum: 3, maximum: 120 }
+  # validates :address,
+  #           presence: true,
+  #           length: { minimum: 3, maximum: 120 }
 
   # ------ Public methods
   def methods
