@@ -10,7 +10,7 @@ class Social::PaymentMailer < ApplicationMailer
 
     mail(
       to: client.email, 
-      subject: "Confirmación de tu compra: #{raffle.title}",
+      subject: "Pre orden de tu compra: #{raffle.title}",
     )
   end
 
