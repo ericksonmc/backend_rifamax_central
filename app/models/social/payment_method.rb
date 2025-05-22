@@ -7,6 +7,7 @@
 #  currency             :string
 #  details              :jsonb
 #  payment              :string
+#  quantity_requested   :integer
 #  status               :string
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
@@ -43,10 +44,9 @@ class Social::PaymentMethod < ApplicationRecord
   belongs_to :shared_exchange, class_name: 'Shared::Exchange', foreign_key: 'shared_exchange_id', optional: true
 
   # ------ Associations/relationships between tables
-  has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_payment_method_id', dependent: :destroy
+  # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_payment_method_id', dependent: :destroy
 
   # ------ Attribute acessors
-  attr_accessor :quantity_requested
 
   # ------ Validations
   validates :payment, 

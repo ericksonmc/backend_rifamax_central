@@ -7,6 +7,7 @@
 #  currency             :string
 #  details              :jsonb
 #  payment              :string
+#  quantity_requested   :integer
 #  status               :string
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null

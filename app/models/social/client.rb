@@ -15,7 +15,7 @@
 #
 class Social::Client < ApplicationRecord
   # ------ Associations/relationships between tables
-  has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_client_id', dependent: :destroy
+  # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_client_id', dependent: :destroy
 
   # ------ Validations
   validates :name, 

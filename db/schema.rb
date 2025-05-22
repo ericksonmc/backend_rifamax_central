@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_04_06_214408) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_22_162151) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -290,6 +290,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_06_214408) do
     t.bigint "social_raffle_id"
     t.string "status"
     t.bigint "shared_exchange_id"
+    t.integer "quantity_requested"
     t.index ["shared_exchange_id"], name: "index_social_payment_methods_on_shared_exchange_id"
     t.index ["social_client_id"], name: "index_social_payment_methods_on_social_client_id"
     t.index ["social_influencer_id"], name: "index_social_payment_methods_on_social_influencer_id"

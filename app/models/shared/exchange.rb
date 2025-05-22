@@ -15,7 +15,7 @@
 module Shared
   class Exchange < ApplicationRecord
     has_many :x100_orders, class_name: 'X100::Order', foreign_key: 'shared_exchange_id'
-    has_many :social_orders, class_name: 'Social::Order', foreign_key: 'shared_exchange_id'
+    # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'shared_exchange_id'
     has_many :social_payment_methods, class_name: 'Social::PaymentMethod', foreign_key: 'shared_exchange_id'
 
     include HTTParty

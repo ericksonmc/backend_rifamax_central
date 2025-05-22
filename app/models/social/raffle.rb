@@ -51,8 +51,7 @@ class Social::Raffle < ApplicationRecord
   
   # ------ Associations/relationships between tables
   has_many :social_tickets, class_name: 'Social::Ticket', foreign_key: 'social_raffle_id', dependent: :destroy
-  has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_raffle_id'
-  has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_raffle_id'
+  # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_raffle_id'
   has_many :social_payment_methods, class_name: 'Social::PaymentMethod', foreign_key: 'social_raffle_id'
 
   # ------ Utils and tools
