@@ -178,7 +178,22 @@ a[x-apple-data-detectors],
                  </tr>
                </table></td>
              </tr>
-             <%= render partial: 'order_tickets_email', tickets: @tickets %>
+             <tr>
+              <td align="left" bgcolor="#202020" style="Margin:0;padding-right:20px;padding-left:20px;padding-top:10px;padding-bottom:20px;background-color:#202020">
+               <table cellspacing="0" cellpadding="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                 <tr>
+                  <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;letter-spacing:0;color:#ffffff;font-size:14px"><strong>Tus tickets:</strong></p></td>
+                     </tr>
+                     <tr>
+                      <td align="center" style="padding:0;Margin:0"><p style="Margin:0;mso-line-height-rule:exactly;font-family:'open sans', 'helvetica neue', helvetica, arial, sans-serif;line-height:21px;letter-spacing:0;color:#ffffff;font-size:14px"><%= tickets.join(' | ') %></p></td>
+                     </tr>
+                   </table></td>
+                 </tr>
+               </table></td>
+             </tr>
              <tr>
               <td align="left" bgcolor="#2e2e2e" style="Margin:0;padding-top:20px;padding-bottom:10px;padding-right:20px;padding-left:20px;background-color:#2e2e2e">
                <table cellspacing="0" cellpadding="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
