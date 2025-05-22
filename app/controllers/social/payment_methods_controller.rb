@@ -84,7 +84,8 @@ class Social::PaymentMethodsController < ApplicationController
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
     return render json: { message: 'Quantity requested must be greater than 0' }, status: :unprocessable_entity unless quantity_requested && quantity_requested > 0
 
-    @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code))
+    @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested))
+    @social_payment_method.quantity_requested = quantity_requested
     @social_payment_method.social_influencer_id = influencer.id
     if @social_payment_method.save
       Social::PaymentMailer.pre_order_email(
