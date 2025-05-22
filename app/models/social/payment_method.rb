@@ -142,7 +142,7 @@ class Social::PaymentMethod < ApplicationRecord
         amount,
         currency,
         [*1..10000].sample(quantity_requested).uniq
-      )
+      ).deliver_now
       update(status: "accepted")
       save
     end
