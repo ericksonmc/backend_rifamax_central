@@ -136,6 +136,13 @@ class Social::PaymentMethod < ApplicationRecord
 
   def accept!
     if status == 'active'
+      Social::PaymentMailer.order_email(
+        social_client,
+        social_raffle,
+        amount,
+        currency,
+        [*1..10000].sample(quantity_requested).uniq
+      )
       update(status: "accepted")
       save
     end

@@ -14,9 +14,17 @@ class Social::PaymentMailer < ApplicationMailer
     )
   end
 
-  def order_email(client, payment)
-    @greeting = "Hi"
+  def order_email(client, raffle, amount, currency, tickets)
+    @greeting = "Hola, #{client.name} 👋🏻"
+    @client = client
+    @raffle = raffle
+    @amount = amount 
+    @tickets = tickets
+    @currency = currency
 
-    mail to: "to@example.org"
+    mail(
+      to: client.email, 
+      subject: "Confirmación de tu compra: #{raffle.title}",
+    )
   end
 end

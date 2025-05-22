@@ -33,6 +33,9 @@
 class Social::Raffle < ApplicationRecord
   self.table_name = 'social_raffles'
 
+  # ------ Initializers
+  before_create :initialize_ticket
+
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
   scope :closing, -> { where(status: 'Finalizando' )}
@@ -219,6 +222,7 @@ class Social::Raffle < ApplicationRecord
   end
   
   def initialize_ticket
+    $redis.set("social_preorder_serie:#{self.id}", 0)
     $redis.set("social_sold_serie:#{self.id}", [])
   end
 

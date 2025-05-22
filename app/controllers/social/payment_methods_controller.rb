@@ -77,10 +77,12 @@ class Social::PaymentMethodsController < ApplicationController
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
     client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
+    quantity_requested = social_payment_method_params[:quantity_requested]
 
     return render json: { message: 'Client must exists' }, status: :not_found unless client
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
+    return render json: { message: 'Quantity requested must be greater than 0' }, status: :unprocessable_entity unless quantity_requested && quantity_requested > 0
 
     @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code))
     @social_payment_method.social_influencer_id = influencer.id

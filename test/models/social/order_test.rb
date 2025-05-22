@@ -9,6 +9,7 @@
 #  products                 :integer
 #  serial                   :string
 #  status                   :string
+#  tickets_pending          :integer
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  shared_exchange_id       :bigint           not null
