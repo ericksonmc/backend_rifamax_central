@@ -136,16 +136,12 @@ class Social::PaymentMethod < ApplicationRecord
 
   def accept!
     if status == 'active'
-      Social::PaymentMailer.order_email(
-        social_client,
-        social_raffle,
-        amount,
-        currency,
-        [*1..10000].sample(quantity_requested).uniq
-      ).deliver_now
       update(status: "accepted")
-      save
+      send_email
     end
+  rescue StandardError => e
+    errors.add(:base, "Failed to send email: #{e.message}")
+    false
   end
 
   def reject!
@@ -209,6 +205,16 @@ class Social::PaymentMethod < ApplicationRecord
     when "Paypal"
       validates_paypal
     end
+  end
+
+  def send_email
+    Social::PaymentMailer.order_email(
+      social_client,
+      social_raffle,
+      amount,
+      currency,
+      [*1..10000].sample(quantity_requested).uniq
+    ).deliver_now
   end
 
   def validates_stripe
