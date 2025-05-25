@@ -21,8 +21,16 @@ Rails.application.routes.draw do
     get 'influencers/index'
     post 'login', to: 'authentication#social_login'
     post 'auth/refresh', to: 'authentication#social_refresh'
-
+    
     resources :networks
+    resources :lotteries do 
+      collection do
+        get :available
+      end
+      member do
+        put :toggle_status
+      end
+    end
     resources :raffles do
       put 'add_ad', on: :collection
       get 'actives', on: :collection
@@ -113,7 +121,6 @@ Rails.application.routes.draw do
   end
 
   namespace :shared do
-    resources :lotteries
     resources :structures
     resources :currencies
     resources :sprites
