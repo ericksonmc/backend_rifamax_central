@@ -77,10 +77,6 @@ class Social::Raffle < ApplicationRecord
             presence: true,
             inclusion: { in: ['En venta', 'Finalizando', 'Cerrado'] }
 
-  validates :draw_type,
-            presence: true,
-            inclusion: { in: %w[Progresiva Limitada] }
-
   validates :raffle_type,
             inclusion: { in: %w[Serie Infinito Terminal Triple] }
 
@@ -201,6 +197,7 @@ class Social::Raffle < ApplicationRecord
     self.money = 'USD'
     self.winners = false
     self.status = 'En venta'
+    self.draw_type = 'Limitada'
     self.has_winners = false
     self.social_fee_id = Social::Fee.last.id
     self.raffle_type = case tickets_count
