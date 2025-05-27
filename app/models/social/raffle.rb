@@ -91,7 +91,7 @@ class Social::Raffle < ApplicationRecord
             numericality: {
               only_integer: true,
               greater_than_or_equal_to: 100,
-              less_than_or_equal_to: 1000
+              less_than_or_equal_to: 100000
             },
             if: -> { raffle_type != 'Infinito' }
 
