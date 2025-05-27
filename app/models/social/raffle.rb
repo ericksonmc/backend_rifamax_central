@@ -81,7 +81,7 @@ class Social::Raffle < ApplicationRecord
             presence: true,
             numericality: {
               only_integer: true,
-              greater_than_or_equal_to: 1,
+              greater_than_or_equal_to: 0,
               less_than_or_equal_to: 100
             },
             if: -> { draw_type == 'Progresiva' }
