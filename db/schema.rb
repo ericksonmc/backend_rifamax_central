@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_27_214354) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_27_220155) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -342,8 +342,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_27_214354) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "social_fee_id"
+    t.bigint "social_lottery_id"
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
+    t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"
   end
 
   create_table "social_tickets", force: :cascade do |t|
@@ -465,6 +467,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_27_214354) do
   add_foreign_key "social_payment_options", "social_influencers"
   add_foreign_key "social_raffles", "social_fees"
   add_foreign_key "social_raffles", "social_influencers"
+  add_foreign_key "social_raffles", "social_lotteries"
   add_foreign_key "social_tickets", "social_raffles"
   add_foreign_key "x100_orders", "shared_exchanges"
   add_foreign_key "x100_orders", "shared_users"

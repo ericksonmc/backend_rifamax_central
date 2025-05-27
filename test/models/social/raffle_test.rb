@@ -22,16 +22,19 @@
 #  updated_at           :datetime         not null
 #  social_fee_id        :bigint
 #  social_influencer_id :bigint           not null
+#  social_lottery_id    :bigint
 #
 # Indexes
 #
 #  index_social_raffles_on_social_fee_id         (social_fee_id)
 #  index_social_raffles_on_social_influencer_id  (social_influencer_id)
+#  index_social_raffles_on_social_lottery_id     (social_lottery_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (social_fee_id => social_fees.id)
 #  fk_rails_...  (social_influencer_id => social_influencers.id)
+#  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 require "test_helper"
 

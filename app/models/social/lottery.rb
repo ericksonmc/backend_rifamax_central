@@ -11,6 +11,8 @@
 #  updated_at :datetime         not null
 #
 class Social::Lottery < ApplicationRecord
+   has_many :social_raffles, class_name: 'Social::Raffle', foreign_key: 'social_lottery_id', dependent: :destroy
+
   # ----- Validations
   validates :name,
             presence: true,

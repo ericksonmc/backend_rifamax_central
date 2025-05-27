@@ -22,16 +22,19 @@
 #  updated_at           :datetime         not null
 #  social_fee_id        :bigint
 #  social_influencer_id :bigint           not null
+#  social_lottery_id    :bigint
 #
 # Indexes
 #
 #  index_social_raffles_on_social_fee_id         (social_fee_id)
 #  index_social_raffles_on_social_influencer_id  (social_influencer_id)
+#  index_social_raffles_on_social_lottery_id     (social_lottery_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (social_fee_id => social_fees.id)
 #  fk_rails_...  (social_influencer_id => social_influencers.id)
+#  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::Raffle < ApplicationRecord
   self.table_name = 'social_raffles'
@@ -52,6 +55,7 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Foreign Keys Beloging
   belongs_to :social_fee, class_name: 'Social::Fee', foreign_key: 'social_fee_id'
+  belongs_to :social_lottery, class_name: 'Social::Lottery', foreign_key: 'social_lottery_id'
   belongs_to :social_influencer, class_name: 'Social::Influencer', foreign_key: 'social_influencer_id'
 
   # ------ Associations/relationships between tables
@@ -66,6 +70,9 @@ class Social::Raffle < ApplicationRecord
   before_validation :initialize_attributes
 
   # ------ Validations
+  validates :social_lottery_id,
+            presence: true
+
   validates :status,
             presence: true,
             inclusion: { in: ['En venta', 'Finalizando', 'Cerrado'] }
