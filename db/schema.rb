@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_23_165827) do
+ActiveRecord::Schema[7.0].define(version: 2025_05_27_214354) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -241,6 +241,12 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_23_165827) do
     t.string "address"
   end
 
+  create_table "social_fees", force: :cascade do |t|
+    t.float "admin_profit_fee"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "social_influencers", force: :cascade do |t|
     t.string "content_code"
     t.bigint "shared_user_id", null: false
@@ -335,6 +341,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_23_165827) do
     t.bigint "social_influencer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "social_fee_id"
+    t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
   end
 
@@ -455,6 +463,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_23_165827) do
   add_foreign_key "social_payment_methods", "social_influencers"
   add_foreign_key "social_payment_methods", "social_raffles"
   add_foreign_key "social_payment_options", "social_influencers"
+  add_foreign_key "social_raffles", "social_fees"
   add_foreign_key "social_raffles", "social_influencers"
   add_foreign_key "social_tickets", "social_raffles"
   add_foreign_key "x100_orders", "shared_exchanges"

@@ -20,14 +20,17 @@
 #  winners              :jsonb
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  social_fee_id        :bigint
 #  social_influencer_id :bigint           not null
 #
 # Indexes
 #
+#  index_social_raffles_on_social_fee_id         (social_fee_id)
 #  index_social_raffles_on_social_influencer_id  (social_influencer_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (social_fee_id => social_fees.id)
 #  fk_rails_...  (social_influencer_id => social_influencers.id)
 #
 class Social::Raffle < ApplicationRecord
@@ -35,6 +38,7 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Initializers
   before_create :initialize_ticket
+  before_create :initialize_attributes
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
@@ -47,8 +51,9 @@ class Social::Raffle < ApplicationRecord
   scope :terminal, -> { where(raffle_type: 'Terminal', status: 'En venta')}
 
   # ------ Foreign Keys Beloging
+  belongs_to :social_fee, class_name: 'Social::Fee', foreign_key: 'social_fee_id'
   belongs_to :social_influencer, class_name: 'Social::Influencer', foreign_key: 'social_influencer_id'
-  
+
   # ------ Associations/relationships between tables
   has_many :social_tickets, class_name: 'Social::Ticket', foreign_key: 'social_raffle_id', dependent: :destroy
   # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_raffle_id'
@@ -59,7 +64,6 @@ class Social::Raffle < ApplicationRecord
   
   # ------ Triggers or before/after actions
   before_validation :initialize_attributes
-  after_create :generate_tickets
 
   # ------ Validations
   validates :status,
@@ -185,39 +189,21 @@ class Social::Raffle < ApplicationRecord
   private
 
   def initialize_attributes
-    self.status = 'En venta'
+    self.limit = 0
+    self.combos = nil
     self.money = 'USD'
+    self.winners = false
+    self.status = 'En venta'
+    self.has_winners = false
+    self.social_fee_id = Social::Fee.last.id
     self.raffle_type = case tickets_count
                        when 100
                          'Terminal'
                        when 1000
                          'Triple'
-                       when 10000
-                         'Serie'
                        else
-                         'Infinito'
+                         'Serie'
                        end
-  end
-
-  def generate_tickets
-    raffle_type_unaccepted = ['Infinito', 'Serie']
-    
-    unless self.raffle_type.includes?(raffle_type_unaccepted)
-      tickets = []
-
-      tickets_count.times do |position|
-        tickets << {
-          position: position + 1,
-          price: nil,
-          money: nil,
-          x100_raffle_id: id,
-          x100_client_id: nil,
-          serial: SecureRandom.uuid
-        }
-      end
-
-      X100::Ticket.insert_all(tickets)
-    end
   end
   
   def initialize_ticket

@@ -82,7 +82,7 @@ class Social::RafflesController < ApplicationController
   # PATCH/PUT /social/raffles/1/add_ad
   def add_ad
     @social_raffle = Social::Raffle.find(params[:id])
-    ad = social_raffle_ad_params[:ad]
+    ad = ad_params[:ad]
 
     if @social_raffle.update(ad: ad)
 
@@ -107,17 +107,25 @@ class Social::RafflesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_social_raffle
-      @social_raffle = Social::Raffle.find(params[:id])
-    end
 
-    def social_raffle_ad_params
-      params.permit(:ad)
-    end
+  def set_social_raffle
+    @social_raffle = Social::Raffle.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def social_raffle_params
-      params.require(:social_raffle).permit(:influencer_id, :title, :description, :start_date, :end_date, :status)
-    end
+  def ad_params
+    params.permit(:ad)
+  end
+
+  def social_raffle_params
+    params.require(:social_raffle).permit(
+      :title,
+      :init_date,
+      :price_unit,
+      :expired_date,
+      :tickets_count,
+      :social_lottery_id,
+      :social_influencer_id,
+      prizes: [:name, :worth, :prize_position]
+    )
+  end
 end

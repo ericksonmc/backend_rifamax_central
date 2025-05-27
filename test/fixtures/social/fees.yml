@@ -1,0 +1,15 @@
+# == Schema Information
+#
+# Table name: social_fees
+#
+#  id               :bigint           not null, primary key
+#  admin_profit_fee :float
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#
+
+one:
+  admin_profit_fee: 1.5
+
+two:
+  admin_profit_fee: 1.5
