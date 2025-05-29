@@ -22,12 +22,12 @@ class Social::Client < ApplicationRecord
             presence: true,
             length: { minimum: 3, maximum: 50 }
 
-  validates :email, 
-            presence: true,
+  validates :email,
             format: {
               with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i,
               message: 'Introduzca un correo electrónico válido'
-            }
+            },
+            if: -> { email.length > 0 }
 
   validates :phone, 
             presence: {
