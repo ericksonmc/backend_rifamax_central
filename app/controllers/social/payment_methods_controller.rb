@@ -88,12 +88,12 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.quantity_requested = quantity_requested
     @social_payment_method.social_influencer_id = influencer.id
     if @social_payment_method.save
-      Social::PaymentMailer.pre_order_email(
-        client,
-        raffle,
-        @social_payment_method[:amount],
-        @social_payment_method[:currency]
-      ).deliver_now
+      # Social::PaymentMailer.pre_order_email(
+      #   client,
+      #   raffle,
+      #   @social_payment_method[:amount],
+      #   @social_payment_method[:currency]
+      # ).deliver_now
       render json: @social_payment_method, status: :created
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity
