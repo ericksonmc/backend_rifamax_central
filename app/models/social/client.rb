@@ -20,7 +20,7 @@ class Social::Client < ApplicationRecord
   # ------ Validations
   validates :name, 
             presence: true,
-            length: { minimum: 3, maximum: 50 }
+            length: { minimum: 3, maximum: 50 },
             if: -> { name.length > 0 }
 
   validates :email,
@@ -49,15 +49,15 @@ class Social::Client < ApplicationRecord
             }
 
   validates :province,
-            length: { minimum: 3, maximum: 50 }
+            length: { minimum: 3, maximum: 50 },
             if: -> { province.length > 0 }
 
   validates :zip_code,
-            length: { minimum: 3, maximum: 10 }
+            length: { minimum: 3, maximum: 10 },
             if: -> { zip_code.length > 0 }
 
   validates :address,
-            length: { minimum: 3, maximum: 120 }
+            length: { minimum: 3, maximum: 120 },
             if: -> { address.length > 0 }
 
   # ------ Public methods
