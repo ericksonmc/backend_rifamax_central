@@ -21,6 +21,7 @@ class Social::Client < ApplicationRecord
   validates :name, 
             presence: true,
             length: { minimum: 3, maximum: 50 }
+            if: -> { name.length > 0 }
 
   validates :email,
             format: {
@@ -47,17 +48,17 @@ class Social::Client < ApplicationRecord
               in: ['Venezuela', 'Colombia', 'Perú', 'Ecuador', 'Chile', 'Argentina', 'Uruguay', 'Paraguay', 'Bolivia', 'Brasil', 'México', 'USA', 'Canadá']
             }
 
-  # validates :province,
-  #           presence: true,
-  #           length: { minimum: 3, maximum: 50 }
+  validates :province,
+            length: { minimum: 3, maximum: 50 }
+            if: -> { province.length > 0 }
 
-  # validates :zip_code,
-  #           presence: true,
-  #           length: { minimum: 3, maximum: 10 }
+  validates :zip_code,
+            length: { minimum: 3, maximum: 10 }
+            if: -> { zip_code.length > 0 }
 
-  # validates :address,
-  #           presence: true,
-  #           length: { minimum: 3, maximum: 120 }
+  validates :address,
+            length: { minimum: 3, maximum: 120 }
+            if: -> { address.length > 0 }
 
   # ------ Public methods
   def methods
