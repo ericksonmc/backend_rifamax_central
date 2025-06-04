@@ -277,8 +277,7 @@ class Rifamax::Raffle < ApplicationRecord
       }
     )
 
-    unless @result.code == 200  
-      byebug
+    unless @result.code == 200
       raise StandardError, JSON.parse({ message: "Something failed in payment of triple", code: @result.code, req_body: payload }.to_json)
     else
       if @result["cmd"] == 'C10'
