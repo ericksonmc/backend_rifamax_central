@@ -35,6 +35,7 @@ class Social::PaymentMethodsController < ApplicationController
       render json: { message: 'You dont have permission to perform this action' }, status: :forbidden
     else
       if @social_payment_method.accept!
+        @social_payment_method.send_order_email
         @social_payment_method.status = 'accepted'
         render json: @social_payment_method, status: :ok
       else
