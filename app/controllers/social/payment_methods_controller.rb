@@ -2,7 +2,7 @@ class Social::PaymentMethodsController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_payment_method, only: %i[ accept reject show update destroy ]
-  before_action :authorize_request, except: %i[ create ]
+  before_action :authorize_request, except: %i[ create send_email send_whatsapp ]
   before_action :authorize_role, only: %i[ accept reject ]
 
   # GET /social/payment_methods
@@ -88,16 +88,30 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.quantity_requested = quantity_requested
     @social_payment_method.social_influencer_id = influencer.id
     if @social_payment_method.save
-      # Social::PaymentMailer.pre_order_email(
-      #   client,
-      #   raffle,
-      #   @social_payment_method[:amount],
-      #   @social_payment_method[:currency]
-      # ).deliver_now
       render json: @social_payment_method, status: :created
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity
     end
+  end
+
+  # POST /social/payment_methods/send_email
+  def send_email
+    @payment = Social::PaymentMethod.find(send_message_params[:id])
+
+    if @payment.nil?
+      render json: { message: 'Payment not found' }, status: :unprocessable_entity
+    else 
+      @payment.send_preorder_email
+      render json: { message: "Email was delivered!" }, status: :ok
+    end
+
+  rescue StandardError => e
+    render json: { message: e.message }, status: :unprocessable_entity
+  end
+
+  # POST /social/payment_methods/send_whatsapp
+  def send_whatsapp
+    render json: { message: "Message was delivered!" }, status: :ok
   end
 
   # PUT /social/payment_methods/:id
@@ -136,6 +150,13 @@ class Social::PaymentMethodsController < ApplicationController
       :social_client_id,
       :quantity_requested,
       details: [:bank, :name, :last_digits, :dni, :phone, :email, :reference]
+    )
+  end
+
+  def send_message_params
+    params.require(:social_payment_method).permit(
+      :id,
+      :email
     )
   end
 end

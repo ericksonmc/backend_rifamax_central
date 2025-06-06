@@ -6,9 +6,11 @@
 #  amount               :float
 #  currency             :string
 #  details              :jsonb
+#  email_send           :boolean          default(FALSE)
 #  payment              :string
 #  quantity_requested   :integer
 #  status               :string
+#  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  shared_exchange_id   :bigint

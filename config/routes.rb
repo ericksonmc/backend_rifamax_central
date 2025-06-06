@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   post 'auth/connect/login', to: 'authentication#integrator_login'
   post 'auth/verify_trz_access', to: 'authentication#verify_trz_access'
  
+  # /social/*
   namespace :social do
     get 'order/search'
     get 'order/purchase'
@@ -41,12 +42,15 @@ Rails.application.routes.draw do
     end
     resources :clients do 
       get 'phone', on: :collection
+      put 'save_email', on: :collection
       put 'change_address', on: :collection
     end
     resources :payment_methods do
       post 'accept', on: :member
       post 'reject', on: :member
       get 'history', on: :collection
+      post 'send_email', on: :collection
+      post 'send_whatsapp', on: :collection
     end
     resources :influencers do
       get 'search', on: :collection
@@ -58,6 +62,7 @@ Rails.application.routes.draw do
     resources :payment_options
   end
 
+  # /x100/*
   namespace :x100 do
     resources :orders, only: [:index] do
       get 'bill', on: :collection
@@ -90,6 +95,7 @@ Rails.application.routes.draw do
     end
   end
 
+  # /rifamax/*
   namespace :rifamax do
     resources :agencies
     resources :raffles do 
@@ -115,11 +121,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # /fifty/*
   namespace :fifty do
     resources :stadia
     resources :locations
   end
 
+  # /shared/*
   namespace :shared do
     resources :structures
     resources :currencies
@@ -139,6 +147,7 @@ Rails.application.routes.draw do
     end
   end
 
+  # /dev/*
   namespace :dev do
     resources :feature_flags do 
       post 'search', on: :collection

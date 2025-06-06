@@ -1,5 +1,5 @@
 class Social::ClientsController < ApplicationController
-  before_action :admin_authorize_request, except: %i[phone create change_address]
+  before_action :admin_authorize_request, except: %i[phone create change_address save_email]
   before_action :set_social_client, only: %i[ show update destroy ]
 
   # GET /social/clients
@@ -43,6 +43,22 @@ class Social::ClientsController < ApplicationController
     end
   end
 
+  # PUT /social/clients/save_email
+  def save_email
+    @social_client = Social::Client.find(save_email_params[:id])
+
+    if @social_client.email != nil
+      render json: { message: "errEmailExistant" }, status: :unprocessable_entity
+      return
+    end
+    
+    if @social_client.update(email: save_email_params[:email])
+      render json: @social_client, status: :ok
+    else
+      render json: { message: "errSomethingFailed" }, status: :unprocessable_entity
+    end
+  end
+
   # PATCH/PUT /social/clients/1
   def update
     if @social_client.update(social_client_params)
@@ -71,5 +87,9 @@ class Social::ClientsController < ApplicationController
 
   def change_direction_params
     params.require(:social_client).permit(:id, :address, :country, :province, :zip_code)
+  end
+
+  def save_email_params
+    params.require(:social_client).permit(:id, :email)
   end
 end

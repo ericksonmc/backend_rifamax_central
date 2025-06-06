@@ -6,9 +6,11 @@
 #  amount               :float
 #  currency             :string
 #  details              :jsonb
+#  email_send           :boolean          default(FALSE)
 #  payment              :string
 #  quantity_requested   :integer
 #  status               :string
+#  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  shared_exchange_id   :bigint
@@ -160,6 +162,31 @@ class Social::PaymentMethod < ApplicationRecord
     update(status: "refunded")
   end
 
+  def send_preorder_email
+    unless self.email_send
+      Social::PaymentMailer.pre_order_email(
+        self.social_client,
+        self.social_raffle,
+        self.amount,
+        self.currency
+      ).deliver_now
+      self.email_send = true
+      self.save
+    else
+      raise StandardError.new("Email was send!")
+    end
+  end
+
+  def send_order_email
+    Social::PaymentMailer.order_email(
+      social_client,
+      social_raffle,
+      amount,
+      currency,
+      [*1..10000].sample(quantity_requested).uniq
+    ).deliver_now
+  end
+
   private
 
   def calculate_amount
@@ -211,16 +238,6 @@ class Social::PaymentMethod < ApplicationRecord
     when "Paypal"
       validates_paypal
     end
-  end
-
-  def send_email
-    Social::PaymentMailer.order_email(
-      social_client,
-      social_raffle,
-      amount,
-      currency,
-      [*1..10000].sample(quantity_requested).uniq
-    ).deliver_now
   end
 
   def validates_stripe
