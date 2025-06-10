@@ -24,13 +24,25 @@ class Social::LotteriesController < ApplicationController
 
   # POST /social/lotteries
   def create
-    @social_lottery = Social::Lottery.new(social_lottery_params)
+    user_params = social_lottery_params
+                    .slice(:email, :password)
+                    .merge(id: Shared::User.last.id + 1, role: 'loteria', is_first_entry: false, welcoming: false, name: social_lottery_params[:name])
 
-    if @social_lottery.save
-      render json: @social_lottery, status: :created, location: @social_lottery
-    else
-      render json: @social_lottery.errors, status: :unprocessable_entity
+    lottery_params = social_lottery_params.slice(:name, :profit_fee, :key_name)                   
+  
+    @shared_user = Shared::User.new(user_params)
+    @social_lottery = Social::Lottery.new(lottery_params)
+  
+    ActiveRecord::Base.transaction do
+      @shared_user.save!
+      @social_lottery.shared_user_id = @shared_user.id
+      @social_lottery.save!
     end
+  
+    render json: @social_lottery, status: :created, location: @social_lottery
+  
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   # PATCH/PUT /social/lotteries/toggle_status/1
@@ -69,6 +81,6 @@ class Social::LotteriesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def social_lottery_params
-    params.require(:social_lottery).permit(:name, :profit_fee, :key_name)
+    params.require(:social_lottery).permit(:name, :profit_fee, :key_name, :email, :password)
   end
 end

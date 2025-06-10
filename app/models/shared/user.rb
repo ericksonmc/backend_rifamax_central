@@ -47,6 +47,7 @@ module Shared
       Agente: 'agente',
       Taquilla: 'taquilla',
       Rifero: 'rifero',
+      Loteria: 'loteria',
       Influencer: 'influencer',
       Autotaquilla: 'autotaquilla'
     }
@@ -79,14 +80,14 @@ module Shared
                 with: /\A[VEJG]-\d{1,10}\z/,
                 message: 'Debe incluir (V J E G)'
               },
-              if: -> { phone[0..3] == '+58 ' }
+              if: -> { !Loteria? || (phone.present? && phone.starts_with?('+58')) }
 
     validates :phone,
               format: {
                 with: /\A\+\d{1,4} \(\d{1,4}\) \d{1,10}-\d{1,10}\z/,
                 message: 'Introduzca un número de teléfono válido en el formato: +prefijo telefónico (codigo de area) tres primeros dígitos - dígitos restantes, por ejemplo: +58 (416) 000-0000'
               },
-              if: -> { !is_integration }
+              if: -> { (!Loteria? || !is_integration) && phone.present? }
 
     validates :email,
               presence: true,
@@ -97,12 +98,6 @@ module Shared
     validates :password,
               length: { minimum: 6 },
               if: -> { new_record? || !password.nil? }
-
-    validates :dni,
-              presence: true,
-              uniqueness: { case_sensitive: false },
-              length: { minimum: 6 },
-              if: -> { !is_integration }
 
     validate :validate_riferos
 
