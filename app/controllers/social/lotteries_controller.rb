@@ -86,6 +86,12 @@ class Social::LotteriesController < ApplicationController
     end 
   end
 
+  def authorize_lottery
+    unless @current_user.role == 'Loteria'
+      render json: { error: 'You are not authorized to perform this action.' }, status: :forbidden
+    end 
+  end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_social_lottery
     @social_lottery = Social::Lottery.find(params[:id])
