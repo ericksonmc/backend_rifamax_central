@@ -24,7 +24,7 @@ class Social::DetailsController < ApplicationController
   end
 
   def validates_role
-    roles = ['Admin', 'Influencer']
+    roles = ['Admin', 'Loteria']
     return if roles.include?(@current_user.role)
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
