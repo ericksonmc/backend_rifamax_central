@@ -1,6 +1,6 @@
 class Social::DetailsController < ApplicationController
   before_action :authorize_request
-  before_action :validates_admin, only: %i[admin]
+  before_action :validates_role, only: %i[admin]
 
   def index
     details = @current_user.influencer_details
