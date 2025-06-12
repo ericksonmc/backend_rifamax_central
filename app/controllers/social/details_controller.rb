@@ -23,8 +23,9 @@ class Social::DetailsController < ApplicationController
     params.permit(:content_code)
   end
 
-  def validates_admin
-    return unless @current_user.role != 'Admin'
+  def validates_role
+    roles = ['Admin', 'Influencer']
+    return if roles.include?(@current_user.role)
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
   end
