@@ -21,7 +21,7 @@ class AuthenticationController < ApplicationController
   # POST /social/login
   def social_login
     @user = Shared::User.find_by_email(params[:email])
-    allowed_roles = %w[Admin Influencer]
+    allowed_roles = %w[Admin Influencer Loteria]
 
     if @user&.authenticate(params[:password]) && allowed_roles.include?(@user.role)
       token = JsonWebToken.encode(user_id: @user.id, exp: 15.days.from_now)
