@@ -4,8 +4,9 @@ module Shared
   class UsersController < ApplicationController
     before_action :set_shared_user, only: %i[show update destroy]
     before_action :authorize_request, except: %i[sign_up]
-    before_action :allow_if_user_is_admin, only: %i[index show create update destroy toggle_active]
-
+    before_action :allow_if_user_is_admin, only: %i[index show update destroy toggle_active]
+    before_action :allow_loteries_and_admins, only: %i[create]
+    
     # GET /shared/users
     def index
       @shared_users = Shared::User.all
@@ -187,6 +188,11 @@ module Shared
 
     def allow_if_user_is_admin
       render json: { error: 'Not Authorized' }, status: 401 unless @current_user.role == 'Admin'
+    end
+
+    def allow_loteries_and_admins
+      roles = ['Admin', 'Loteria']
+      render json: { error: 'Not Authorized' }, status: 401 unless roles.include?(@current_user.role)
     end
 
     # Use callbacks to share common setup or constraints between actions.
