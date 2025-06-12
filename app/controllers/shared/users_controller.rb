@@ -66,12 +66,20 @@ module Shared
     # POST /shared/users
     def create
       @shared_user = Shared::User.new(shared_user_params)
-      @shared_user.id = Shared::User.last.id + 1
       @shared_user.is_active = true
+    
+      if @current_user.Loteria?
+        @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
+        unless @lottery
+          render json: { message: "Lottery not found" }, status: :not_found and return
+        end
+        @shared_user.lotteries = [@lottery.id]
+      end
+    
       if @shared_user.save
         render json: @shared_user, status: :created, location: @shared_user
       else
-        render json: @shared_user.errors, status: :unprocessable_entity
+        render json: { errors: @shared_user.errors.full_messages }, status: :unprocessable_entity
       end
     end
 

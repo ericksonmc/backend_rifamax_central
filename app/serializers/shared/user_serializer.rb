@@ -12,6 +12,7 @@
 #  is_active       :boolean
 #  is_first_entry  :boolean          default(FALSE)
 #  is_integration  :boolean          default(FALSE)
+#  lotteries       :integer          default([]), is an Array
 #  module_assigned :integer          default([]), is an Array
 #  name            :string
 #  password_digest :string
