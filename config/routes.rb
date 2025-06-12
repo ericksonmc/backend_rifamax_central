@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     resources :networks
     resources :lotteries do 
       collection do
+        get :profile
         get :available
       end
       member do

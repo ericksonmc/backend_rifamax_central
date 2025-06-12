@@ -70,7 +70,10 @@ class Social::RafflesController < ApplicationController
   # POST /social/raffles
   def create
     @social_raffle = Social::Raffle.new(social_raffle_params)
-    # @social_raffle.id = Social::Raffle.last.id + 1
+
+    if @current_user.Loteria?
+      @social_raffle.social_lottery_id = Social::Lottery.find_by(shared_user_id: @current_user.id).id
+    end
 
     if @social_raffle.save
       $redis.publish('social_raffles_live', @social_raffle.to_json)

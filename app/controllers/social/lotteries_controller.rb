@@ -1,6 +1,7 @@
 class Social::LotteriesController < ApplicationController
   before_action :authorize_request, except: %i[available]
-  before_action :authorize_admin, except: %i[available]
+  before_action :authorize_admin, except: %i[available profile]
+  before_action :authorize_lottery, only: %i[profile]
   before_action :set_social_lottery, only: %i[ toggle_status show update destroy ]
 
   # GET /social/lotteries
@@ -20,6 +21,13 @@ class Social::LotteriesController < ApplicationController
   # GET /social/lotteries/1
   def show
     render json: @social_lottery
+  end
+
+  # GET /social/lotteries/profile
+  def profile
+    @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
+
+    render json: @lottery, status: :ok, location: @lottery
   end
 
   # POST /social/lotteries
