@@ -4,6 +4,7 @@
 #
 #  id             :bigint           not null, primary key
 #  content_code   :string
+#  lotteries      :integer          default([]), is an Array
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  shared_user_id :bigint           not null

@@ -2,7 +2,7 @@ class Social::InfluencersController < ApplicationController
   include Pagy::Backend
 
   before_action :authorize_request, only: %i[all]
-  before_action :validates_admin, only: %i[all]
+  before_action :validates_roles, only: %i[all]
 
   # GET /influencers/:content_code
   def index
@@ -35,7 +35,8 @@ class Social::InfluencersController < ApplicationController
 
   # GET /influencers/all
   def all
-    @influencers = Social::Influencer.all
+    @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
+    @influencers = @lottery.nil? ? Social::Influencer.all : Social::Influencer.where(lotteries: [@lottery.id])
     count = params[:count] || 6
     page = params[:page] || 1
 
@@ -56,8 +57,10 @@ class Social::InfluencersController < ApplicationController
 
   private
 
-  def validates_admin
-    return unless @current_user.role != 'Admin'
+  def validates_roles
+    roles = ['Admin', 'Loteria']
+
+    return if roles.include?(@current_user.role)
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
   end

@@ -266,7 +266,11 @@ module Shared
 
     def generate_influencer
       if role == 'Influencer'
-        Social::Influencer.create(content_code: name.parameterize.split("-").join, shared_user_id: id)
+        Social::Influencer.create(
+          content_code: name.parameterize.split("-").join, 
+          shared_user_id: id, 
+          lotteries: lotteries
+        )
         self.is_first_entry = true
         save
       end
