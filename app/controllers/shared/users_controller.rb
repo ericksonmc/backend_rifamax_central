@@ -4,8 +4,8 @@ module Shared
   class UsersController < ApplicationController
     before_action :set_shared_user, only: %i[show update destroy]
     before_action :authorize_request, except: %i[sign_up]
-    before_action :allow_if_user_is_admin, only: %i[index show update destroy toggle_active]
-    before_action :allow_loteries_and_admins, only: %i[create]
+    before_action :allow_if_user_is_admin, only: %i[index show update destroy]
+    before_action :allow_loteries_and_admins, only: %i[create toggle_active]
     
     # GET /shared/users
     def index

@@ -1,8 +1,8 @@
 class Social::InfluencersController < ApplicationController
   include Pagy::Backend
 
-  before_action :authorize_request, only: %i[all]
-  before_action :validates_roles, only: %i[all]
+  before_action :authorize_request, only: %i[all search]
+  before_action :validates_roles, only: %i[all search]
 
   # GET /influencers/:content_code
   def index
@@ -16,12 +16,20 @@ class Social::InfluencersController < ApplicationController
 
   # GET /influencers/search
   def search
+    @lottery = Social::Lottery.find_by(shared_user_id: Shared::User.find(481).id)
+    
     @influencers = Shared::User.where('phone ilike ? OR email ilike ? OR name ilike ? OR dni ilike ?', "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").where(role: 'Influencer')
+
+    @result = if @current_user.Loteria?
+                @influencers.where(lotteries: [@lottery.id])
+              else
+                @influencers
+              end
   
     count = params[:count] || 4
     page = params[:page] || 1
 
-    @pagy, @records = pagy(@influencers, items: count, page: page)
+    @pagy, @records = pagy(@result, items: count, page: page)
     render json: {
       influencers: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Shared::UserSerializer),
       metadata: {
