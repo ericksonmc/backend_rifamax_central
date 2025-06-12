@@ -27,7 +27,11 @@ class Social::LotteriesController < ApplicationController
   def profile
     @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
 
-    render json: @lottery, status: :ok, location: @lottery
+    unless @lottery.nil?
+      render json: @lottery, status: :ok, location: @lottery
+    else
+      render json: { message: "Lottery not found" }, status: :not_found
+    end
   end
 
   # POST /social/lotteries
