@@ -7,6 +7,7 @@ class Social::InfluencersController < ApplicationController
   # GET /influencers/:content_code
   def index
     @influencer = Social::Influencer.find_by(content_code: params[:content_code])
+    
     if @influencer
       render json: @influencer.shared_user, status: :ok, status: :ok
     else
