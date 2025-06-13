@@ -5,6 +5,7 @@
 #  id                   :bigint           not null, primary key
 #  ad                   :string
 #  combos               :jsonb
+#  confirmation         :boolean          default(FALSE)
 #  draw_type            :string
 #  expired_date         :datetime
 #  has_winners          :boolean

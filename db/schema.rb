@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_12_142230) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_13_182335) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -254,6 +254,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_12_142230) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "lotteries", default: [], array: true
+    t.boolean "show_badge", default: true
     t.index ["shared_user_id"], name: "index_social_influencers_on_shared_user_id"
   end
 
@@ -349,6 +350,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_12_142230) do
     t.datetime "updated_at", null: false
     t.bigint "social_fee_id"
     t.bigint "social_lottery_id"
+    t.boolean "confirmation", default: false
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"
