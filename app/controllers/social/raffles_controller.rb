@@ -100,7 +100,7 @@ class Social::RafflesController < ApplicationController
     end
 
     if @current_user.Influencer?
-      @social_raffle.shared_user_id = @current_user.id
+      @social_raffle.social_influencer_id = @current_user.social_influencer.id
     end
 
     if @social_raffle.save
