@@ -38,8 +38,8 @@ class Social::RafflesController < ApplicationController
     end
   end
 
-  # GET /social/raffles/pending?content_code={content_code}&count={count}&page={page}
-  def pending
+  # GET /social/raffles/pendings?content_code={content_code}&count={count}&page={page}
+  def pendings
     influencer = Social::Influencer.find_by(content_code: params[:content_code])
     count = params[:count] || 3
     page = params[:page] || 1

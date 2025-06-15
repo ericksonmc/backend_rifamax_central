@@ -34,9 +34,10 @@ Rails.application.routes.draw do
       end
     end
     resources :raffles do
+      get 'live', on: :collection
       put 'add_ad', on: :collection
       get 'actives', on: :collection
-      get 'live', on: :collection
+      get 'pendings', on: :collection
     end
     resources :stats do
       get 'specific', on: :collection
