@@ -22,6 +22,29 @@ class Social::RafflesController < ApplicationController
     page = params[:page] || 1
 
     if influencer
+      @raffles = influencer.ongoing_raffles
+      @pagy, @records = pagy(@raffles, items: count, page: page)
+      render json: { 
+        social_raffles: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::RaffleSerializer),
+        metadata: {
+          page: @pagy.page,
+          count: @pagy.count,
+          items: @pagy.items,
+          pages: @pagy.pages
+        }
+      }, status: :ok
+    else
+      render json: { error: 'Influencer not found' }, status: :not_found
+    end
+  end
+
+  # GET /social/raffles/pending?content_code={content_code}&count={count}&page={page}
+  def pending
+    influencer = Social::Influencer.find_by(content_code: params[:content_code])
+    count = params[:count] || 3
+    page = params[:page] || 1
+
+    if influencer
       @raffles = influencer.actives_raffles
       @pagy, @records = pagy(@raffles, items: count, page: page)
       render json: { 
@@ -73,6 +96,11 @@ class Social::RafflesController < ApplicationController
 
     if @current_user.Loteria?
       @social_raffle.social_lottery_id = Social::Lottery.find_by(shared_user_id: @current_user.id).id
+      @social_raffle.confirmation = true
+    end
+
+    if @current_user.Influencer?
+      @social_raffle.shared_user_id = @current_user.id
     end
 
     if @social_raffle.save

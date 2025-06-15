@@ -77,8 +77,15 @@ class Social::Lottery < ApplicationRecord
     end
   end
 
-  def self.available_lotteries
-    lotteries = Social::Lottery.all
+  def self.available_lotteries(current_user)
+    @current_user = current_user
+
+    lotteries = if @current_user.Influencer?
+      Social::Lottery.where(id: [@current_user.social_influencer.lotteries]).order(id: :asc)
+    else
+      Social::Lottery.all.order(id: :asc)
+    end
+    
     result = []
 
     lotteries.each do |lottery|

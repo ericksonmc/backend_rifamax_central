@@ -46,6 +46,7 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
+  scope :ongoing, -> { where(status: 'En venta', confirmation: true )}
   scope :closing, -> { where(status: 'Finalizando' )}
   scope :closed, -> { where(status: 'Cerrado' )}
 
@@ -66,9 +67,6 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Utils and tools
   mount_uploader :ad, Social::AdUploader
-  
-  # ------ Triggers or before/after actions
-  before_validation :initialize_attributes
 
   # ------ Validations
   validates :social_lottery_id,
@@ -199,6 +197,7 @@ class Social::Raffle < ApplicationRecord
     self.winners = false
     self.status = 'En venta'
     self.draw_type = 'Limitada'
+    self.app_debt = ((tickets_count * price_unit) * 0.05).round(2)
     self.has_winners = false
     self.social_fee_id = Social::Fee.last.id
     self.raffle_type = case tickets_count

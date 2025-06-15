@@ -1,5 +1,5 @@
 class Social::LotteriesController < ApplicationController
-  before_action :authorize_request, except: %i[available]
+  before_action :authorize_request
   before_action :authorize_admin, except: %i[available profile]
   before_action :authorize_lottery, only: %i[profile]
   before_action :set_social_lottery, only: %i[ toggle_status show update destroy ]
@@ -13,7 +13,7 @@ class Social::LotteriesController < ApplicationController
 
   # GET /social/lotteries/available
   def available
-    @social_lotteries = Social::Lottery.available_lotteries
+    @social_lotteries = Social::Lottery.available_lotteries(@current_user)
 
     render json: @social_lotteries, status: :ok
   end
