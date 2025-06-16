@@ -39,7 +39,7 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :title, :combos, :draw_type, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :winners, :created_at, :updated_at
+  attributes :id, :ad, :title, :combos, :draw_type, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
 
   def ad
     return unless object.ad.present?
@@ -47,5 +47,26 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     object.ad.as_json.merge(
       'url' => "#{ENV['url_base']}/#{object.ad.url}"
     )
+  end
+
+  def original_app_debt
+    (object.tickets_count.to_f * object.price_unit.to_f * 0.05).round(2)
+  end
+  
+  def debt_percentage
+    orig_debt = original_app_debt
+    curr_debt = object.app_debt.to_f
+  
+    return 0 if orig_debt <= 0 || curr_debt <= 0
+    return 100 if curr_debt >= orig_debt
+  
+    (((orig_debt - curr_debt) / orig_debt) * 100).round(2)
+  end
+  
+  def tickets_available
+    percentage = debt_percentage / 100.0
+    available = object.tickets_count.to_i - (object.tickets_count.to_i * percentage)
+    available.round
+  endt.tickets_count - (object.tickets_count * percentage)
   end
 end
