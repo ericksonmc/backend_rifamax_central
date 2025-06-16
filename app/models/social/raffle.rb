@@ -42,7 +42,7 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Initializers
   before_create :initialize_ticket
-  before_create :initialize_attributes
+  before_validation :initialize_attributes
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
