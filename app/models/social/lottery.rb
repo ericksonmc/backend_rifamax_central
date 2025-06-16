@@ -32,7 +32,7 @@ class Social::Lottery < ApplicationRecord
               less_than_or_equal_to: 100,
               greater_than_or_equal_to: 0
             }
-
+            
   validates :key_name,
             presence: true,
             uniqueness: true
@@ -85,7 +85,7 @@ class Social::Lottery < ApplicationRecord
     else
       Social::Lottery.all.order(id: :asc)
     end
-    
+
     result = []
 
     lotteries.each do |lottery|

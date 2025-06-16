@@ -3,7 +3,8 @@ class Social::RafflesController < ApplicationController
 
   before_action :set_social_raffle, only: %i[ show update destroy ]
   before_action :authorize_request, only: %i[ index show create update destroy ]
-
+  before_action :only_lotteries, only: %i[confirm reject]
+  
   # GET /social/raffles
   def index
     @social_raffles = Social::Raffle.active
@@ -88,6 +89,34 @@ class Social::RafflesController < ApplicationController
   # GET /social/raffles/1
   def show
     render json: @social_raffle
+  end
+
+   # POST /social/raffles/confirm
+  def confirm
+    @raffle = Social::Raffle.find_by(id: params[:raffle_id])
+    unless @raffle
+      render json: { message: "Raffle not found" }, status: :not_found and return
+    end
+  
+    if @raffle.update(confirmation: true)
+      render json: { message: 'Raffle confirmed!', raffle: @raffle }, status: :ok
+    else
+      render json: { message: 'Failed to confirm raffle', errors: @raffle.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+  
+  # POST /social/raffles/reject
+  def reject
+    @raffle = Social::Raffle.find_by(id: params[:raffle_id])
+    unless @raffle
+      render json: { message: "Raffle not found" }, status: :not_found and return
+    end
+  
+    if @raffle.destroy
+      render json: { message: 'Raffle destroyed!', raffle: @raffle }, status: :ok
+    else
+      render json: { message: 'Failed to destroy raffle', errors: @raffle.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   # POST /social/raffles

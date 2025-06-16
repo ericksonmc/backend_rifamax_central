@@ -37,7 +37,9 @@ Rails.application.routes.draw do
       get 'live', on: :collection
       put 'add_ad', on: :collection
       get 'actives', on: :collection
+      post 'reject', on: :collection
       get 'pendings', on: :collection
+      post 'confirm', on: :collection
     end
     resources :stats do
       get 'specific', on: :collection
