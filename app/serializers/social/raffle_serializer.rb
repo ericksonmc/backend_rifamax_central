@@ -67,6 +67,5 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     percentage = debt_percentage / 100.0
     available = object.tickets_count.to_i - (object.tickets_count.to_i * percentage)
     available.round
-  endt.tickets_count - (object.tickets_count * percentage)
   end
 end
