@@ -2,7 +2,7 @@ class Social::RafflesController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_raffle, only: %i[ show update destroy ]
-  before_action :authorize_request, only: %i[ index show create update destroy ]
+  before_action :authorize_request, only: %i[ index show create update destroy only_lotteries confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
   
   # GET /social/raffles
@@ -168,6 +168,13 @@ class Social::RafflesController < ApplicationController
   end
 
   private
+
+  def only_lotteries
+    unless @current_user.Loteria?
+      render json: { error: 'Only lotteries can perform this action' }, status: :forbidden
+      return
+    end
+  end
 
   def set_social_raffle
     @social_raffle = Social::Raffle.find(params[:id])
