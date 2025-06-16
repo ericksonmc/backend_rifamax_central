@@ -4,6 +4,7 @@
 #
 #  id                   :bigint           not null, primary key
 #  ad                   :string
+#  app_debt             :float            default(0.0)
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  draw_type            :string

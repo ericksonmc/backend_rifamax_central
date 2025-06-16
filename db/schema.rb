@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_13_182335) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_16_000330) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -351,6 +351,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_13_182335) do
     t.bigint "social_fee_id"
     t.bigint "social_lottery_id"
     t.boolean "confirmation", default: false
+    t.float "app_debt", default: 0.0
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"
