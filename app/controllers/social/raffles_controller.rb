@@ -140,13 +140,16 @@ class Social::RafflesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /social/raffles/1/add_ad
-  def add_ad
+  # PATCH/PUT /social/raffles/1/add_documents
+  def add_documents
     @social_raffle = Social::Raffle.find(params[:id])
     ad = ad_params[:ad]
+    rif = ad_params[:rif]
+    dni = ad_params[:dni]
+    bank_register = ad_params[:bank_register]
+    receipts = ad_params[:receipts]
 
-    if @social_raffle.update(ad: ad)
-
+    if @social_raffle.update(ad: ad, rif: rif, dni: dni, bank_register: bank_register, receipts: receipts)
       render json: @social_raffle
     else
       render json: @social_raffle.errors, status: :unprocessable_entity
