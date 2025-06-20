@@ -184,7 +184,7 @@ class Social::RafflesController < ApplicationController
   end
 
   def ad_params
-    params.permit(:ad)
+    params.permit(:ad, :rif, :dni, :bank_register, receipts: [])
   end
 
   def social_raffle_params
