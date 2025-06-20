@@ -44,7 +44,7 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :title, :combos, :draw_type, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
+  attributes :id, :ad, :dni, :rif, :bank_register, :receipts, :title, :combos, :draw_type, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
 
   def ad
     return unless object.ad.present?
@@ -52,6 +52,37 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     object.ad.as_json.merge(
       'url' => "#{ENV['url_base']}/#{object.ad.url}"
     )
+  end
+
+  def dni
+    return unless object.dni.present?
+
+    object.dni.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.dni.url}"
+    )
+  end
+
+  def rif
+    return unless object.rif.present?
+    object.rif.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.rif.url}"
+    )
+  end
+
+  def bank_register
+    return unless object.bank_register.present?
+    object.bank_register.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.bank_register.url}"
+    )
+  end
+
+  def receipts
+    return unless object.receipts.present?
+    object.receipts.map do |receipt|
+      receipt.as_json.merge(
+        'url' => "#{ENV['url_base']}/#{receipt.url}"
+      )
+    end
   end
 
   def original_app_debt
