@@ -5,8 +5,10 @@
 #  id                   :bigint           not null, primary key
 #  ad                   :string
 #  app_debt             :float            default(0.0)
+#  bank_register        :string
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
+#  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
 #  has_winners          :boolean
@@ -16,6 +18,9 @@
 #  price_unit           :float
 #  prizes               :jsonb
 #  raffle_type          :string
+#  receipts             :string           default([]), is an Array
+#  rejecting_details    :text
+#  rif                  :string
 #  status               :string
 #  tickets_count        :integer
 #  title                :string

@@ -17,7 +17,7 @@ class Social::InfluencersController < ApplicationController
 
   # GET /influencers/search
   def search
-    @lottery = Social::Lottery.find_by(shared_user_id: Shared::User.find(481).id)
+    @lottery = Social::Lottery.find_by(shared_user_id: Shared::User.find(@current_user.id).id)
     
     @influencers = Shared::User.where('phone ilike ? OR email ilike ? OR name ilike ? OR dni ilike ?', "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%").where(role: 'Influencer')
 

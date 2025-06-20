@@ -8,6 +8,7 @@
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
 #  payment              :string
+#  payment_rate         :float
 #  quantity_requested   :integer
 #  status               :string
 #  whatsapp_send        :boolean          default(FALSE)
@@ -43,7 +44,6 @@ class Social::PaymentMethod < ApplicationRecord
   belongs_to :social_client, class_name: 'Social::Client', foreign_key: 'social_client_id'
   belongs_to :social_influencer, class_name: 'Social::Influencer', foreign_key: 'social_influencer_id', optional: true
   belongs_to :social_raffle, class_name: 'Social::Raffle', foreign_key: 'social_raffle_id', optional: true
-  belongs_to :shared_exchange, class_name: 'Shared::Exchange', foreign_key: 'shared_exchange_id', optional: true
 
   # ------ Associations/relationships between tables
   # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_payment_method_id', dependent: :destroy
@@ -190,7 +190,6 @@ class Social::PaymentMethod < ApplicationRecord
   private
 
   def calculate_amount
-    exchange = Shared::Exchange.last
     raffle = Social::Raffle.find(social_raffle_id)
     base_amount = (quantity_requested * raffle.price_unit)
 
@@ -198,9 +197,7 @@ class Social::PaymentMethod < ApplicationRecord
     when 'USD'
       base_amount
     when 'VES'
-      base_amount * exchange.value_bs
-    when 'COP'
-      base_amount * exchange.value_cop
+      base_amount * payment_rate
     else
       base_amount
     end.round(2)
@@ -211,7 +208,7 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def initialize_exchange
-    self.shared_exchange_id = Shared::Exchange.last.id
+    self.payment_rate = Social::R4ConectaService.new.consultar_tasa_bcv
   end
 
   def initialize_currency

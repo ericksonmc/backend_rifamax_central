@@ -8,6 +8,7 @@
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
 #  payment              :string
+#  payment_rate         :float
 #  quantity_requested   :integer
 #  status               :string
 #  whatsapp_send        :boolean          default(FALSE)

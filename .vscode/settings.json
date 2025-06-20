@@ -4,7 +4,7 @@
     "plaintext": true,
     "markdown": true,
     "scminput": false,
-    "yaml": true,
+    "yaml": false,
     "java": false,
     "javascript": true,
     "javascriptreact": true,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_16_000330) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_19_211251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -313,6 +313,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_16_000330) do
     t.integer "quantity_requested"
     t.boolean "email_send", default: false
     t.boolean "whatsapp_send", default: false
+    t.float "payment_rate"
     t.index ["shared_exchange_id"], name: "index_social_payment_methods_on_shared_exchange_id"
     t.index ["social_client_id"], name: "index_social_payment_methods_on_social_client_id"
     t.index ["social_influencer_id"], name: "index_social_payment_methods_on_social_influencer_id"
@@ -352,9 +353,23 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_16_000330) do
     t.bigint "social_lottery_id"
     t.boolean "confirmation", default: false
     t.float "app_debt", default: 0.0
+    t.string "dni"
+    t.string "rif"
+    t.string "bank_register"
+    t.string "receipts", default: [], array: true
+    t.text "rejecting_details"
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"
+  end
+
+  create_table "social_taxes", force: :cascade do |t|
+    t.string "title"
+    t.float "percentage", default: 0.0
+    t.boolean "active", default: true
+    t.string "institute"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "social_tickets", force: :cascade do |t|
