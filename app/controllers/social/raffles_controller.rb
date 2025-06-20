@@ -147,7 +147,7 @@ class Social::RafflesController < ApplicationController
     rif = ad_params[:rif]
     dni = ad_params[:dni]
     bank_register = ad_params[:bank_register]
-    receipts = ad_params[:receipts]
+    receipts = ad_params[:receipts] || []
 
     if @social_raffle.update(ad: ad, rif: rif, dni: dni, bank_register: bank_register, receipts: receipts)
       render json: @social_raffle
@@ -184,7 +184,7 @@ class Social::RafflesController < ApplicationController
   end
 
   def ad_params
-    params.permit(:ad, :rif, :dni, :bank_register, :receipts)
+    params.permit(:ad, :rif, :dni, :bank_register, receipts: [])
   end
 
   def social_raffle_params
