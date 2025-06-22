@@ -137,9 +137,7 @@ Rails.application.routes.draw do
     resources :currencies
     resources :sprites
     resources :lobby
-    resources :exchanges do
-      get 'bcv', on: :collection
-    end 
+    resources :exchanges
     resources :users do
       post 'sign_up', on: :collection
       post 'avatar', on: :collection

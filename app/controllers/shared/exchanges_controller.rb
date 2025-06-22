@@ -5,18 +5,6 @@ class Shared::ExchangesController < ApplicationController
 
   # GET /shared/exchanges
   def index
-    @shared_exchanges = Shared::Exchange.last
-
-    render json: @shared_exchanges
-  end
-
-  # GET /shared/exchanges/1
-  def show
-    render json: @shared_exchange
-  end
-
-  # GET /shared/exchanges/bcv?date=YYYY-MM-DD
-  def bcv
     date_param = params[:date]
     date =
       begin
@@ -27,6 +15,24 @@ class Shared::ExchangesController < ApplicationController
   
     formatted_date = date.strftime('%Y-%m-%d')
     render json: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date), status: :ok
+    
+    @shared_exchanges =  Shared::Exchange.where(created_at: Date.parse(date).all_day).order(:created_at).last
+
+    @result = {
+      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"].round(2),
+      value_cop: @shared_exchanges.value_cop,
+      mainstream_money: @shared_exchanges.mainstream_money,
+      automatic: @shared_exchanges.automatic,
+      created_at: @shared_exchanges.created_at.strftime('%Y-%m-%d %H:%M:%S')
+      updated_at: @shared_exchanges.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+    }
+
+    render json: @shared_exchanges
+  end
+
+  # GET /shared/exchanges/1
+  def show
+    render json: @shared_exchange
   end
 
   # POST /shared/exchanges
