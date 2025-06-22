@@ -1,5 +1,5 @@
 class Shared::ExchangesController < ApplicationController
-  before_action :authorize_request, except: %i[index]
+  before_action :authorize_request, except: %i[index bcv]
   before_action :set_shared_exchange, only: %i[show update destroy]
   before_action :allow_user_when_admin, only: %i[create update destroy]
 
@@ -13,6 +13,20 @@ class Shared::ExchangesController < ApplicationController
   # GET /shared/exchanges/1
   def show
     render json: @shared_exchange
+  end
+
+  # GET /shared/exchanges/bcv?date=YYYY-MM-DD
+  def bcv
+    date_param = params[:date]
+    date =
+      begin
+        date_param.present? ? Date.parse(date_param) : Date.current
+      rescue ArgumentError
+        return render json: { error: 'Invalid date format. Use YYYY-MM-DD.' }, status: :unprocessable_entity
+      end
+  
+    formatted_date = date.strftime('%Y-%m-%d')
+    render json: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date), status: :ok
   end
 
   # POST /shared/exchanges
