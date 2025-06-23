@@ -12,14 +12,11 @@ class Shared::ExchangesController < ApplicationController
       rescue ArgumentError
         return render json: { error: 'Invalid date format. Use YYYY-MM-DD.' }, status: :unprocessable_entity
       end
-  
-    formatted_date = date.strftime('%Y-%m-%d')
-    render json: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date), status: :ok
     
     @shared_exchanges =  Shared::Exchange.where(created_at: Date.parse(date).all_day).order(:created_at).last
 
     @result = {
-      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"].round(2),
+      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: date)["tipocambio"].round(2),
       value_cop: @shared_exchanges.value_cop,
       mainstream_money: @shared_exchanges.mainstream_money,
       automatic: @shared_exchanges.automatic,
