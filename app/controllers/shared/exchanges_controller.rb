@@ -19,14 +19,14 @@ class Shared::ExchangesController < ApplicationController
 
     @result = {
       value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"].round(2),
-      value_cop: @shared_exchanges.value_cop,
-      mainstream_money: @shared_exchanges.mainstream_money,
-      automatic: @shared_exchanges.automatic,
-      created_at: @shared_exchanges.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-      updated_at: @shared_exchanges.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+      value_cop: @shared_exchanges&.value_cop,
+      mainstream_money: @shared_exchanges&.mainstream_money,
+      automatic: @shared_exchanges&.automatic,
+      created_at: @shared_exchanges&.created_at&.strftime('%Y-%m-%d %H:%M:%S'),
+      updated_at: @shared_exchanges&.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
     }
 
-    render json: @shared_exchanges, status: :ok
+    render json: @result, status: :ok
   end
 
   # GET /shared/exchanges/1
