@@ -18,7 +18,7 @@ class Shared::ExchangesController < ApplicationController
     @shared_exchanges =  Shared::Exchange.where(created_at: Date.parse(formatted_date).all_day).order(:created_at).last
 
     @result = {
-      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"].round(2),
+      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"]&.round(2),
       value_cop: @shared_exchanges&.value_cop,
       mainstream_money: @shared_exchanges&.mainstream_money,
       automatic: @shared_exchanges&.automatic,
