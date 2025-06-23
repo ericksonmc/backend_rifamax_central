@@ -26,21 +26,23 @@ class Social::R4ConectaService
   def initialize
     @base_url                 = ENV.fetch('R4_CONECTA_BASE_URL')
     @commerce                 = ENV.fetch('R4_CONECTA_COMMERCE')
+    @commerce_id              = ENV.fetch('R4_CONECTA_COMMERCE_PHONE')
+    @commerce_phone           = ENV.fetch('R4_CONECTA_COMMERCE')
     @log_sensitive            = ENV.fetch('R4_CONECTA_LOG_SENSITIVE', 'false') == 'true'
     @default_currency         = ENV.fetch('R4_CONECTA_DEFAULT_CURRENCY', 'USD').upcase # availables currencies: ['USD' 'EUR' 'RUB' 'TRY' 'CNY']
     @now                      = Time.now.strftime('%Y-%m-%d') # default format -> yyyy-mm-dd
     @logger                   = Logger.new(ENV.fetch('R4_CONECTA_LOG_PATH', 'log/r4_conecta.log'))
   end
 
-  def consultar_tasa_bcv(moneda: @default_currency, fechavalor: Time.now.strftime('%Y-%m-%d'))
+  def consultar_tasa_bcv(moneda: @default_currency, fechavalor: @now)
     payload = { 'Moneda' => moneda, 'Fechavalor' => fechavalor }
     call_api(:r4bcv, payload)
   end
 
-  def consulta_cliente(id_cliente:, monto:, telefono_comercio:)
+  def consulta_cliente(id_cliente: @commerce_id, monto:, telefono_comercio: @commerce_phone)
     payload = {
       'IdCliente'       => id_cliente,
-      'Monto'           => monto,
+      'Monto'           => monto.to_s,
       'TelefonoComercio'=> telefono_comercio
     }
     call_api(:r4consulta, payload)
@@ -48,10 +50,10 @@ class Social::R4ConectaService
 
   def notificar_pago(params)
     payload = {
-      'IdComercio'       => params[:id_comercio],
-      'TelefonoComercio' => params[:telefono_comercio],
+      'IdComercio'       => @commerce_id,
+      'TelefonoComercio' => @commerce_phone,
       'TelefonoEmisor'   => params[:telefono_emisor],
-      'Concepto'         => params[:concepto],
+      'Concepto'         => params[:concepto] || '',
       'BancoEmisor'      => params[:banco_emisor],
       'Monto'            => params[:monto],
       'FechaHora'        => params[:fecha_hora],
@@ -77,7 +79,7 @@ class Social::R4ConectaService
       'Cedula'          => cedula,
       'Banco'           => banco,
       'Monto'           => monto,
-      'Concepto'        => concepto,
+      'Concepto'        => concepto || 'Vuelto',
       'Ip'              => ip
     }.compact
     call_api(:r4vuelto, payload)
