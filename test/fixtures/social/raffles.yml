@@ -18,7 +18,7 @@
 #  price_unit           :float
 #  prizes               :jsonb
 #  raffle_type          :string
-#  receipts             :string           default([]), is an Array
+#  receipts             :json
 #  rejecting_details    :text
 #  rif                  :string
 #  status               :string

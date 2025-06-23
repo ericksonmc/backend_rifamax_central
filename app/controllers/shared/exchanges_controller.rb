@@ -1,5 +1,5 @@
 class Shared::ExchangesController < ApplicationController
-  before_action :authorize_request, except: %i[index bcv]
+  before_action :authorize_request, except: %i[index]
   before_action :set_shared_exchange, only: %i[show update destroy]
   before_action :allow_user_when_admin, only: %i[create update destroy]
 

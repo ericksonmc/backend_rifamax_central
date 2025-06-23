@@ -356,7 +356,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_19_211251) do
     t.string "dni"
     t.string "rif"
     t.string "bank_register"
-    t.string "receipts", default: [], array: true
+    t.json "receipts", default: []
     t.text "rejecting_details"
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
