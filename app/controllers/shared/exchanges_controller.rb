@@ -15,6 +15,10 @@ class Shared::ExchangesController < ApplicationController
   
     formatted_date = date.strftime('%Y-%m-%d')
 
+    if date > Date.current
+      return render json: { error: 'Date cannot be in the future.' }, status: :unprocessable_entity
+    end
+
     @shared_exchanges =  Shared::Exchange.where(created_at: Date.parse(formatted_date).all_day).order(:created_at).last
 
     @result = {
