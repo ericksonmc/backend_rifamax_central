@@ -13,6 +13,10 @@ class Social::AdUploader < CarrierWave::Uploader::Base
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
+  def filename
+    "#{secure_token(10)}.#{file.extension}" if original_filename.present?
+  end
+
   # Provide a default URL as a default if there hasn't been a file uploaded:
   # def default_url(*args)
   #   # For Rails 3.1+ asset pipeline compatibility:
@@ -39,9 +43,20 @@ class Social::AdUploader < CarrierWave::Uploader::Base
   #   %w(jpg jpeg gif png)
   # end
 
+  def extension_allowlist
+    %w(jpg jpeg png webp pdf doc docx)
+  end
+
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
   # def filename
   #   "something.jpg"
   # end
+
+  protected
+
+  def secure_token(length=16)
+    var = :"@#{mounted_as}_secure_token"
+    model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.hex(length/2))
+  end
 end
