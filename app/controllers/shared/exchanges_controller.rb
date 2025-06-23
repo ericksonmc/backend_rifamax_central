@@ -8,7 +8,7 @@ class Shared::ExchangesController < ApplicationController
     date_param = params[:date]
     date =
       begin
-        date_param.present? ? Date.parse(date_param) : Date.current
+        date_param.present? ? Date.parse(date_param) : Date.current.to_s
       rescue ArgumentError
         return render json: { error: 'Invalid date format. Use YYYY-MM-DD.' }, status: :unprocessable_entity
       end
