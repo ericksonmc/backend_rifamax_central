@@ -181,15 +181,23 @@ class Social::R4ConectaService
       'Authorization' => token,
       'Commerce'      => @commerce
     }
-
+  
     log_request(method_key, payload, url, headers)
     response = Faraday.post(url, payload.to_json, headers)
-
+  
     error_message = "API call failed with status #{response.status}: #{response.body}"
-
     @logger.error("[#{method_key.upcase}] ERROR: #{error_message}") unless @success_codes.include?(response.status)
-
-    parsed   = JSON.parse(response.body)
+  
+    begin
+      parsed = JSON.parse(response.body)
+    rescue JSON::ParserError
+      if response.status == 404
+        return { error: 'Not found', status: 404 }
+      else
+        raise
+      end
+    end
+  
     log_response(method_key, parsed)
     parsed
   rescue StandardError => e
