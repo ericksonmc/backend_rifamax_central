@@ -26,8 +26,8 @@ class Social::R4ConectaService
   def initialize
     @base_url                 = ENV.fetch('R4_CONECTA_BASE_URL')
     @commerce                 = ENV.fetch('R4_CONECTA_COMMERCE')
-    @commerce_id              = ENV.fetch('R4_CONECTA_COMMERCE_PHONE')
-    @commerce_phone           = ENV.fetch('R4_CONECTA_COMMERCE')
+    @commerce_id              = ENV.fetch('R4_CONECTA_COMMERCE_ID')
+    @commerce_phone           = ENV.fetch('R4_CONECTA_COMMERCE_PHONE')
     @log_sensitive            = ENV.fetch('R4_CONECTA_LOG_SENSITIVE', 'false') == 'true'
     @default_currency         = ENV.fetch('R4_CONECTA_DEFAULT_CURRENCY', 'USD').upcase # availables currencies: ['USD' 'EUR' 'RUB' 'TRY' 'CNY']
     @now                      = Time.now.strftime('%Y-%m-%d') # default format -> yyyy-mm-dd
