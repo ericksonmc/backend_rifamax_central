@@ -32,6 +32,7 @@ class Social::R4ConectaService
     @default_currency         = ENV.fetch('R4_CONECTA_DEFAULT_CURRENCY', 'USD').upcase # availables currencies: ['USD' 'EUR' 'RUB' 'TRY' 'CNY']
     @now                      = Time.now.strftime('%Y-%m-%d') # default format -> yyyy-mm-dd
     @logger                   = Logger.new(ENV.fetch('R4_CONECTA_LOG_PATH', 'log/r4_conecta.log'))
+    @success_codes            = [200, 201, 202, 204] # HTTP success codes
   end
 
   def consultar_tasa_bcv(moneda: @default_currency, fechavalor: @now)
@@ -183,6 +184,11 @@ class Social::R4ConectaService
 
     log_request(method_key, payload, url, headers)
     response = Faraday.post(url, payload.to_json, headers)
+    
+    unless @success_codes.include?(response.status)
+      raise "API call failed with status #{response.status}: #{response.body}"
+    end
+
     parsed   = JSON.parse(response.body)
     log_response(method_key, parsed)
     parsed
