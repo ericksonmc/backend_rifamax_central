@@ -106,5 +106,3 @@ gem "resend", "~> 0.11.0"
 gem "remote_lock", "~> 1.1"
 
 gem "faraday", "~> 2.9"
-
-gem "rack-attack", "~> 6.7"
