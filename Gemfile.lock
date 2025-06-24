@@ -248,6 +248,8 @@ GEM
     raabro (1.4.0)
     racc (1.7.1)
     rack (2.2.8)
+    rack-attack (6.7.0)
+      rack (>= 1.0, < 4)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
     rack-test (2.1.0)
@@ -394,6 +396,7 @@ DEPENDENCIES
   paperclip (~> 6.1)
   pg (~> 1.1)
   puma (~> 5.0)
+  rack-attack (~> 6.7)
   rack-cors
   rails (~> 7.0.8)
   redis (~> 5.0.8)
