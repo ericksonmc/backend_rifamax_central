@@ -184,9 +184,9 @@ class Social::R4ConectaService
 
     log_request(method_key, payload, url, headers)
     response = Faraday.post(url, payload.to_json, headers)
-    
+
     unless @success_codes.include?(response.status)
-      raise "API call failed with status #{response.status}: #{response.body}"
+      raise StandardError.new("API call failed with status #{response.status}: #{response.body}")
     end
 
     parsed   = JSON.parse(response.body)
