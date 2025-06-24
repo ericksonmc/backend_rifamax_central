@@ -37,7 +37,9 @@ class Social::PaymentMethod < ApplicationRecord
   # ------ Triggers
   before_validation :initialize_currency
   before_validation :initialize_exchange
-  before_create :initialize_status
+  before_save :initialize_status
+  before_save :consult_payment
+  before_create :notify_payment
   before_create :calculate_amount
 
   # ------ Belongs to association
@@ -189,6 +191,53 @@ class Social::PaymentMethod < ApplicationRecord
 
   private
 
+  def consult_payment
+    return true unless status == 'active' && payment == 'Pago Movil'
+  
+    pay_amount = amount.to_s
+    api_response = Social::R4ConectaService.new.consulta_cliente(monto: pay_amount)
+    api_status = api_response["status"]
+  
+    unless api_status
+      errors.add(:base, "Failed to consult payment")
+      throw(:abort)
+    end
+  
+    true
+  end
+
+  def notify_payment
+    return true unless status == 'active' && payment == 'Pago Movil'
+
+    monto = amount.to_s
+    referencia = details["reference"].to_s
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
+    codigo_red = '00'
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%dT00:00:00.000Z')
+    concepto = ''
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    body = {
+      telefono_emisor: telefono_emisor,
+      monto: monto,
+      referencia: referencia,
+      codigo_red: codigo_red,
+      banco_emisor: banco_emisor,
+      fecha_hora: fecha_hora,
+      concepto: concepto,
+    }
+
+    api_response = Social::R4ConectaService.new.notificar_pago(body)
+    api_status = api_response["abono"]
+
+    unless api_status
+      errors.add(:base, "Failed to notify payment")
+      throw(:abort)
+    end
+  end
+
   def calculate_amount
     raffle = Social::Raffle.find(social_raffle_id)
     base_amount = (quantity_requested * raffle.price_unit)
@@ -246,7 +295,7 @@ class Social::PaymentMethod < ApplicationRecord
   def validates_pago_movil
     errors.add(:details, "Bank is not present") unless details["bank"].present?
     errors.add(:details, "Phone is not present") unless details["phone"].present?
-    errors.add(:details, "DNI is not present") unless details["dni"].present?
+    errors.add(:details, "Payment date is not present") unless details["payment_date"].present?
     errors.add(:details, "References is not present") unless details["reference"].present?
   end
 
