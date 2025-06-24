@@ -257,7 +257,12 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def initialize_exchange
-    self.payment_rate = Social::R4ConectaService.new.consultar_tasa_bcv
+    self.payment_rate = Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f
+
+  rescue StandardError => e
+    Rails.logger.error("Error initializing exchange rate: #{e.message}")
+    errors.add(:base, "Failed to initialize exchange rate")
+    throw(:abort)
   end
 
   def initialize_currency
