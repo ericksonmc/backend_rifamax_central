@@ -91,7 +91,7 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
     @social_payment_method.status = 'active'
-    
+
     if @social_payment_method.save
       render json: @social_payment_method, status: :created
     else
@@ -154,7 +154,7 @@ class Social::PaymentMethodsController < ApplicationController
       :social_raffle_id,
       :social_client_id,
       :quantity_requested,
-      details: [:bank, :name, :last_digits, :payment_date, :dni, :phone, :email, :reference]
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
     )
   end
 

@@ -300,7 +300,6 @@ class Social::PaymentMethod < ApplicationRecord
   def validates_pago_movil
     errors.add(:details, "Bank is not present") unless details["bank"].present?
     errors.add(:details, "Phone is not present") unless details["phone"].present?
-    errors.add(:details, "DNI is not present") unless details["dni"].present?
     errors.add(:details, "Payment date is not present") unless details["payment_date"].present?
     errors.add(:details, "References is not present") unless details["reference"].present?
   end
