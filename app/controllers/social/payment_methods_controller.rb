@@ -150,7 +150,7 @@ class Social::PaymentMethodsController < ApplicationController
       :social_raffle_id,
       :social_client_id,
       :quantity_requested,
-      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
+      details: [:bank, :name, :last_digits, :payment_date, :dni, :phone, :email, :reference]
     )
   end
 
