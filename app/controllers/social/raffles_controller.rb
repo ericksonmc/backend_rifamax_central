@@ -143,18 +143,14 @@ class Social::RafflesController < ApplicationController
   # PATCH/PUT /social/raffles/1/add_documents
   def add_documents
     @social_raffle = Social::Raffle.find(params[:id])
-    # new_receipts = ad_params[:receipts] || []
     new_receipts = params[:receipts].values
-
-    # Append new receipts to existing ones
-    updated_receipts = @social_raffle.receipts + new_receipts
 
     if @social_raffle.update(
       ad: ad_params[:ad],
       rif: ad_params[:rif],
       dni: ad_params[:dni],
       bank_register: ad_params[:bank_register],
-      receipts: updated_receipts  # Use combined array
+      receipts: new_receipts
     )
       render json: @social_raffle
     else
