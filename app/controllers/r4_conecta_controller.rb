@@ -12,7 +12,9 @@ class R4ConectaController < ApplicationController
     token_valid = @bank_signature_uuid == @header_signature_uuid
     params_valid = id_client.present? && telefono_comercio.present?
     
-    if token_valid && params_valid
+    return render json: { error: 'Not found' }, status: :not_found unless token_valid
+
+    if params_valid
       render json: { status: true }, status: :ok
     else
       render json: { status: false }, status: :unprocessable_entity
