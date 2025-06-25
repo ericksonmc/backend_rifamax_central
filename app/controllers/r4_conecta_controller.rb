@@ -18,21 +18,39 @@ class R4ConectaController < ApplicationController
 
     return render json: { error: 'Not found' }, status: :not_found unless token_valid
 
-    if params_valid
-      render json: { status: true }, status: :ok
-    else
-      render json: { status: false }, status: :unprocessable_entity
-    end
+    render json: { status: params_valid }, status: params_valid ? :ok : :unprocessable_entity
   end
 
   def notification
-    @notification_params = notification_params
     @bank_signature_uuid = ENV.fetch('BANK_SIGNATURE_UUID', nil)
     @header_signature_uuid = request.headers['Authorization'].to_s
-  
+    @commerce_id = ENV.fetch('R4_CONECTA_COMMERCE_ID', nil)
+    @commerce_phone = ENV.fetch('R4_CONECTA_COMMERCE_PHONE', nil)
+
+    id_comercio = notification_params[:idComercio]
+    telefono_comercio = notification_params[:TelefonoComercio]
+    telefono_emisor = notification_params[:TelefonoEmisor]
+    concepto = notification_params[:Concepto]
+    banco_emisor = notification_params[:BancoEmisor]
+    monto = notification_params[:Monto]
+    fecha_hora = Date.parse(notification_params[:FechaHora]).strftime('%Y-%m-%d')
+    referencia = notification_params[:Referencia]
+    codigo_red = notification_params[:CodigoRed]
+
+    phone_commerce_valid = @commerce_phone.present? && telefono_comercio == @commerce_phone
+    commerce_id_valid = @commerce_id.present? && id_comercio == @commerce_id
+    
     token_valid = @bank_signature_uuid == @header_signature_uuid
-  
-    render json: { status: token_valid }, status: token_valid ? :ok : :unprocessable_entity
+    
+    commerce_valid = phone_commerce_valid && commerce_id_valid && token_valid
+
+    return render json: { error: 'Not found' }, status: :not_found unless commerce_valid
+    
+    transaction_valid = codigo_red == '00'
+
+    $redis.set("R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}", monto) if transaction_valid
+
+    render json: { abono: transaction_valid }, status: transaction_valid ? :ok : :unprocessable_entity
   end
 
   private

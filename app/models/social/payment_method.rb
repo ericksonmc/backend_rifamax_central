@@ -39,8 +39,8 @@ class Social::PaymentMethod < ApplicationRecord
   before_validation :initialize_exchange
   before_save :initialize_status
   before_save :consult_payment
-  before_create :notify_payment
-  before_create :calculate_amount
+  # before_create :notify_payment
+  # before_create :calculate_amount
 
   # ------ Belongs to association
   belongs_to :social_client, class_name: 'Social::Client', foreign_key: 'social_client_id'
@@ -197,7 +197,7 @@ class Social::PaymentMethod < ApplicationRecord
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
     codigo_red = '00'
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
-    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%dT00:00:00.000Z')
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
     concepto = ''
 
     @consult_body = {
