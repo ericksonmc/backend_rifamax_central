@@ -24,6 +24,8 @@ Rails.application.routes.draw do
     get 'stats/index'
     get 'details/index'
     get 'influencers/index'
+    post 'R4consulta', to: 'r4_conecta#handshake'
+    post 'R4notifica', to: 'r4_conecta#notification'
     post 'login', to: 'authentication#social_login'
     post 'auth/refresh', to: 'authentication#social_refresh'
     
