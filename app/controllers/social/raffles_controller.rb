@@ -189,7 +189,9 @@ class Social::RafflesController < ApplicationController
   end
 
   def ad_params
-    params.permit(:ad, :rif, :dni, :bank_register, receipts: [])
+    permitted = params.permit(:ad, :rif, :dni, :bank_register)
+    permitted[:receipts] = params[:receipts]&.values if params[:receipts].is_a?(Hash)
+    permitted
   end
 
   def social_raffle_params
