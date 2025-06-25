@@ -155,7 +155,7 @@ class Social::R4ConectaService
 
   def cobrar_c2p(telefono_destino:, cedula:, concepto:, banco:, ip:, monto:, otp:)
     payload = {
-      'TelefonoDestino'=> telefono_destino,
+      'TelefonoDestino'=> telefono_destino, 
       'Cedula'         => cedula,
       'Concepto'       => concepto,
       'Banco'          => banco,

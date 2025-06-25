@@ -189,6 +189,29 @@ class Social::PaymentMethod < ApplicationRecord
     ).deliver_now
   end
 
+  def consult_body
+    return unless status == 'active' && payment == 'Pago Movil'
+
+    monto = amount.to_s
+    referencia = details["reference"].to_s
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
+    codigo_red = '00'
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%dT00:00:00.000Z')
+    concepto = ''
+
+    @consult_body = {
+      telefono_emisor: telefono_emisor,
+      monto: monto,
+      referencia: referencia,
+      codigo_red: codigo_red,
+      banco_emisor: banco_emisor,
+      fecha_hora: fecha_hora,
+      concepto: concepto,
+    }
+  end
+
+
   private
 
   def consult_payment
