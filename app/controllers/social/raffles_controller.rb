@@ -143,7 +143,7 @@ class Social::RafflesController < ApplicationController
   # PATCH/PUT /social/raffles/1/add_documents
   def add_documents
     @social_raffle = Social::Raffle.find(params[:id])
-    new_receipts = params[:receipts]&.values || []
+    new_receipts = params[:receipts]&.values || [] 
 
     if @social_raffle.update(
       ad: ad_params[:ad],
