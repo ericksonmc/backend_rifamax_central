@@ -10,8 +10,13 @@ class R4ConectaController < ApplicationController
     telefono_comercio = handshake_params[:TelefonoComercio]
 
     token_valid = @bank_signature_uuid == @header_signature_uuid
+    puts "Bank Signature UUID: #{@bank_signature_uuid}"
+    puts "Header Signature UUID: #{@header_signature_uuid}"
+    puts "ID Cliente: #{id_client}"
+    puts "Monto: #{monto}"
+    puts "Telefono Comercio: #{telefono_comercio}"
     params_valid = id_client.present? && telefono_comercio.present?
-    
+
     return render json: { error: 'Not found' }, status: :not_found unless token_valid
 
     if params_valid
