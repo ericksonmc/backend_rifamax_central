@@ -143,7 +143,8 @@ class Social::RafflesController < ApplicationController
   # PATCH/PUT /social/raffles/1/add_documents
   def add_documents
     @social_raffle = Social::Raffle.find(params[:id])
-    new_receipts = ad_params[:receipts] || []
+    # new_receipts = ad_params[:receipts] || []
+    new_receipts = params[:receipts].values
 
     # Append new receipts to existing ones
     updated_receipts = @social_raffle.receipts + new_receipts
@@ -189,9 +190,7 @@ class Social::RafflesController < ApplicationController
   end
 
   def ad_params
-    permitted = params.permit(:ad, :rif, :dni, :bank_register)
-    permitted[:receipts] = params[:receipts]&.values if params[:receipts].is_a?(Hash)
-    permitted
+    params.permit(:ad, :rif, :dni, :bank_register, receipts: [])
   end
 
   def social_raffle_params
