@@ -42,6 +42,46 @@ class Social::InfluencersController < ApplicationController
     }, status: :ok
   end
 
+  # GET /influencers/emergents
+  def emergents
+    @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
+
+    shared_users = Shared::User.where(
+      'phone ILIKE :query OR email ILIKE :query OR name ILIKE :query OR dni ILIKE :query',
+      query: "%#{params[:search]}%"
+    ).where(role: 'Influencer')
+
+    filtered_users = if @current_user.Loteria?
+                      shared_users.where("lotteries @> ARRAY[?]::integer[]", [@lottery.id])
+                    else
+                      shared_users
+                    end
+
+    users_with_pending_raffles = Social::Influencer
+      .joins(:social_raffles)
+      .merge(Social::Raffle.pending)
+      .where(shared_user_id: filtered_users.pluck(:id))
+      .distinct
+      .pluck(:shared_user_id)
+
+    @result = filtered_users.where(id: users_with_pending_raffles)
+
+    count = params[:count] || 4
+    page = params[:page] || 1
+
+    @pagy, @records = pagy(@result, items: count, page: page)
+
+    render json: {
+      influencers: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Shared::UserSerializer),
+      metadata: {
+        page: @pagy.page,
+        count: @pagy.count,
+        items: @pagy.items,
+        pages: @pagy.pages
+      }
+    }, status: :ok
+  end
+
   # GET /influencers/all
   def all
     @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)

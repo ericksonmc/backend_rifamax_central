@@ -62,6 +62,7 @@ Rails.application.routes.draw do
     end
     resources :influencers do
       get 'search', on: :collection
+      get 'emergents', on: :collection
       get 'all', on: :collection
     end
     resources :details do

@@ -38,6 +38,10 @@ class Social::Influencer < ApplicationRecord
     social_raffles
   end
 
+  def without_confirmate
+    social_raffles.pending
+  end
+
   def actives_raffles
     social_raffles.active
   end

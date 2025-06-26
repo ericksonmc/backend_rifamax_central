@@ -52,6 +52,8 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
+  scope :pending -> { where(confirmation: false )}
+  scope :debt, -> { where('app_debt > 0') }
   scope :ongoing, -> { where(status: 'En venta', confirmation: true )}
   scope :closing, -> { where(status: 'Finalizando' )}
   scope :closed, -> { where(status: 'Cerrado' )}
