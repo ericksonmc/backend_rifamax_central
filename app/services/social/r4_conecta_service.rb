@@ -175,6 +175,22 @@ class Social::R4ConectaService
 
   private
 
+  def get_bcv
+    url = 'https://www.bcv.org.ve'
+
+    agent = Mechanize.new
+
+    agent.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    html = agent.get(url).body
+
+    doc = Nokogiri::HTML(html)
+
+    dolar_value = doc.at_css('#dolar strong').content.strip
+
+    return dolar_value.gsub(',', '.').to_f.round(4)
+  end
+
   def call_api(method_key, payload)
     url     = "#{@base_url}#{API_METHODS.fetch(method_key)}"
     token   = generate_token(method_key, payload)
@@ -194,23 +210,11 @@ class Social::R4ConectaService
       parsed = JSON.parse(response.body)
 
       if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
-        bcv_cotization = begin
-          url = 'https://www.bcv.org.ve'
+        bcv_cotization = get_bcv
+        curr_time = Time.now.strftime("%Y-%m-%d")
 
-          agent = Mechanize.new
-
-          agent.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-          html = agent.get(url).body
-
-          doc = Nokogiri::HTML(html)
-
-          dolar_value = doc.at_css('#dolar strong').content.strip
-
-          return dolar_value.gsub(',', '.').to_f.round(4)
-        end
-
-        return { "currency"=>"USD", "code"=>"00", "fechavalor"=>Time.now.strftime("%Y-%m-%d"), "tipocambio"=>bcv_cotization }
+        @logger.warn("[#{method_key.upcase}] WARNING: Cotización no encontrada, usando valor de dolar por pagina de hoy: #{curr_time} : #{bcv_cotization}")
+        return { "currency"=>"USD", "code"=>"00", "fechavalor"=>curr_time, "tipocambio"=>bcv_cotization }
       end
     rescue JSON::ParserError
       if response.status == 404
