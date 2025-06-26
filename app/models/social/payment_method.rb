@@ -226,13 +226,16 @@ class Social::PaymentMethod < ApplicationRecord
 
     raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
 
-    r4_result = $redis.get("R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}")
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
 
     final_result = if r4_result.nil?
       false
     elsif  r4_result.to_f == monto.to_f
       self.status = "accepted"
       self.save
+      $redis.del(redis_param)
       true
     else
       false
