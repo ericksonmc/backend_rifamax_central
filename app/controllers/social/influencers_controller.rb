@@ -1,8 +1,8 @@
 class Social::InfluencersController < ApplicationController
   include Pagy::Backend
 
-  before_action :authorize_request, only: %i[all search emergnets]
-  before_action :validates_roles, only: %i[all search]
+  before_action :authorize_request, only: %i[all search emergents]
+  before_action :validates_roles, only: %i[all search emergents]
 
   # GET /influencers/:content_code
   def index
