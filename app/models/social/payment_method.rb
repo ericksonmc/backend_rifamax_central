@@ -38,8 +38,7 @@ class Social::PaymentMethod < ApplicationRecord
   before_validation :initialize_currency
   before_validation :initialize_exchange
   before_save :initialize_status
-  before_save :consult_payment
-  # before_create :notify_payment
+  before_create :notify_payment
   # before_create :calculate_amount
 
   # ------ Belongs to association
@@ -214,21 +213,6 @@ class Social::PaymentMethod < ApplicationRecord
 
   private
 
-  def consult_payment
-    return true unless status == 'active' && payment == 'Pago Movil'
-  
-    pay_amount = amount.to_s
-    api_response = Social::R4ConectaService.new.consulta_cliente(monto: pay_amount)
-    api_status = api_response["status"]
-  
-    unless api_status
-      errors.add(:base, "Failed to consult payment")
-      throw(:abort)
-    end
-  
-    true
-  end
-
   def notify_payment
     return true unless status == 'active' && payment == 'Pago Movil'
 
@@ -237,25 +221,24 @@ class Social::PaymentMethod < ApplicationRecord
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
     codigo_red = '00'
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
-    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%dT00:00:00.000Z')
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
     concepto = ''
 
     raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
 
-    body = {
-      telefono_emisor: telefono_emisor,
-      monto: monto,
-      referencia: referencia,
-      codigo_red: codigo_red,
-      banco_emisor: banco_emisor,
-      fecha_hora: fecha_hora,
-      concepto: concepto,
-    }
+    r4_result = $redis.get("R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}")
 
-    api_response = Social::R4ConectaService.new.notificar_pago(body)
-    api_status = api_response["abono"]
+    final_result = if r4_result.nil?
+      false
+    elsif  r4_result.to_f == monto.to_f
+      self.status = "accepted"
+      self.save
+      true
+    else
+      false
+    end
 
-    unless api_status
+    unless final_result
       errors.add(:base, "Failed to notify payment")
       throw(:abort)
     end
