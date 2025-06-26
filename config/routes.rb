@@ -6,7 +6,7 @@ require 'sidekiq/cron/web'
 # rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do 
   # R4 Conecta Webhooks
-  post '/R4consulta', to: 'r4_conecta#handshake'
+  post '/R4consulta', to: 'r4_conecta#handshake' 
   post '/R4notifica', to: 'r4_conecta#notification'
 
   post '/login', to: 'authentication#login'

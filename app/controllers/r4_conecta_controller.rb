@@ -18,7 +18,7 @@ class R4ConectaController < ApplicationController
 
     return render json: { error: 'Not found' }, status: :not_found unless token_valid
 
-    render json: { status: params_valid }, status: params_valid ? :ok : :unprocessable_entity
+    render json: { status: params_valid }, status: :ok
   end
 
   def notification
@@ -50,7 +50,7 @@ class R4ConectaController < ApplicationController
 
     $redis.set("R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}", monto) if transaction_valid
 
-    render json: { abono: transaction_valid }, status: transaction_valid ? :ok : :unprocessable_entity
+    render json: { abono: transaction_valid }, status: :ok
   end
 
   private
