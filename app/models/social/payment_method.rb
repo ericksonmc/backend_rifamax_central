@@ -216,13 +216,11 @@ class Social::PaymentMethod < ApplicationRecord
   def notify_payment
     return true unless status == 'active' && payment == 'Pago Movil'
 
-    monto = amount.to_s
+    monto = (amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f).to_s,
     referencia = details["reference"].to_s
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
-    codigo_red = '00'
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
-    concepto = ''
 
     raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
 
@@ -232,13 +230,11 @@ class Social::PaymentMethod < ApplicationRecord
 
     final_result = if r4_result.nil?
       false
-    elsif  r4_result.to_f == monto.to_f
+    else
       self.status = "accepted"
       self.save
       $redis.del(redis_param)
       true
-    else
-      false
     end
 
     unless final_result
