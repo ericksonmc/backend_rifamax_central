@@ -27,7 +27,7 @@ class R4ConectaController < ApplicationController
     @commerce_id = ENV.fetch('R4_CONECTA_COMMERCE_ID', nil)
     @commerce_phone = ENV.fetch('R4_CONECTA_COMMERCE_PHONE', nil)
 
-    id_comercio = notification_params[:idComercio]
+    id_comercio = notification_params[:IdComercio]
     telefono_comercio = notification_params[:TelefonoComercio]
     telefono_emisor = notification_params[:TelefonoEmisor]
     concepto = notification_params[:Concepto]
@@ -60,8 +60,8 @@ class R4ConectaController < ApplicationController
   end
 
   def notification_params
-    params.permit(
-      :idComercio, 
+    permitted = params.permit(
+      :IdComercio,
       :TelefonoComercio,
       :TelefonoEmisor,
       :Concepto,
@@ -71,6 +71,20 @@ class R4ConectaController < ApplicationController
       :Referencia,
       :CodigoRed
     )
+
+    if params[:r4_conectum].present?
+      permitted = params.require(:r4_conectum).permit(
+        :IdComercio,
+        :TelefonoComercio,
+        :TelefonoEmisor,
+        :Concepto,
+        :BancoEmisor,
+        :Monto,
+        :FechaHora,
+        :Referencia,
+        :CodigoRed
+      )
+    end
   end
 
   def validate_bank_signature
