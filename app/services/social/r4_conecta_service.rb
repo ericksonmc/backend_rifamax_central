@@ -4,6 +4,8 @@
 require 'faraday'
 require 'openssl'
 require 'json'
+require 'nokogiri'
+require 'open-uri'
 
 class Social::R4ConectaService
   API_METHODS = {
@@ -190,6 +192,12 @@ class Social::R4ConectaService
   
     begin
       parsed = JSON.parse(response.body)
+
+      if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
+        bcv_cotization = Shared::Exchange.get_bcv
+
+        return { "code"=>"00", "fechavalor"=>Time.now.strftime("%Y-%m-%d"), "tipocambio"=>bcv_cotization }
+      end
     rescue JSON::ParserError
       if response.status == 404
         return { error: 'Not found', status: 404 }
