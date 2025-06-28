@@ -93,8 +93,6 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
 
-    @social_payment_method.status = 'active'
-
     if @social_payment_method.save
       render json: @social_payment_method, status: :created
     else

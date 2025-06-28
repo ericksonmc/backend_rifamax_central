@@ -35,9 +35,9 @@
 #
 class Social::PaymentMethod < ApplicationRecord
   # ------ Triggers
+  before_validation :initialize_status
   before_validation :initialize_currency
   before_validation :initialize_exchange
-  before_save :initialize_status
   before_create :notify_payment
   # before_create :calculate_amount
 
