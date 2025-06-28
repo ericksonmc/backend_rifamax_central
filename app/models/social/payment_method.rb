@@ -62,9 +62,9 @@ class Social::PaymentMethod < ApplicationRecord
             presence: true,
             numericality: { greater_than: 0 }
 
-  validates :status, 
-            presence: true,
-            inclusion: { in: ["active", "accepted", "rejected", "refunded"] }
+  # validates :status, 
+  #           presence: true,
+  #           inclusion: { in: ["active", "accepted", "rejected", "refunded"] }
 
   validates :social_influencer_id, presence: true
 
