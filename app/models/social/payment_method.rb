@@ -216,7 +216,7 @@ class Social::PaymentMethod < ApplicationRecord
   def notify_payment
     return true unless status == 'active' && payment == 'Pago Movil'
 
-    monto = (amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f).to_s,
+    monto = (amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f).to_s
     referencia = details["reference"].to_s
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
