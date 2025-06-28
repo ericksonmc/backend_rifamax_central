@@ -237,6 +237,7 @@ class Social::PaymentMethod < ApplicationRecord
         self.save
         true
       else
+        errors.add(:amount, "Amount mismatched")
         false
       end
     end
