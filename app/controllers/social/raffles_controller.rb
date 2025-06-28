@@ -108,14 +108,16 @@ class Social::RafflesController < ApplicationController
   # POST /social/raffles/reject
   def reject
     @raffle = Social::Raffle.find_by(id: params[:raffle_id])
+    @rejecting_details = params[:message]
+
     unless @raffle
       render json: { message: "Raffle not found" }, status: :not_found and return
     end
   
-    if @raffle.destroy
-      render json: { message: 'Raffle destroyed!', raffle: @raffle }, status: :ok
+    if @raffle.update(rejecting_details: @rejecting_details)
+      render json: { message: 'Raffle rejected!', raffle: @raffle }, status: :ok
     else
-      render json: { message: 'Failed to destroy raffle', errors: @raffle.errors.full_messages }, status: :unprocessable_entity
+      render json: { message: 'Failed to reject raffle', errors: @raffle.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

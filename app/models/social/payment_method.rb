@@ -218,7 +218,7 @@ class Social::PaymentMethod < ApplicationRecord
 
     monto = (amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f).to_s,
     referencia = details["reference"].to_s
-    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}",
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
 
@@ -233,8 +233,12 @@ class Social::PaymentMethod < ApplicationRecord
     else
       self.status = "accepted"
       self.save
-      $redis.del(redis_param)
-      true
+      if (monto.to_f === r4_result.to_f)
+        $redis.del(redis_param)
+        true
+      else
+        false
+      end
     end
 
     unless final_result
