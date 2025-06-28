@@ -79,6 +79,7 @@ class Social::PaymentMethodsController < ApplicationController
     client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
     quantity_requested = social_payment_method_params[:quantity_requested]
+    payment = social_payment_method_params[:payment]
 
     return render json: { message: 'Client must exists' }, status: :not_found unless client
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
@@ -90,6 +91,8 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_influencer_id = influencer.id
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
+
+    @social_payment_method.status = payment == 'Pago Movil' ? 'accepted' : 'active'
 
     if @social_payment_method.save
       render json: @social_payment_method, status: :created
