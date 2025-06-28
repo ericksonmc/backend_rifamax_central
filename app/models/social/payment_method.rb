@@ -260,7 +260,9 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def initialize_status
-    self.status = "active"
+    unless self.payment == 'Pago Movil'
+      self.status = "active"
+    end
   end
 
   def initialize_exchange
