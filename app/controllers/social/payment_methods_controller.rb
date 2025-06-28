@@ -36,7 +36,7 @@ class Social::PaymentMethodsController < ApplicationController
     else
       if @social_payment_method.accept!
         @social_payment_method.status = 'accepted'
-        @social_payment_method.update_attribute(status: 'accepted')
+        @social_payment_method.update_attribute!(:status, 'accepted')
         render json: @social_payment_method, status: :ok
       else
         render json: @social_payment_method.errors, status: :unprocessable_entity
@@ -51,7 +51,7 @@ class Social::PaymentMethodsController < ApplicationController
     else
       @social_payment_method.reject!
       @social_payment_method.status = 'rejected'
-      @social_payment_method.update_attribute(status: 'rejected')
+      @social_payment_method.update_attribute!(:status, 'rejected')
       render json: @social_payment_method, status: :ok
     end
   end
