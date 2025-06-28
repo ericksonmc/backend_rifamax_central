@@ -231,10 +231,10 @@ class Social::PaymentMethod < ApplicationRecord
     final_result = if r4_result.nil?
       false
     else
-      self.status = "accepted"
-      self.save
       if (monto.to_f === r4_result.to_f)
         $redis.del(redis_param)
+        self.status = "accepted"
+        self.save
         true
       else
         false
