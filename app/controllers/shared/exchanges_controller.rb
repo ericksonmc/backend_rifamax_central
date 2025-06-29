@@ -26,6 +26,8 @@ class Shared::ExchangesController < ApplicationController
       value_cop: @shared_exchanges&.value_cop,
       mainstream_money: @shared_exchanges&.mainstream_money,
       automatic: @shared_exchanges&.automatic,
+      created_at: @shared_exchanges&.created_at&.strftime('%Y-%m-%d %H:%M:%S'),
+      updated_at: @shared_exchanges&.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
     }
 
     render json: @result, status: :ok
