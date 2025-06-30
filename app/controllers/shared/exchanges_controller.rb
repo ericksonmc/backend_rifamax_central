@@ -5,30 +5,9 @@ class Shared::ExchangesController < ApplicationController
 
   # GET /shared/exchanges
   def index
-    date_param = params[:date]
-    date =
-      begin
-        date_param.present? ? Date.parse(date_param) : Date.current
-      rescue ArgumentError
-        return render json: { error: 'Invalid date format. Use YYYY-MM-DD.' }, status: :unprocessable_entity
-      end
-  
-    formatted_date = date.strftime('%Y-%m-%d')
+    shared_exchange = Shared::Exchange.last
 
-    if date > Date.current
-      return render json: { error: 'Date cannot be in the future.' }, status: :unprocessable_entity
-    end
-
-    exchange = Shared::Exchange.where(created_at: Date.parse(formatted_date).all_day).order(:created_at).last
-
-    result = {
-      value_bs: Shared::Exchange.get_bsd,
-      value_cop: exchange&.value_cop,
-      mainstream_money: exchange&.mainstream_money,
-      automatic: exchange&.automatic,
-      created_at: exchange&.created_at&.strftime('%Y-%m-%d %H:%M:%S'),
-      updated_at: exchange&.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
-    }
+    result = ActiveModelSerializers::SerializableResource.new(shared_exchange).as_json
 
     render json: result, status: :ok
   end
