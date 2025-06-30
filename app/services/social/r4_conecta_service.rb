@@ -207,9 +207,9 @@ class Social::R4ConectaService
     @logger.error("[#{method_key.upcase}] ERROR: #{error_message}") unless @success_codes.include?(response.status)
   
     begin
-      # parsed = JSON.parse(response.body)
+      parsed = JSON.parse(response.body)
 
-      if (method_key == :r4bcv) # && parsed['message'] == "Cotización no encontrada")
+      if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
         bcv_cotization = get_bcv
         curr_time = Time.now.strftime("%Y-%m-%d")
 
