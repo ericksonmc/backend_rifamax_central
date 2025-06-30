@@ -19,18 +19,18 @@ class Shared::ExchangesController < ApplicationController
       return render json: { error: 'Date cannot be in the future.' }, status: :unprocessable_entity
     end
 
-    @shared_exchanges =  Shared::Exchange.where(created_at: Date.parse(formatted_date).all_day).order(:created_at).last
+    exchange = Shared::Exchange.where(created_at: Date.parse(formatted_date).all_day).order(:created_at).last
 
-    @result = {
-      value_bs: Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: formatted_date)["tipocambio"]&.round(2),
-      value_cop: @shared_exchanges&.value_cop,
-      mainstream_money: @shared_exchanges&.mainstream_money,
-      automatic: @shared_exchanges&.automatic,
-      created_at: @shared_exchanges&.created_at&.strftime('%Y-%m-%d %H:%M:%S'),
-      updated_at: @shared_exchanges&.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
+    result = {
+      value_bs: Shared::Exchange.get_bsd,
+      value_cop: exchange&.value_cop,
+      mainstream_money: exchange&.mainstream_money,
+      automatic: exchange&.automatic,
+      created_at: exchange&.created_at&.strftime('%Y-%m-%d %H:%M:%S'),
+      updated_at: exchange&.updated_at&.strftime('%Y-%m-%d %H:%M:%S')
     }
 
-    render json: @result, status: :ok
+    render json: result, status: :ok
   end
 
   # GET /shared/exchanges/1
