@@ -7,9 +7,7 @@ class Shared::ExchangesController < ApplicationController
   def index
     shared_exchange = Shared::Exchange.last
 
-    result = ActiveModelSerializers::SerializableResource.new(shared_exchange).as_json
-
-    render json: result, status: :ok
+    render json: shared_exchange, serializer: Shared::ExchangeSerializer, status: :ok
   end
 
   # GET /shared/exchanges/1
