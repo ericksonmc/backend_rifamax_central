@@ -7,6 +7,9 @@ module X100
     class ExternalServiceError < StandardError; end
     class TicketReservingError < StandardError; end
     class IntegratorNotFoundError < StandardError; end
+    class MissingIntegratorIdError < StandardError; end
+    class MissingIntegratorTypeError < StandardError; end
+    class MissingMoneyIntegrationError < StandardError; end
 
     def self.reserve(raffle_id, position, user)
       @raffle = X100::Raffle.find(raffle_id)
@@ -38,10 +41,9 @@ module X100
 
       raise RaffleNotFoundError.new "Raffle not found" if @raffle.nil? 
       raise TicketNotFoundError.new "Ticket not found" if @ticket.nil? 
-
-      raise ArgumentError, "Missing integrator_id" if integrator_id.nil?
-      raise ArgumentError, "Missing integrator_type" if integrator_type.nil?
-      raise ArgumentError, "Missing money" if money.nil?
+      raise MissingMoneyIntegrationError.new "Missing money" if money.nil?
+      raise MissingIntegratorIdError.new "Missing integrator_id" if integrator_id.nil?
+      raise MissingIntegratorTypeError.new "Missing integrator_type" if integrator_type.nil?
       
       verify_valid_position(@raffle, position)
       verify_ticket_status(@raffle, position)
