@@ -385,8 +385,16 @@ module X100
     end
 
     def render_error_response(message, status)
-      render json: { error: message }, status: status
+      error = begin
+        parsed = JSON.parse(message)
+        parsed.is_a?(Hash) ? parsed : { error: parsed }
+      rescue JSON::ParserError
+        { error: message }
+      end
+
+      render json: error, status: status
     end
+
 
     def parameter_require_error(message = 'Missing required parameters')
       render json: { error: message }, status: :unprocessable_entity
