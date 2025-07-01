@@ -119,11 +119,11 @@ module X100
     end
 
     def apart_integrator
-      @money = apart_integrator_params[:money]
-      @position = apart_integrator_params[:position]
-      @raffle_id = apart_integrator_params[:x100_raffle_id]
-      @integrator_id = apart_integrator_params[:integrator_id]
-      @integrator_type = apart_integrator_params[:integrator_type]
+      money = apart_integrator_params[:money]
+      position = apart_integrator_params[:position]
+      raffle_id = apart_integrator_params[:x100_raffle_id]
+      integrator_id = apart_integrator_params[:integrator_id]
+      integrator_type = apart_integrator_params[:integrator_type]
 
       ticket = X100::Ticket.exists?(
         position: position,
@@ -131,19 +131,19 @@ module X100
       )
 
       return render_not_found("Ticket with position: #{position} can't be apart") unless ticket
-      
-      return render_error_response("Param: money can't be empty", :unprocessable_entity) if @money.nil?
-      return render_error_response("Param: position can't be empty", :unprocessable_entity) if @position.nil?
-      return render_error_response("Param: raffle_id can't be empty", :unprocessable_entity) if @raffle_id.nil?
-      return render_error_response("Param: integrator_id can't be empty", :unprocessable_entity) if @integrator_id.nil?
-      return render_error_response("Param: integrator_type can't be empty", :unprocessable_entity) if @integrator_type.nil?
+
+      return render_error_response("Param: money can't be empty", :unprocessable_entity) if money.nil?
+      return render_error_response("Param: position can't be empty", :unprocessable_entity) if position.nil?
+      return render_error_response("Param: raffle_id can't be empty", :unprocessable_entity) if raffle_id.nil?
+      return render_error_response("Param: integrator_id can't be empty", :unprocessable_entity) if integrator_id.nil?
+      return render_error_response("Param: integrator_type can't be empty", :unprocessable_entity) if integrator_type.nil?
 
       ticket_result = X100::TicketApartService.reserve_via_integration(
-        @raffle_id,
-        @position,
-        @integrator_id,
-        @integrator_type,
-        @money
+        raffle_id,
+        position,
+        integrator_id,
+        integrator_type,
+        money
       )
 
       render json: {
