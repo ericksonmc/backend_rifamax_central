@@ -130,7 +130,7 @@ module X100
         x100_raffle_id: raffle_id
       )
 
-      render_not_found("Ticket with position: #{position} can't be apart") unless ticket
+      return render_not_found("Ticket with position: #{position} can't be apart") unless ticket
 
       ticket_result = X100::TicketApartService.reserve_via_integration(
         raffle_id,
