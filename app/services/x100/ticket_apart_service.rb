@@ -81,7 +81,7 @@ module X100
         'CDA' => "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}"
       }
 
-      url = "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{713}&currency=#{money}"
+      url = "#{ENV["cda_url_base"]}/wallets_rifas?player_id=#{integrator_id}&currency=#{money}"
       raise IntegratorNotFoundError.new "Integrator not found" unless url
 
       response = HTTParty.get(url)
