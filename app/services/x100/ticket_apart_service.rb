@@ -67,7 +67,7 @@ module X100
       return @ticket
     
     rescue => e
-      raise TicketReservingError, e.message 
+      raise TicketReservingError, e.message
     end
 
     private_class_method
@@ -90,10 +90,10 @@ module X100
         message: "Integrator #{integrator_type} is throwing error",
         body: JSON.parse(response.body),
         code: response.code
-      }
+      }.to_json
 
       raise ExternalServiceError.new(
-        JSON.parse(error)  
+        error  
       ) unless response.code == 200
 
       response
