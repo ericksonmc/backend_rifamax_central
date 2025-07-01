@@ -293,7 +293,7 @@ module X100
     end
 
     def render_not_found(message)
-      render json: { message: "Resource can't be found" }, status: :not_found
+      render json: { message: message ? "Resource can't be found" : message }, status: :not_found
     end
 
     def sell_series_ticket_params
