@@ -147,7 +147,7 @@ module X100
       }
 
       rescue X100::TicketApartService::TicketReservingError, StandardError => e
-        render_error_response(JSON.parse(e.message), 401)
+        render_error_response(e.message, 401)
     end
 
     def refresh
