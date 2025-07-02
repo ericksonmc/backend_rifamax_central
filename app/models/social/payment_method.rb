@@ -275,7 +275,9 @@ class Social::PaymentMethod < ApplicationRecord
     loop do
       serial = "ORD-#{SecureRandom.random_number(10**11).to_s.rjust(11, '0')}"
       unless Social::PaymentMethod.exists?(serial: serial)
-        self.serial = serial
+        if new_record?
+          self.serial = serial
+        end
         break
       end
     end

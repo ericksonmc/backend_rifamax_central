@@ -100,8 +100,13 @@ class Social::RaffleSerializer < ActiveModel::Serializer
   end
   
   def tickets_available
-    percentage = debt_percentage / 100.0
-    available = object.tickets_count.to_i - (object.tickets_count.to_i * percentage)
-    available.round
+    sold = $redis.get("social_sold_serie:#{object.id}")
+    sold_array = begin
+      JSON.parse(sold) if sold.present?
+    rescue JSON::ParserError
+      []
+    end
+    sold_count = sold_array.is_a?(Array) ? sold_array.length : object.tickets_count
+    object.tickets_count - sold_count
   end
 end
