@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_19_211251) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_02_145035) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -314,6 +314,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_19_211251) do
     t.boolean "email_send", default: false
     t.boolean "whatsapp_send", default: false
     t.float "payment_rate"
+    t.string "serial"
+    t.index ["serial"], name: "index_social_payment_methods_on_serial", unique: true
     t.index ["shared_exchange_id"], name: "index_social_payment_methods_on_shared_exchange_id"
     t.index ["social_client_id"], name: "index_social_payment_methods_on_social_client_id"
     t.index ["social_influencer_id"], name: "index_social_payment_methods_on_social_influencer_id"

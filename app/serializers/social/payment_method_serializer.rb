@@ -10,6 +10,7 @@
 #  payment              :string
 #  payment_rate         :float
 #  quantity_requested   :integer
+#  serial               :string
 #  status               :string
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
@@ -21,6 +22,7 @@
 #
 # Indexes
 #
+#  index_social_payment_methods_on_serial                (serial) UNIQUE
 #  index_social_payment_methods_on_shared_exchange_id    (shared_exchange_id)
 #  index_social_payment_methods_on_social_client_id      (social_client_id)
 #  index_social_payment_methods_on_social_influencer_id  (social_influencer_id)
