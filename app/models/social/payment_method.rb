@@ -35,6 +35,7 @@
 #
 class Social::PaymentMethod < ApplicationRecord
   # ------ Triggers
+  before_validation :generate_serial
   before_validation :initialize_status
   before_validation :initialize_currency
   before_validation :initialize_exchange
@@ -43,8 +44,8 @@ class Social::PaymentMethod < ApplicationRecord
 
   # ------ Belongs to association
   belongs_to :social_client, class_name: 'Social::Client', foreign_key: 'social_client_id'
-  belongs_to :social_influencer, class_name: 'Social::Influencer', foreign_key: 'social_influencer_id', optional: true
   belongs_to :social_raffle, class_name: 'Social::Raffle', foreign_key: 'social_raffle_id', optional: true
+  belongs_to :social_influencer, class_name: 'Social::Influencer', foreign_key: 'social_influencer_id', optional: true
 
   # ------ Associations/relationships between tables
   # has_many :social_orders, class_name: 'Social::Order', foreign_key: 'social_payment_method_id', dependent: :destroy
@@ -65,6 +66,9 @@ class Social::PaymentMethod < ApplicationRecord
   validates :status,
             presence: true,
             inclusion: { in: ["active", "accepted", "rejected", "refunded"] }
+
+  validates :serial,
+            presence: true
 
   validates :social_influencer_id, presence: true
 
@@ -262,6 +266,16 @@ class Social::PaymentMethod < ApplicationRecord
   def initialize_status
     if new_record?
       self.status = "active"
+    end
+  end
+
+  def generate_serial
+    loop do
+      serial = "ORD-#{SecureRandom.random_number(10**11).to_s.rjust(11, '0')}"
+      unless Social::PaymentMethod.exists?(serial: serial)
+        self.serial = serial
+        break
+      end
     end
   end
 
