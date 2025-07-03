@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     end
     resources :raffles do
       get 'live', on: :collection
+      get 'profit_dashboard', on: :collection
       put 'add_documents', on: :collection
       get 'actives', on: :collection
       post 'reject', on: :collection

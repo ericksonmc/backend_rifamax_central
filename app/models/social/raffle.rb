@@ -159,6 +159,50 @@ class Social::Raffle < ApplicationRecord
     return $redis.sadd("social_raffles_details_#{action}", self.slice(:id, :title, :price_unit, :status, :init_date, :social_influencer_id).to_json) == 1
   end
 
+  def tickets_sold
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      @tickets
+    end
+  end
+
+  def tickets_sold_count
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      @tickets.count
+    end
+  end
+
+  def tickets_available_count
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      self.tickets_count - @tickets.count
+    end
+  end
+
+  def profits
+    payments = self.social_payment_methods.accepted
+  
+    profit_usd = payments.select { |item| item.currency == 'USD' }.sum(&:amount)
+    profit_ves = payments.select { |item| item.currency == 'VES' }.sum { |item| item.amount * item.payment_rate }
+  
+    {
+      profit_usd: profit_usd.round(2),
+      profit_ves: profit_ves.round(2),
+      tsold: tickets_sold_count,
+      tavailable: tickets_available_count
+    }
+  end
+
   def stats
     result = self.class.connection.execute(
       ActiveRecord::Base.send(
