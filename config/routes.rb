@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resources :raffles do
       get 'live', on: :collection
       get 'profit_dashboard', on: :collection
+      get 'list_dashboard', on: :collection
       put 'add_documents', on: :collection
       get 'actives', on: :collection
       post 'reject', on: :collection

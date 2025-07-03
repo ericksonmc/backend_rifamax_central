@@ -2,7 +2,7 @@ class Social::RafflesController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_raffle, only: %i[ show update destroy ]
-  before_action :authorize_request, only: %i[ index show dashboard create update destroy only_lotteries confirm reject ]
+  before_action :authorize_request, only: %i[ index show list_dashboard profit_dashboard create update destroy only_lotteries confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
   
   # GET /social/raffles
@@ -64,30 +64,33 @@ class Social::RafflesController < ApplicationController
 
   # GET /social/raffles/list_dashboard
   def list_dashboard
-    raffle_id = params[:raffle_id]
-    finder = params[:finder] || 'general'
+    influencer = @current_user.social_influencer
+    @lottery = Social::Lottery.find_by(shared_user_id: @current_user.id)
 
-    case finder
-    when 'general'
-      result = {
-        profit_usd: 0,
-        profit_ves: 0,
-        ractives_or_tsold: 0,
-        rcreated_or_tavailable: 0,
-      }
+    count = params[:count] || 10
+    page = params[:page] || 1
 
-      render json: result, status: :ok
-    when 'specific'
-      @raffle = Social::Raffle.find(raffle_id)
-
-      return render json: { message: 'Raffle not found' }, status: :not_found if @raffle.nil?
-
-      result = @raffle.profits
-
-      render json: result, status: :ok
+    @raffles = case @current_user.role
+    when 'Influencer'
+      influencer.ongoing_raffles
+    when 'Admin'
+      Social::Raffle.all
+    when 'Loteria'
+      Social::Raffle.where(social_lottery_id: @lottery.id)
     else
-      render json: { message: 'Finder not found' }, status: :not_found
+      []
     end
+
+    @pagy, @records = pagy(@raffles, items: count, page: page)
+    render json: { 
+      social_raffles: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::RaffleSerializer),
+      metadata: {
+        page: @pagy.page,
+        count: @pagy.count,
+        items: @pagy.items,
+        pages: @pagy.pages
+      }
+    }, status: :ok
   end
 
   # GET /social/raffles/profit_dashboard
