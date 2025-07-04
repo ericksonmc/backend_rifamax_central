@@ -12,6 +12,7 @@
 #  quantity_requested   :integer
 #  serial               :string
 #  status               :string
+#  tickets              :integer          default([]), is an Array
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
@@ -42,6 +43,7 @@ class Social::PaymentMethod < ApplicationRecord
   before_validation :initialize_currency
   before_validation :initialize_exchange
   before_create :notify_payment
+  after_save :generate_tickets
   # before_create :calculate_amount
 
   # ------ Belongs to association
@@ -187,7 +189,7 @@ class Social::PaymentMethod < ApplicationRecord
       social_raffle,
       amount,
       currency,
-      [*1..10000].sample(quantity_requested).uniq
+      tickets
     ).deliver_now
   end
 
@@ -282,6 +284,42 @@ class Social::PaymentMethod < ApplicationRecord
         end
         break
       end
+    end
+  end
+
+  def generate_tickets
+    return unless new_record?
+  
+    lock_key = "lock:social_sold_serie:#{social_raffle_id}"
+    lock_timeout = 5
+    lock_value = SecureRandom.uuid
+  
+    got_lock = $redis.set(lock_key, lock_value, nx: true, ex: lock_timeout)
+    unless got_lock
+      errors.add(:base, "Could not acquire lock to generate tickets. Please try again.")
+      throw(:abort)
+    end
+  
+    begin
+      tickets = [*1..tickets_count]
+      sold_json = $redis.get("social_sold_serie:#{social_raffle_id}")
+      tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
+  
+      tickets_final = tickets - tickets_sold
+  
+      if tickets_final.size < quantity_requested
+        errors.add(:base, "Not enough tickets available to fulfill the request.")
+        throw(:abort)
+      end
+  
+      selected = tickets_final.sample(quantity_requested)
+      self.tickets = selected
+  
+      new_sold = tickets_sold + selected
+      $redis.set("social_sold_serie:#{social_raffle_id}", new_sold)
+    ensure
+      current_lock_value = $redis.get(lock_key)
+      $redis.del(lock_key) if current_lock_value == lock_value
     end
   end
 

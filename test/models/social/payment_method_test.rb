@@ -12,6 +12,7 @@
 #  quantity_requested   :integer
 #  serial               :string
 #  status               :string
+#  tickets              :integer          default([]), is an Array
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
