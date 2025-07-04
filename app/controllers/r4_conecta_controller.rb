@@ -6,7 +6,7 @@ class R4ConectaController < ApplicationController
     @header_signature_uuid = request.headers['Authorization'].to_s
     @commerce_phone = ENV.fetch('R4_CONECTA_COMMERCE_PHONE', nil)
 
-    id_client = handshake_params[:idCliente]
+    id_client = handshake_params[:IdCliente]
     monto = handshake_params[:Monto]
     telefono_comercio = handshake_params[:TelefonoComercio]
 
@@ -56,7 +56,7 @@ class R4ConectaController < ApplicationController
   private
 
   def handshake_params
-    params.permit(:idCliente, :Monto, :TelefonoComercio)
+    params.permit(:IdCliente, :Monto, :TelefonoComercio)
   end
 
   def notification_params
