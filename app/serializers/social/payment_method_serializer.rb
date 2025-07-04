@@ -37,7 +37,7 @@
 #  fk_rails_...  (social_raffle_id => social_raffles.id)
 #
 class Social::PaymentMethodSerializer < ActiveModel::Serializer
-  attributes :id, :payment, :amount, :currency, :status, :details, :client, :raffle, :payment_rate, :created_at
+  attributes :id, :payment, :amount, :serial, :currency, :status, :details, :client, :raffle, :payment_rate, :created_at
 
   def client
     object.social_client

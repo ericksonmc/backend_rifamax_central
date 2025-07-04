@@ -293,37 +293,22 @@ class Social::PaymentMethod < ApplicationRecord
   def generate_tickets
     return unless new_record?
   
-    lock_key = "lock:social_sold_serie:#{social_raffle_id}"
-    lock_timeout = 5
-    lock_value = SecureRandom.uuid
-  
-    got_lock = $redis.set(lock_key, lock_value, nx: true, ex: lock_timeout)
-    unless got_lock
-      errors.add(:base, "Could not acquire lock to generate tickets. Please try again.")
+    tickets = [*1..tickets_count]
+    sold_json = $redis.get("social_sold_serie:#{social_raffle_id}")
+    tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
+
+    tickets_final = tickets - tickets_sold
+
+    if tickets_final.size < quantity_requested
+      errors.add(:base, "Not enough tickets available to fulfill the request.")
       throw(:abort)
-    end
-  
-    begin
-      tickets = [*1..tickets_count]
-      sold_json = $redis.get("social_sold_serie:#{social_raffle_id}")
-      tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
-  
-      tickets_final = tickets - tickets_sold
-  
-      if tickets_final.size < quantity_requested
-        errors.add(:base, "Not enough tickets available to fulfill the request.")
-        throw(:abort)
-      end
-  
-      selected = tickets_final.sample(quantity_requested)
-      self.tickets = selected
-  
-      new_sold = tickets_sold + selected
-      $redis.set("social_sold_serie:#{social_raffle_id}", new_sold)
-    ensure
-      current_lock_value = $redis.get(lock_key)
-      $redis.del(lock_key) if current_lock_value == lock_value
-    end
+    end 
+
+    selected = tickets_final.sample(quantity_requested)
+    self.tickets = selected
+
+    new_sold = tickets_sold + selected
+    $redis.set("social_sold_serie:#{social_raffle_id}", new_sold)
   end
 
   def initialize_exchange

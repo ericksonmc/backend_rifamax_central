@@ -93,6 +93,12 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
 
+    tickets_available_count = JSON.parse($redis.get("social_sold_serie:#{raffle.id}")).count
+
+    if (quantity_requested > tickets_available_count)
+      return render json: { message: "No hay tickets disponibles para esa cantidad, disponibles: #{tickets_available_count}"}
+    end
+
     if @social_payment_method.save
       render json: @social_payment_method, status: :created
     else
