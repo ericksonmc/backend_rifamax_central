@@ -194,7 +194,7 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def consult_body
-    return unless status == 'active' && payment == 'Pago Movil'
+    return unless  payment == 'Pago Movil'
 
     monto = amount.to_s
     referencia = details["reference"].to_s
@@ -215,11 +215,10 @@ class Social::PaymentMethod < ApplicationRecord
     }
   end
 
-
   private
 
   def notify_payment
-    return true unless status == 'active' && payment == 'Pago Movil'
+    return true unless payment == 'Pago Movil'
 
     origin_references = details["reference"].to_s
 
@@ -271,7 +270,11 @@ class Social::PaymentMethod < ApplicationRecord
 
   def initialize_status
     if new_record?
-      self.status = "active"
+      if payment == 'Pago Movil'
+        self.status = "accepted"
+      else
+        self.status = "active"
+      end
     end
   end
 
@@ -325,7 +328,7 @@ class Social::PaymentMethod < ApplicationRecord
 
   def initialize_exchange
     return unless new_record?
-    
+
     payment_rating = Shared::Exchange.get_bsd
     payment_date = self.details["payment_date"]
 
