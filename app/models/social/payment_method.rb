@@ -324,6 +324,8 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def initialize_exchange
+    return unless new_record?
+    
     payment_rating = Shared::Exchange.get_bsd
     payment_date = self.details["payment_date"]
 
