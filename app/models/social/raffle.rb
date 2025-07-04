@@ -244,8 +244,8 @@ class Social::Raffle < ApplicationRecord
     {
       profit_usd: profit_usd.round(2),
       profit_ves: profit_ves.round(2),
-      tsold: tickets_sold_count,
-      tavailable: tickets_available_count
+      ractives_or_tsold: tickets_sold_count,
+      rcreated_or_tavailable: tickets_available_count
     }
   end
 
