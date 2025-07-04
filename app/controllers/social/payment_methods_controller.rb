@@ -109,7 +109,7 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.tickets = selected
 
     new_sold = tickets_sold + selected
-    $redis.set("social_sold_serie:#{social_raffle_id}", new_sold)
+    $redis.set("social_sold_serie:#{raffle.id}", new_sold)
 
     if (quantity_requested > tickets_available_count)
       return render json: { message: "No hay tickets disponibles para esa cantidad, disponibles: #{tickets_available_count}"}
