@@ -219,7 +219,9 @@ class Social::PaymentMethod < ApplicationRecord
   def notify_payment
     return true unless status == 'active' && payment == 'Pago Movil'
 
-    referencia = details["reference"].to_s
+    origin_references = details["reference"].to_s
+
+    referencia = origin_references.length <= 9 ? origin_references : origin_references[-9..]
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
@@ -284,8 +286,14 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def initialize_exchange
-    self.payment_rate = Shared::Exchange.get_bsd
+    payment_rating = Shared::Exchange.get_bsd
+    payment_date = self.details["payment_date"]
 
+    if Date.parse(payment_date) < Date.current
+      payment_rating = Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: payment_date)["tipocambio"]
+    end
+    
+    self.payment_rate = payment_rating
   rescue StandardError => e
     Rails.logger.error("Error initializing exchange rate: #{e.message}")
     errors.add(:base, "Failed to initialize exchange rate")

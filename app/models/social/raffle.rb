@@ -159,6 +159,52 @@ class Social::Raffle < ApplicationRecord
     return $redis.sadd("social_raffles_details_#{action}", self.slice(:id, :title, :price_unit, :status, :init_date, :social_influencer_id).to_json) == 1
   end
 
+  def self.all_profits(current_user)
+    case current_user.role
+    when 'Loteria'
+      lottery = Social::Lottery.find_by(shared_user_id: current_user.id)
+      return default_profits unless lottery
+  
+      raffles = where(social_lottery_id: lottery.id)
+    when 'Admin'
+      raffles = all
+    when 'Influencer'
+      influencer = current_user.social_influencer
+      return default_profits unless influencer
+  
+      raffles = where(social_influencer_id: influencer.id)
+    else
+      return default_profits
+    end
+  
+    profit_usd = 0.0
+    profit_ves = 0.0
+    ractives_or_tsold = raffles.active.count
+    rcreated_or_tavailable = raffles.count
+  
+    raffles.find_each do |raffle|
+      payments = raffle.social_payment_methods.accepted
+      profit_usd += payments.select { |item| item.currency == 'USD' }.sum(&:amount)
+      profit_ves += payments.select { |item| item.currency == 'VES' }.sum { |item| item.amount * item.payment_rate }
+    end
+  
+    {
+      profit_usd: profit_usd.round(2),
+      profit_ves: profit_ves.round(2),
+      ractives_or_tsold: ractives_or_tsold,
+      rcreated_or_tavailable: rcreated_or_tavailable
+    }
+  end
+  
+  def self.default_profits
+    {
+      profit_usd: 0,
+      profit_ves: 0,
+      ractives_or_tsold: 0,
+      rcreated_or_tavailable: 0
+    }
+  end
+
   def tickets_sold
     @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
 

@@ -100,25 +100,14 @@ class Social::RafflesController < ApplicationController
 
     case finder
     when 'general'
-      result = {
-        profit_usd: 0,
-        profit_ves: 0,
-        ractives_or_tsold: 0,
-        rcreated_or_tavailable: 0,
-      }
+      result = Social::Raffle.all_profits(@current_user)
 
       render json: result, status: :ok
     when 'specific'
-      return render json: { message: 'Raffle not found' }, status: :not_found if raffle_id.nil?
+      @raffle = Social::Raffle.find(raffle_id)
+      return render json: { message: 'Raffle not found' }, status: :not_found if @raffle.nil?
 
-      result = {
-        profit_usd: 0,
-        profit_ves: 0,
-        ractives_or_tsold: 0,
-        rcreated_or_tavailable: 0,
-      }
-
-      render json: result, status: :ok
+      render json: @raffle.profits, status: :ok
     else
       render json: { message: 'Finder not found' }, status: :not_found
     end
