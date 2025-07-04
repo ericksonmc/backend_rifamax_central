@@ -43,7 +43,6 @@ class Social::PaymentMethod < ApplicationRecord
   before_validation :initialize_currency
   before_validation :initialize_exchange
   before_create :notify_payment
-  after_save :generate_tickets
   # before_create :calculate_amount
 
   # ------ Belongs to association
@@ -288,27 +287,6 @@ class Social::PaymentMethod < ApplicationRecord
         break
       end
     end
-  end
-
-  def generate_tickets
-    return unless new_record?
-  
-    tickets = [*1..tickets_count]
-    sold_json = $redis.get("social_sold_serie:#{social_raffle_id}")
-    tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
-
-    tickets_final = tickets - tickets_sold
-
-    if tickets_final.size < quantity_requested
-      errors.add(:base, "Not enough tickets available to fulfill the request.")
-      throw(:abort)
-    end 
-
-    selected = tickets_final.sample(quantity_requested)
-    self.tickets = selected
-
-    new_sold = tickets_sold + selected
-    $redis.set("social_sold_serie:#{social_raffle_id}", new_sold)
   end
 
   def initialize_exchange
