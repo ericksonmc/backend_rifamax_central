@@ -125,11 +125,12 @@ class Social::PaymentMethodsController < ApplicationController
   # POST /social/payment_methods/send_email
   def send_email
     @payment = Social::PaymentMethod.find(send_message_params[:id])
+    email = send_message_params[:email]
 
     if @payment.nil?
       render json: { message: 'Payment not found' }, status: :unprocessable_entity
     else 
-      @payment.send_preorder_email
+      @payment.send_order_email(email)
       render json: { message: "Email was delivered!" }, status: :ok
     end
 

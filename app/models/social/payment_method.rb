@@ -182,14 +182,16 @@ class Social::PaymentMethod < ApplicationRecord
     end
   end
 
-  def send_order_email
+  def send_order_email(email)
     Social::PaymentMailer.order_email(
-      social_client,
-      social_raffle,
-      amount,
-      currency,
-      tickets
+      email,
+      self.social_raffle,
+      self.currency == 'USD' ? self.amount : self.amount * self.payment_rate,
+      self.currency
+      self.tickets
     ).deliver_now
+    self.email_send = true
+    self.save
   end
 
   def consult_body
