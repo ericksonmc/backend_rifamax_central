@@ -43,6 +43,7 @@ module X100
                :expired_date,
                :init_date,
                :prizes,
+               :lottery,
                :winners,
                :has_winners,
                :automatic_taquillas_ids,
@@ -56,6 +57,10 @@ module X100
 
     def created_at
       object.created_at.strftime('%d/%m/%Y %H:%M:%S')
+    end
+
+    def lottery
+      object.social_lottery.name
     end
 
     def ad
