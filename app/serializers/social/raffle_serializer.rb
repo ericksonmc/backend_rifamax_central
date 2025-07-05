@@ -44,7 +44,7 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :dni, :rif, :bank_register, :receipts, :title, :combos, :draw_type, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
+  attributes :id, :ad, :dni, :rif, :bank_register, :receipts, :title, :combos, :draw_type, :lottery, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
 
   def ad
     return unless object.ad.present?
@@ -53,6 +53,11 @@ class Social::RaffleSerializer < ActiveModel::Serializer
       'url' => "#{ENV['url_base']}/#{object.ad.url}"
     )
   end
+
+  def lottery
+    object.social_lottery.name
+  end
+
 
   def dni
     return unless object.dni.present?
