@@ -187,7 +187,7 @@ class Social::PaymentMethod < ApplicationRecord
       email,
       self.social_raffle,
       self.currency == 'USD' ? self.amount : self.amount * self.payment_rate,
-      self.currency
+      self.currency,
       self.tickets
     ).deliver_now
     self.email_send = true
