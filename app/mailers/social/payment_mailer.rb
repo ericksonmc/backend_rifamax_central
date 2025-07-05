@@ -16,7 +16,6 @@ class Social::PaymentMailer < ApplicationMailer
 
   def order_email(email, raffle, amount, currency, tickets)
     @greeting = "Hola 👋🏻"
-    @client = client
     @raffle = raffle
     @amount = amount 
     @tickets = tickets
