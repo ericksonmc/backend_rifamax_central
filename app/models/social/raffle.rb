@@ -227,11 +227,11 @@ class Social::Raffle < ApplicationRecord
 
   def self.raffle_emergents(user)
     case user.role
-    when 'Loteria':
+    when 'Loteria'
       where(confirmation: false, social_lottery_id: user.social_lottery.id)
-    when 'Influencer':
+    when 'Influencer'
       where(confirmation: false, social_influencer_id: user.social_influencer.id)
-    when 'Admin':
+    when 'Admin'
       where(confirmation: false)
     else
       []
@@ -240,11 +240,11 @@ class Social::Raffle < ApplicationRecord
   
   def self.raffle_emergents_count(user)
     case user.role
-    when 'Loteria':
+    when 'Loteria'
       where(confirmation: false, social_lottery_id: user.social_lottery.id)
-    when 'Influencer':
+    when 'Influencer'
       where(confirmation: false, social_influencer_id: user.social_influencer.id)
-    when 'Admin':
+    when 'Admin'
       where(confirmation: false)
     else
       []
