@@ -125,7 +125,7 @@ module Shared
 
     def social_lottery
       if self.role == 'Loteria'
-        Social::Lottery.find_by(shareD_user_id: self.id)
+        Social::Lottery.find_by(shared_user_id: self.id)
       else
         nil
       end
