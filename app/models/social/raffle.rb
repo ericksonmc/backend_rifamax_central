@@ -225,6 +225,32 @@ class Social::Raffle < ApplicationRecord
     end
   end
 
+  def self.raffle_emergents(user)
+    case user.role
+    when 'Loteria':
+      where(confirmation: false, social_lottery_id: user.social_lottery.id)
+    when 'Influencer':
+      where(confirmation: false, social_influencer_id: user.social_influencer.id)
+    when 'Admin':
+      where(confirmation: false)
+    else
+      []
+    end
+  end
+  
+  def self.raffle_emergents_count(user)
+    case user.role
+    when 'Loteria':
+      where(confirmation: false, social_lottery_id: user.social_lottery.id)
+    when 'Influencer':
+      where(confirmation: false, social_influencer_id: user.social_influencer.id)
+    when 'Admin':
+      where(confirmation: false)
+    else
+      []
+    end.count
+  end
+
   def tickets_available_count
     @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
 
