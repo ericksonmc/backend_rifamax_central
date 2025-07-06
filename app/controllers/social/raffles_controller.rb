@@ -186,6 +186,7 @@ class Social::RafflesController < ApplicationController
     end
 
     if @social_raffle.save
+      ActionCable.server.broadcast("social_raffles_incoming_#{@current_user.id}", Social::Raffle.raffle_emergents_count(@current_user))
       $redis.publish('social_raffles_live', @social_raffle.to_json)
       render json: @social_raffle, status: :created, location: @social_raffle
     else

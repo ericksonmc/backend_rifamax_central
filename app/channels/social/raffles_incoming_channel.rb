@@ -4,9 +4,9 @@ class Social::RafflesIncomingChannel < ApplicationCable::Channel
 
     reject if @user.nil?
 
-    stream_from "social_raffles_incoming_#{id}"
-
-    ActionCable.server.broadcast("social_raffles_incoming_#{id}", Social::Raffle.raffle_emergents_count(user))
+    stream_from "social_raffles_incoming_#{@user.id}"
+    
+    ActionCable.server.broadcast("social_raffles_incoming_#{@user.id}", Social::Raffle.raffle_emergents_count(@user))
   end
 
   def unsubscribed
