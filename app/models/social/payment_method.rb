@@ -223,7 +223,9 @@ class Social::PaymentMethod < ApplicationRecord
 
     origin_references = details["reference"].to_s
 
-    referencia = origin_references.length <= 9 ? origin_references : origin_references[-9..]
+    length = origin_references.length < 9 ? -origin_references.length ? -9
+
+    referencia = origin_references[length..]
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
