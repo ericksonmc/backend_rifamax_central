@@ -47,8 +47,8 @@ class Social::Raffle < ApplicationRecord
   self.table_name = 'social_raffles'
 
   # ------ Initializers
-  after_save :initialize_ticket
   before_validation :initialize_attributes
+  after_validation :initialize_ticket
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
