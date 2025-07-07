@@ -104,7 +104,7 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
 
-    tickets_available_count = JSON.parse($redis.get("social_sold_serie:#{raffle.id}")).count
+    tickets_available_count = 10000
 
     tickets = [*1..raffle.tickets_count]
     sold_json = $redis.get("social_sold_serie:#{raffle.id}")
