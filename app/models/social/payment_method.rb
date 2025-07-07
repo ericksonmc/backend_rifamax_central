@@ -223,7 +223,7 @@ class Social::PaymentMethod < ApplicationRecord
 
     origin_references = details["reference"].to_s
 
-    length = origin_references.length < 9 ? -origin_references.length ? -9
+    length = origin_references.length < 9 ? -origin_references.length : -9
 
     referencia = origin_references[length..]
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
