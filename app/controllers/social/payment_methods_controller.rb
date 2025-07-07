@@ -49,6 +49,17 @@ class Social::PaymentMethodsController < ApplicationController
     unless @current_user.role.in?(@roles_authorized)
       render json: { message: 'You dont have permission to perform this action' }, status: :forbidden
     else
+      # Remove tickets from Redis sold list if present
+      if @social_payment_method.tickets.present? && @social_payment_method.social_raffle_id.present?
+        raffle_id = @social_payment_method.social_raffle_id
+        sold_key = "social_sold_serie:#{raffle_id}"
+        sold_json = $redis.get(sold_key)
+        tickets_sold = JSON.parse(sold_json)
+        updated_sold = tickets_sold - @social_payment_method.tickets
+        $redis.set(sold_key, updated_sold)
+        @social_payment_method.tickets = []
+      end
+  
       @social_payment_method.reject!
       @social_payment_method.status = 'rejected'
       @social_payment_method.update_attribute(:status, 'rejected')

@@ -297,7 +297,7 @@ class Social::PaymentMethod < ApplicationRecord
     return unless new_record?
 
     payment_rating = Shared::Exchange.get_bsd
-    payment_date = self.details["payment_date"]
+    payment_date = self.details["payment_date"] || Date.current
 
     if Date.parse(payment_date) < Date.current
       payment_rating = Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: payment_date)["tipocambio"]
