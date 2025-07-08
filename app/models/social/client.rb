@@ -5,6 +5,7 @@
 #  id         :bigint           not null, primary key
 #  address    :string
 #  country    :string
+#  dni        :string
 #  email      :string
 #  name       :string
 #  phone      :string
