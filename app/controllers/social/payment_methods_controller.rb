@@ -110,7 +110,7 @@ class Social::PaymentMethodsController < ApplicationController
     
     tickets_final = tickets - tickets_sold
     
-    tickets_available_count = raffle.tickets_count - ticket_sold.length
+    tickets_available_count = raffle.tickets_count - tickets_sold.length
 
     if tickets_final.size < quantity_requested
       return render json: { message: "Not enough tickets available to fulfill the request." }
