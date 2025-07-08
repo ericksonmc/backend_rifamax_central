@@ -104,13 +104,13 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_client_id = client.id
     @social_payment_method.social_raffle_id = raffle.id
 
-    tickets_available_count = 10000
-
     tickets = [*1..raffle.tickets_count]
     sold_json = $redis.get("social_sold_serie:#{raffle.id}")
     tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
-
+    
     tickets_final = tickets - tickets_sold
+    
+    tickets_available_count = raffle.tickets_count - ticket_sold.length
 
     if tickets_final.size < quantity_requested
       return render json: { message: "Not enough tickets available to fulfill the request." }
