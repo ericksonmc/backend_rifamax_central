@@ -240,14 +240,20 @@ class Social::PaymentMethod < ApplicationRecord
     final_result = if r4_result.nil?
       false
     else
-      if (monto.to_f - r4_result.to_f).abs <= 2
+      if (monto.to_f - r4_result.to_f).abs <= 1
         $redis.del(redis_param)
         self.status = "accepted"
+        self.fraction_amount == 0.0
+        self.is_fractionated == false
         self.save
         true
       else
-        errors.add(:amount, "Amount mismatched")
-        false
+        self.status = "accepted"
+        self.fraction_amount == r4_result
+        self.is_fractionated == true
+        self.save
+        $redis.del(redis_param)
+        true
       end
     end
 
