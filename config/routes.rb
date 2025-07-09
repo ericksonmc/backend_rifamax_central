@@ -58,6 +58,7 @@ Rails.application.routes.draw do
     resources :payment_methods do
       post 'accept', on: :member
       post 'reject', on: :member
+      post 'search', on: :collection
       get 'history', on: :collection
       post 'send_email', on: :collection
       post 'send_whatsapp', on: :collection
