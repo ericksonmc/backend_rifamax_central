@@ -133,18 +133,18 @@ class Social::PaymentMethodsController < ApplicationController
     end
   end
 
-  def search
+    def search
     count = params[:count] || 6
     page = params[:page] || 1
-
+  
     @result = Social::Client.find_by(dni: params[:dni])
-
+  
     if @result.nil?
       return render json: { message: "Cliente no encontrado" }, status: :not_found
     end
-
-    @pagy, @records = pagy(@result.payments, items: count, page: page)
-
+  
+    @pagy, @records = pagy(@result.payments.order(created_at: :desc), items: count, page: page)
+  
     render json: {
       payments: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::PaymentMethodSerializer),
       metadata: {
