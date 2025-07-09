@@ -31,6 +31,14 @@ class Social::Client < ApplicationRecord
             },
             if: -> { email.length > 0 }
 
+  validates :dni,
+            presence: true,
+            format: {
+              with: /\A[VEJPG]-\d{6,10}\z/,
+              message: 'Debe comenzar con V, J, P, G o E seguido de un guion y entre 5 y 8 números. Ejemplo: V-12345'
+            }
+            if: -> { new_record? }
+
   validates :phone, 
             presence: {
               message: 'Debe introducir un número de teléfono'
@@ -48,18 +56,6 @@ class Social::Client < ApplicationRecord
             inclusion: {
               in: ['Venezuela', 'Colombia', 'Perú', 'Ecuador', 'Chile', 'Argentina', 'Uruguay', 'Paraguay', 'Bolivia', 'Brasil', 'México', 'USA', 'Canadá']
             }
-
-  validates :province,
-            length: { minimum: 3, maximum: 50 },
-            if: -> { province.length > 0 }
-
-  validates :zip_code,
-            length: { minimum: 3, maximum: 10 },
-            if: -> { zip_code.length > 0 }
-
-  validates :address,
-            length: { minimum: 3, maximum: 120 },
-            if: -> { address.length > 0 }
 
   # ------ Public methods
   def payments

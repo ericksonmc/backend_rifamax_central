@@ -26,6 +26,7 @@ class Social::ClientsController < ApplicationController
   # POST /social/clients
   def create
     @social_client = Social::Client.new(social_client_params)
+    @social_client.country = 'Venezuela'
     if @social_client.save
       render json: @social_client, status: :created
     else
