@@ -82,7 +82,7 @@ class Social::ClientsController < ApplicationController
   end
 
   def social_client_params
-    params.require(:social_client).permit(:name, :email, :phone, :address, :country, :province, :zip_code)
+    params.require(:social_client).permit(:name, :dni, :email, :phone, :address, :country, :province, :zip_code)
   end
 
   def change_direction_params

@@ -62,7 +62,7 @@ class Social::Client < ApplicationRecord
             if: -> { address.length > 0 }
 
   # ------ Public methods
-  def methods
-    social_payment_methods
+  def payments
+    Social::PaymentMethod.where(social_client_id: id)
   end
 end

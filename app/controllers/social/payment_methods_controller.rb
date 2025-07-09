@@ -2,7 +2,7 @@ class Social::PaymentMethodsController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_payment_method, only: %i[ accept reject show update destroy ]
-  before_action :authorize_request, except: %i[ create send_email send_whatsapp ]
+  before_action :authorize_request, except: %i[ create send_email send_whatsapp search ]
   before_action :authorize_role, only: %i[ accept reject ]
 
   # GET /social/payment_methods
@@ -131,6 +131,10 @@ class Social::PaymentMethodsController < ApplicationController
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity
     end
+  end
+
+  def search
+    
   end
 
   # POST /social/payment_methods/send_email
