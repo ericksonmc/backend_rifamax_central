@@ -36,7 +36,7 @@ class Social::Client < ApplicationRecord
             format: {
               with: /\A[VEJPG]-\d{6,10}\z/,
               message: 'Debe comenzar con V, J, P, G o E seguido de un guion y entre 5 y 8 números. Ejemplo: V-12345'
-            }
+            },
             if: -> { new_record? }
 
   validates :phone, 
