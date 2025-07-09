@@ -51,6 +51,7 @@ Rails.application.routes.draw do
       get 'specific', on: :collection
     end
     resources :clients do 
+      post 'dni', on: :collection
       get 'phone', on: :collection
       put 'save_email', on: :collection
       put 'change_address', on: :collection

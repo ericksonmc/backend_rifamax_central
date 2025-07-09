@@ -23,6 +23,16 @@ class Social::ClientsController < ApplicationController
     end
   end
 
+  # POST /social/clients/dni
+  def dni
+    @social_client = Social::Client.find_by(dni: params[:dni])
+    if @social_client
+      render json: @social_client, status: :ok
+    else
+      render json: { error: 'Client not found' }, status: :not_found
+    end
+  end
+
   # POST /social/clients
   def create
     @social_client = Social::Client.new(social_client_params)
