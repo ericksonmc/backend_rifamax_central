@@ -1,5 +1,5 @@
 class Social::ClientsController < ApplicationController
-  before_action :admin_authorize_request, except: %i[phone create change_address save_email]
+  before_action :admin_authorize_request, except: %i[dni phone create change_address save_email]
   before_action :set_social_client, only: %i[ show update destroy ]
 
   # GET /social/clients
