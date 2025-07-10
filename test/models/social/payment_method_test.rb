@@ -7,6 +7,10 @@
 #  currency             :string
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
+#  fly_amounts          :float            default([]), is an Array
+#  fractions            :integer          default(1)
+#  has_fly_amount       :boolean          default(FALSE)
+#  is_fractionated      :boolean          default(FALSE)
 #  payment              :string
 #  payment_rate         :float
 #  quantity_requested   :integer

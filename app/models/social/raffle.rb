@@ -4,6 +4,7 @@
 #
 #  id                   :bigint           not null, primary key
 #  ad                   :string
+#  allow_fractions      :boolean          default(FALSE)
 #  app_debt             :float            default(0.0)
 #  bank_register        :string
 #  combos               :jsonb

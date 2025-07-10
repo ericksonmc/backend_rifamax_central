@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_09_204103) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_10_144907) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -317,7 +317,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_09_204103) do
     t.float "payment_rate"
     t.string "serial"
     t.integer "tickets", default: [], array: true
-    t.float "fraction_amount", default: 0.0
+    t.float "fly_amounts", default: [], array: true
+    t.boolean "has_fly_amount", default: false
+    t.integer "fractions", default: 1
     t.boolean "is_fractionated", default: false
     t.index ["serial"], name: "index_social_payment_methods_on_serial", unique: true
     t.index ["shared_exchange_id"], name: "index_social_payment_methods_on_shared_exchange_id"
@@ -364,6 +366,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_09_204103) do
     t.string "bank_register"
     t.json "receipts", default: []
     t.text "rejecting_details"
+    t.boolean "allow_fractions", default: false
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"
