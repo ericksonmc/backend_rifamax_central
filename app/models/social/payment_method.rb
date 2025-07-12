@@ -8,6 +8,7 @@
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
 #  fly_amounts          :float            default([]), is an Array
+#  fraction_debt        :float
 #  fractions            :integer          default(1)
 #  has_fly_amount       :boolean          default(FALSE)
 #  is_fractionated      :boolean          default(FALSE)
@@ -20,6 +21,7 @@
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  fraction_id          :bigint
 #  shared_exchange_id   :bigint
 #  social_client_id     :bigint           not null
 #  social_influencer_id :bigint
@@ -220,6 +222,10 @@ class Social::PaymentMethod < ApplicationRecord
     }
   end
 
+  def pay_fraction(amount)
+    
+  end
+
   private
 
   def notify_payment
@@ -244,20 +250,17 @@ class Social::PaymentMethod < ApplicationRecord
     final_result = if r4_result.nil?
       false
     else
-      if (monto.to_f - r4_result.to_f).abs <= 1
+      if ((monto.to_f / self.fractions) - r4_result.to_f).abs <= 2
         $redis.del(redis_param)
         self.status = "accepted"
         self.fraction_amount == 0.0
-        self.is_fractionated == false
+        self.fraction_debt = self.fractions > 1 ? (monto.to_f / self.fractions) - r4_result.to_f : 0.0
+        self.is_fractionated = self.fractions > 1
         self.save
         true
       else
-        self.status = "accepted"
-        self.fraction_amount == r4_result
-        self.is_fractionated == true
-        self.save
-        $redis.del(redis_param)
-        true
+        errors.add(:base, "Monto errado - Monto esperado #{monto}, Monto obtenido #{r4_result}")
+        false
       end
     end
 

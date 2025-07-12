@@ -8,6 +8,7 @@
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
 #  fly_amounts          :float            default([]), is an Array
+#  fraction_debt        :float
 #  fractions            :integer          default(1)
 #  has_fly_amount       :boolean          default(FALSE)
 #  is_fractionated      :boolean          default(FALSE)
@@ -20,6 +21,7 @@
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
+#  fraction_id          :bigint
 #  shared_exchange_id   :bigint
 #  social_client_id     :bigint           not null
 #  social_influencer_id :bigint

@@ -208,6 +208,7 @@ class Social::PaymentMethodsController < ApplicationController
       :status, 
       :payment, 
       :currency, 
+      :fractions,
       :content_code,
       :social_raffle_id,
       :social_client_id,
