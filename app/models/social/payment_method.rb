@@ -272,7 +272,9 @@ class Social::PaymentMethod < ApplicationRecord
       if ((monto.to_f / self.fractions) - r4_result.to_f).abs <= 2
         $redis.del(redis_param)
         self.status = "accepted"
-        self.fraction_debt = self.fractions > 1 ? (self.amount / self.fractions) : 0.0
+        self.fraction_debt = self.fractions > 1 ? self.amount - (self.amount / self.fractions) : 0.0
+        self.fly_amounts ||= []
+        self.fly_amounts << (monto.to_f / self.fractions).round(2)
         self.is_fractionated = self.fractions > 1
         self.save
         true
