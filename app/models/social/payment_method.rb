@@ -223,7 +223,28 @@ class Social::PaymentMethod < ApplicationRecord
   end
 
   def pay_fraction(amount)
+    self.fly_amounts ||= []
+
+    raise "El pago no es fraccionado" unless is_fractionated
     
+    raise "El monto debe ser mayor a 0" if amount <= 0
+
+    if amount > fraction_debt
+      raise "El monto no puede ser mayor a la deuda fraccionada"
+    end
+
+    self.fly_amounts << amount
+    self.fraction_debt -= amount
+    self.fractions -= 1
+    self.fraction_amount += amount
+
+    if self.fractions == 0
+      self.is_fractionated = false
+      self.fraction_debt = 0.0
+      self.fraction_amount = 0.0
+    end
+
+    self.save
   end
 
   private
@@ -254,12 +275,12 @@ class Social::PaymentMethod < ApplicationRecord
         $redis.del(redis_param)
         self.status = "accepted"
         self.fraction_amount == 0.0
-        self.fraction_debt = self.fractions > 1 ? (monto.to_f / self.fractions) - r4_result.to_f : 0.0
+        self.fraction_debt = self.fractions > 1 ? (self.amount / self.fractions) : 0.0
         self.is_fractionated = self.fractions > 1
         self.save
         true
       else
-        errors.add(:base, "Monto errado - Monto esperado #{monto}, Monto obtenido #{r4_result}")
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f / self.fractions).round(2)}, Monto obtenido #{r4_result}")
         false
       end
     end

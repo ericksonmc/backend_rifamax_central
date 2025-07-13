@@ -114,7 +114,7 @@ class Social::PaymentMethodsController < ApplicationController
 
     if tickets_final.size < quantity_requested
       return render json: { message: "Not enough tickets available to fulfill the request." }
-    end 
+    end
 
     selected = tickets_final.sample(quantity_requested)
     @social_payment_method.tickets = selected
