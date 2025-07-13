@@ -236,12 +236,10 @@ class Social::PaymentMethod < ApplicationRecord
     self.fly_amounts << amount
     self.fraction_debt -= amount
     self.fractions -= 1
-    self.fraction_amount += amount
 
     if self.fractions == 0
       self.is_fractionated = false
       self.fraction_debt = 0.0
-      self.fraction_amount = 0.0
     end
 
     self.save
