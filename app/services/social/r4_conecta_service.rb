@@ -195,13 +195,13 @@ class Social::R4ConectaService
       curr_time = Date.today
       payment_date = Date.parse(payload['Fechavalor'])
       
-      if (payment_date == curr_time && method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
+      if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
         last_payload = payload.merge('Fechavalor' => (curr_time - 1.day).strftime('%Y-%m-%d'))
         last_day_response = Faraday.post(url, payload.merge('Fechavalor' => last_payload).to_json, headers.merge('Authorization' => generate_token(method_key, last_payload)))
         last_day_parsed = JSON.parse(last_day_response.body)
 
         @logger.warn("[#{method_key.upcase}] WARNING: Cotización no encontrada, usando valor de dolar anterior: #{curr_time}}")
-        return last_day_parsed if @success_codes.include?(last_day_response.status)
+        return last_day_parsed
       end
     rescue JSON::ParserError
       if response.status == 404
