@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       post 'accept', on: :member
       post 'reject', on: :member
       post 'search', on: :collection
+      post 'pay_debt', on: :collection
       get 'history', on: :collection
       post 'send_email', on: :collection
       post 'send_whatsapp', on: :collection
