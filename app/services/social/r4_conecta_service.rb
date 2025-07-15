@@ -195,7 +195,7 @@ class Social::R4ConectaService
       curr_time = Date.today
       payment_date = Date.parse(payload['Fechavalor'])
       
-      if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
+      if (payment_date == curr_time && method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
         last_payload = {'Fechavalor' => (curr_time - 1.day).strftime('%Y-%m-%d'), 'Moneda' => payload['Moneda'] || @default_currency }
         last_headers = headers.merge({
           'Content-Type'  => 'application/json',
