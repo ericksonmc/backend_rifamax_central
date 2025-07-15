@@ -199,7 +199,7 @@ class Social::PaymentMethod < ApplicationRecord
     self.email_send = true
     self.save
   end
-tables 
+  
   def consult_body
     return unless  payment == 'Pago Movil'
 
