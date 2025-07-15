@@ -263,10 +263,7 @@ class Social::PaymentMethod < ApplicationRecord
       end
     end
 
-    unless final_result
-      errors.add(:base, "Failed to notify payment")
-      throw(:abort)
-    end
+    final_result
   end
 
   private
