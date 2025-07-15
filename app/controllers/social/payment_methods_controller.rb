@@ -133,7 +133,23 @@ class Social::PaymentMethodsController < ApplicationController
     end
   end
 
-    def search
+  # POST /social/payment_methods/pay_debt
+  def pay_debt
+    @social_payment_method = Social::PaymentMethod.find(pay_debt_params[:payment_id])
+    
+    @details = pay_debt_params[:details]
+
+    return render json: { message: 'Details not found' }, status: :not_found if @details.nil?
+    return render json: { message: 'Payment not found' }, status: :not_found if @social_payment_method.nil?
+
+    if @social_payment_method.pay_fraction_in_ves(@details)
+      render json: @social_payment_method, status: :ok
+    else
+      render json: @social_payment_method.errors, status: :unprocessable_entity
+    end
+  end
+
+  def search
     count = params[:count] || 6
     page = params[:page] || 1
   
@@ -209,6 +225,22 @@ class Social::PaymentMethodsController < ApplicationController
       :payment, 
       :currency, 
       :fractions,
+      :content_code,
+      :social_raffle_id,
+      :social_client_id,
+      :quantity_requested,
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
+    )
+  end
+
+  def pay_debt_params
+    params.require(:social_payment_method).permit(
+      :amount, 
+      :status, 
+      :payment, 
+      :currency, 
+      :fractions,
+      :payment_id,
       :content_code,
       :social_raffle_id,
       :social_client_id,

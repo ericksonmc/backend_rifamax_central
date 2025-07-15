@@ -199,7 +199,7 @@ class Social::PaymentMethod < ApplicationRecord
     self.email_send = true
     self.save
   end
-
+tables 
   def consult_body
     return unless  payment == 'Pago Movil'
 
@@ -222,27 +222,50 @@ class Social::PaymentMethod < ApplicationRecord
     }
   end
 
-  def pay_fraction(amount)
-    self.fly_amounts ||= []
+  def pay_fraction_in_ves(payment_details)
+    return unless is_fractionated
+    return unless payment == 'Pago Movil'
 
-    raise "El pago no es fraccionado" unless is_fractionated
-    
-    raise "El monto debe ser mayor a 0" if amount <= 0
-
-    if amount > fraction_debt
-      raise "El monto no puede ser mayor a la deuda fraccionada"
+    if fraction_debt <= 0.0
+      errors.add(:base, "No debt to pay")
+      throw(:abort)
     end
 
-    self.fly_amounts << amount
-    self.fraction_debt -= amount
-    self.fractions -= 1
+    amount_to_pay = (amount / fractions).round(2)
 
-    if self.fractions == 0
-      self.is_fractionated = false
-      self.fraction_debt = 0.0
+    origin_reference = payment_details["reference"].to_s
+    length = origin_reference.length < 9 ? -origin_reference.length : -9
+
+    referencia = origin_reference[length..]
+    banco_emisor = BanksService.new.find_bank(payment_details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(payment_details["payment_date"]).strftime('%Y-%m-%d')
+    monto = (amount_to_pay.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
+
+    final_result = if r4_result.nil?
+      false
+    else
+      if (monto.to_f - r4_result.to_f).abs <= 2
+        $redis.del(redis_param)
+        self.fraction_debt = fraction_debt - amount_to_pay
+        self.fly_amounts ||= []
+        self.fly_amounts << (monto.to_f).round(2)
+        true
+      else 
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f / self.fractions).round(2)}, Monto obtenido #{r4_result}")
+        false
+      end
     end
 
-    self.save
+    unless final_result
+      errors.add(:base, "Failed to notify payment")
+      throw(:abort)
+    end
   end
 
   private
