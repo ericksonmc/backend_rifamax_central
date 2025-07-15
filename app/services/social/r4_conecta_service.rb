@@ -175,22 +175,6 @@ class Social::R4ConectaService
 
   private
 
-  def get_bcv
-    url = 'https://www.bcv.org.ve'
-
-    agent = Mechanize.new
-
-    agent.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-    html = agent.get(url).body
-
-    doc = Nokogiri::HTML(html)
-
-    dolar_value = doc.at_css('#dolar strong').content.strip
-
-    return dolar_value.gsub(',', '.').to_f.round(2)
-  end
-
   def call_api(method_key, payload)
     url     = "#{@base_url}#{API_METHODS.fetch(method_key)}"
     token   = generate_token(method_key, payload)
@@ -202,19 +186,21 @@ class Social::R4ConectaService
   
     log_request(method_key, payload, url, headers)
     response = Faraday.post(url, payload.to_json, headers)
-  
+    
     error_message = "API call failed with status #{response.status}: #{response.body}"
     @logger.error("[#{method_key.upcase}] ERROR: #{error_message}") unless @success_codes.include?(response.status)
-  
+    
     begin
       parsed = JSON.parse(response.body)
+      curr_time = Date.today
+      payment_date = Date.parse(payload['Fechavalor'])
+      
+      if (payment_date == curr_time && method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
+        last_day_response = Faraday.post(url, payload.merge('Fechavalor' => (curr_time - 1.day).strftime('%Y-%m-%d')).to_json, headers)
+        last_day_parsed = JSON.parse(last_day_response.body)
 
-      if (method_key == :r4bcv && parsed['message'] == "Cotización no encontrada")
-        bcv_cotization = get_bcv
-        curr_time = Time.now.strftime("%Y-%m-%d")
-
-        @logger.warn("[#{method_key.upcase}] WARNING: Cotización no encontrada, usando valor de dolar por pagina de hoy: #{curr_time} : #{bcv_cotization}")
-        return { "currency"=>"USD", "code"=>"00", "fechavalor"=>curr_time, "tipocambio"=>bcv_cotization }
+        @logger.warn("[#{method_key.upcase}] WARNING: Cotización no encontrada, usando valor de dolar anterior: #{curr_time}}")
+        return last_day_parsed if @success_codes.include?(last_day_response.status)
       end
     rescue JSON::ParserError
       if response.status == 404
