@@ -252,11 +252,16 @@ class Social::PaymentMethod < ApplicationRecord
       false
     else
       if (monto.to_f - r4_result.to_f).abs <= 2
-        $redis.del(redis_param)
         self.fraction_debt = fraction_debt - amount_to_pay
         self.fly_amounts ||= []
         self.fly_amounts << (monto.to_f).round(2)
-        true
+        if self.save
+          $redis.del(redis_param)
+          true
+        else
+          errors.add(:base, "Failed to save payment method")
+          false
+        end
       else 
         errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f / self.fractions).round(2)}, Monto obtenido #{r4_result}")
         false
