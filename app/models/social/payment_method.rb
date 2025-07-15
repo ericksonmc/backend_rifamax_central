@@ -199,7 +199,7 @@ class Social::PaymentMethod < ApplicationRecord
     self.email_send = true
     self.save
   end
-  
+
   def consult_body
     return unless  payment == 'Pago Movil'
 
@@ -237,6 +237,7 @@ class Social::PaymentMethod < ApplicationRecord
     length = origin_reference.length < 9 ? -origin_reference.length : -9
 
     referencia = origin_reference[length..]
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(payment_details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(payment_details["payment_date"]).strftime('%Y-%m-%d')
     monto = (amount_to_pay.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
