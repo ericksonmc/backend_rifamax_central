@@ -202,7 +202,7 @@ class Social::R4ConectaService
           'Authorization' => generate_token(method_key, last_payload),
           'Commerce'      => @commerce
         })
-        last_day_response = Faraday.post(url, last_payload, last_headers)
+        last_day_response = Faraday.post(url, last_payload.to_json, last_headers)
         last_day_parsed = JSON.parse(last_day_response.body)
 
         @logger.warn("[#{method_key.upcase}] WARNING: Cotización no encontrada, usando valor de dolar anterior: #{curr_time}}")
