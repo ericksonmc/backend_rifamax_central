@@ -145,7 +145,7 @@ class Social::PaymentMethodsController < ApplicationController
     if @social_payment_method.pay_fraction_in_ves(@details)
       render json: @social_payment_method, status: :ok
     else
-      render json: @social_payment_method.errors, status: :unprocessable_entity
+      render json: { message: "Error al notificar el pago" }, status: :unprocessable_entity
     end
   end
 
