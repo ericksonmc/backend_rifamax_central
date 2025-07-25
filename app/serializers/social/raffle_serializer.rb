@@ -7,6 +7,7 @@
 #  allow_fractions      :boolean          default(FALSE)
 #  app_debt             :float            default(0.0)
 #  bank_register        :string
+#  collection_payment   :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  dni                  :string
