@@ -23,7 +23,7 @@ default: &default
 
 development:
   <<: *default
-  database: rifamax_central_backend_development
+  database: rifaplay_backend_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -57,7 +57,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: rifamax_central_backend_test
+  database: rifaplay_backend_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -81,6 +81,6 @@ test:
 #
 production:
   <<: *default
-  database: rifamax_central_backend_production
+  database: rifaplay_backend_production
   username: rifamax_central_backend
   password: <%= ENV["RIFAMAX_CENTRAL_BACKEND_DATABASE_PASSWORD"] %>
