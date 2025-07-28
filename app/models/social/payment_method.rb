@@ -8,7 +8,7 @@
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
 #  fly_amounts          :float            default([]), is an Array
-#  fraction_debt        :float
+#  fraction_debt        :float            default(0.0)
 #  fractions            :integer          default(1)
 #  has_fly_amount       :boolean          default(FALSE)
 #  is_fractionated      :boolean          default(FALSE)
@@ -16,13 +16,12 @@
 #  payment_rate         :float
 #  quantity_requested   :integer
 #  serial               :string
-#  status               :string
+#  status               :string           default("active")
 #  tickets              :integer          default([]), is an Array
 #  whatsapp_send        :boolean          default(FALSE)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  fraction_id          :bigint
-#  shared_exchange_id   :bigint
 #  social_client_id     :bigint           not null
 #  social_influencer_id :bigint
 #  social_raffle_id     :bigint
@@ -30,14 +29,12 @@
 # Indexes
 #
 #  index_social_payment_methods_on_serial                (serial) UNIQUE
-#  index_social_payment_methods_on_shared_exchange_id    (shared_exchange_id)
 #  index_social_payment_methods_on_social_client_id      (social_client_id)
 #  index_social_payment_methods_on_social_influencer_id  (social_influencer_id)
 #  index_social_payment_methods_on_social_raffle_id      (social_raffle_id)
 #
 # Foreign Keys
 #
-#  fk_rails_...  (shared_exchange_id => shared_exchanges.id)
 #  fk_rails_...  (social_client_id => social_clients.id)
 #  fk_rails_...  (social_influencer_id => social_influencers.id)
 #  fk_rails_...  (social_raffle_id => social_raffles.id)

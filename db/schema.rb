@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_28_160437) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -165,7 +165,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
 
   create_table "shared_structures", force: :cascade do |t|
     t.string "name"
-    t.string "token", default: "rm_live_10195371-2f1a-430a-bf34-c98b2fe0da1c"
+    t.string "token", default: "rm_live_eb488efd-15e5-4439-a342-156aeb1886ba"
     t.string "access_to", default: [], array: true
     t.bigint "shared_user_id", null: false
     t.datetime "created_at", null: false
@@ -210,7 +210,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
   end
 
   create_table "shared_wallets", force: :cascade do |t|
-    t.string "token", default: "8c456bb7-1ac8-4a91-b2e1-2a7072917b24"
+    t.string "token", default: "76dc9513-e1cd-4bd5-a181-3badaffb48b8"
     t.float "found", default: 0.0
     t.float "debt", default: 0.0
     t.float "debt_limit", default: 20.0
@@ -267,6 +267,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "shared_user_id", null: false
+    t.jsonb "payment_details", default: {}
     t.index ["shared_user_id"], name: "index_social_lotteries_on_shared_user_id"
   end
 
@@ -280,25 +281,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
     t.index ["social_influencer_id"], name: "index_social_networks_on_social_influencer_id"
   end
 
-  create_table "social_orders", force: :cascade do |t|
-    t.float "amount"
-    t.string "money"
-    t.datetime "ordered_at"
-    t.integer "products"
-    t.string "serial"
-    t.string "status"
-    t.bigint "social_client_id", null: false
-    t.bigint "social_raffle_id", null: false
-    t.bigint "shared_exchange_id", null: false
-    t.bigint "social_payment_method_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["shared_exchange_id"], name: "index_social_orders_on_shared_exchange_id"
-    t.index ["social_client_id"], name: "index_social_orders_on_social_client_id"
-    t.index ["social_payment_method_id"], name: "index_social_orders_on_social_payment_method_id"
-    t.index ["social_raffle_id"], name: "index_social_orders_on_social_raffle_id"
-  end
-
   create_table "social_payment_methods", force: :cascade do |t|
     t.string "payment"
     t.jsonb "details"
@@ -307,10 +289,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
     t.datetime "updated_at", null: false
     t.float "amount"
     t.string "currency"
+    t.string "status", default: "active"
     t.bigint "social_influencer_id"
     t.bigint "social_raffle_id"
-    t.string "status"
-    t.bigint "shared_exchange_id"
     t.integer "quantity_requested"
     t.boolean "email_send", default: false
     t.boolean "whatsapp_send", default: false
@@ -321,10 +302,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
     t.boolean "has_fly_amount", default: false
     t.integer "fractions", default: 1
     t.boolean "is_fractionated", default: false
-    t.float "fraction_debt"
+    t.float "fraction_debt", default: 0.0
     t.bigint "fraction_id"
     t.index ["serial"], name: "index_social_payment_methods_on_serial", unique: true
-    t.index ["shared_exchange_id"], name: "index_social_payment_methods_on_shared_exchange_id"
     t.index ["social_client_id"], name: "index_social_payment_methods_on_social_client_id"
     t.index ["social_influencer_id"], name: "index_social_payment_methods_on_social_influencer_id"
     t.index ["social_raffle_id"], name: "index_social_payment_methods_on_social_raffle_id"
@@ -441,18 +421,17 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
     t.string "raffle_type"
     t.float "price_unit"
     t.integer "tickets_count"
-    t.integer "numbers"
     t.string "lotery"
     t.datetime "expired_date"
     t.datetime "init_date"
     t.jsonb "prizes"
     t.jsonb "winners"
+    t.jsonb "combos"
     t.boolean "has_winners"
     t.integer "automatic_taquillas_ids", default: [], array: true
     t.integer "shared_user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "combos"
   end
 
   create_table "x100_stats", force: :cascade do |t|
@@ -466,7 +445,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
 
   create_table "x100_tickets", force: :cascade do |t|
     t.integer "position"
-    t.string "serial", default: "8211942d-2e22-48b5-ad9d-bbb38523f0c4"
+    t.string "serial"
     t.float "price"
     t.string "money"
     t.string "status", default: "available"
@@ -493,11 +472,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_25_221032) do
   add_foreign_key "social_influencers", "shared_users"
   add_foreign_key "social_lotteries", "shared_users"
   add_foreign_key "social_networks", "social_influencers"
-  add_foreign_key "social_orders", "shared_exchanges"
-  add_foreign_key "social_orders", "social_clients"
-  add_foreign_key "social_orders", "social_payment_methods"
-  add_foreign_key "social_orders", "social_raffles"
-  add_foreign_key "social_payment_methods", "shared_exchanges"
   add_foreign_key "social_payment_methods", "social_clients"
   add_foreign_key "social_payment_methods", "social_influencers"
   add_foreign_key "social_payment_methods", "social_raffles"

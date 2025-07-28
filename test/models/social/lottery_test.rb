@@ -2,14 +2,15 @@
 #
 # Table name: social_lotteries
 #
-#  id             :bigint           not null, primary key
-#  key_name       :string
-#  name           :string
-#  profit_fee     :float
-#  status         :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  shared_user_id :bigint           not null
+#  id              :bigint           not null, primary key
+#  key_name        :string
+#  name            :string
+#  payment_details :jsonb
+#  profit_fee      :float
+#  status          :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  shared_user_id  :bigint           not null
 #
 # Indexes
 #

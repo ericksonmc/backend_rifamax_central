@@ -7,7 +7,7 @@
 #  known_as       :string
 #  name           :string
 #  promotional    :string
-#  token          :string           default("rm_live_10195371-2f1a-430a-bf34-c98b2fe0da1c")
+#  token          :string           default("rm_live_eb488efd-15e5-4439-a342-156aeb1886ba")
 #  url_base       :string
 #  user_path      :string
 #  created_at     :datetime         not null

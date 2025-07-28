@@ -8,7 +8,7 @@
 #  money          :string
 #  position       :integer
 #  price          :float
-#  serial         :string           default("8211942d-2e22-48b5-ad9d-bbb38523f0c4")
+#  serial         :string
 #  status         :string           default("available")
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
