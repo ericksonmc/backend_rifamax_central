@@ -13,6 +13,7 @@
 #  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
+#  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
 #  limit                :integer

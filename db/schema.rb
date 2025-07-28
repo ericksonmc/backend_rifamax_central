@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_28_160437) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_28_192945) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -350,6 +350,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_28_160437) do
     t.text "rejecting_details"
     t.boolean "allow_fractions", default: false
     t.jsonb "collection_payment", default: {}
+    t.boolean "has_credit", default: false
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"

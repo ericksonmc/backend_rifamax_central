@@ -43,6 +43,7 @@ class Social::Lottery < ApplicationRecord
             inclusion: { in: %w[active inactive] }
 
   # ----- Callbacks
+  # validates :validates_payment_details
   before_validation :initialize_status
 
   # ----- Instance methods
@@ -104,6 +105,13 @@ class Social::Lottery < ApplicationRecord
 
   # ----- Private methods
   private
+
+  # def validates_payment_details
+  #   errors.add(:details, "Bank is not present") unless details["bank"].present?
+  #   errors.add(:details, "Phone is not present") unless details["phone"].present?
+  #   errors.add(:details, "Payment date is not present") unless details["payment_date"].present?
+  #   errors.add(:details, "References is not present") unless details["reference"].present?
+  # end
 
   def initialize_status
     self.status = 'active' if status.nil?

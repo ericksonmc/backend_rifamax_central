@@ -99,6 +99,6 @@ class Social::LotteriesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def social_lottery_params
-    params.require(:social_lottery).permit(:name, :profit_fee, :key_name, :email, :password)
+    params.require(:social_lottery).permit(:name, :profit_fee, :key_name, :email, :password, payment_details: [:phone, :identity, :bank])
   end
 end

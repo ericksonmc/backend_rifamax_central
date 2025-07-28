@@ -23,7 +23,7 @@ class Social::RafflesController < ApplicationController
     page = params[:page] || 1
 
     if influencer
-      @raffles = influencer.ongoing_raffles
+      @raffles = influencer.ongoing_raffles.where(is_playable: true)
       @pagy, @records = pagy(@raffles, items: count, page: page)
       render json: { 
         social_raffles: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::RaffleSerializer),
@@ -250,6 +250,7 @@ class Social::RafflesController < ApplicationController
       :init_date,
       :price_unit,
       :expired_date,
+      :has_credit,
       :tickets_count,
       :social_lottery_id,
       :social_influencer_id,
