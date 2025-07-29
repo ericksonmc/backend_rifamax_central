@@ -178,7 +178,7 @@ class Social::Raffle < ApplicationRecord
         self.save
         true
       else
-        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f / self.fractions).round(2)}, Monto obtenido #{r4_result}")
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f).round(2)}, Monto obtenido #{r4_result}")
         false
       end
     end
