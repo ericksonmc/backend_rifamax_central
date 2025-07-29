@@ -193,11 +193,17 @@ class Social::Raffle < ApplicationRecord
 
     length = origin_references.length < 9 ? -origin_references.length : -9
 
+    lottery_amount = if self.is_lottery_payed 
+       0 
+    else
+      (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
+    end
+
     referencia = origin_references[length..]
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
     banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
     fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
-    monto = (self.app_debt.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+    monto = (lottery_amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
 
     raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
 
