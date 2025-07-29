@@ -185,7 +185,7 @@ class Social::Raffle < ApplicationRecord
 
     unless final_result
       errors.add(:base, "Failed to notify payment")
-      throw(:abort)
+      false
     end
   end
 
