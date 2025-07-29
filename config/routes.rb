@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       get 'actives', on: :collection
       post 'reject', on: :collection
       get 'pendings', on: :collection
+      post 'pay_app', on: :collection
       post 'confirm', on: :collection
     end
     resources :stats do

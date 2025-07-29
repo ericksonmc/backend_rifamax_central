@@ -142,6 +142,25 @@ class Social::RafflesController < ApplicationController
     render json: @social_raffle
   end
 
+  # POST /social/raffles/pay_app
+  def pay_app
+    raffle = Social::Raffle.find_by(id: pay_app_params[:social_raffle_id])
+    return render json: { message: 'Raffle not found' }, status: :not_found unless raffle
+
+    details = pay_app_params[:details]
+    payment_type = pay_app_params[:payment_type]
+
+    if details.blank? || payment_type.blank?
+      return render json: { message: 'Missing payment details or type' }, status: :unprocessable_entity
+    end
+
+    if raffle.pay_debt(details: details, payment: payment_type)
+      render json: { message: 'Pago de deuda realizado exitosamente', raffle: raffle }, status: :ok
+    else
+      render json: { message: 'Error al notificar el pago', errors: raffle.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
    # POST /social/raffles/confirm
   def confirm
     @raffle = Social::Raffle.find_by(id: params[:raffle_id])
@@ -242,6 +261,14 @@ class Social::RafflesController < ApplicationController
 
   def ad_params
     params.permit(:ad, :rif, :dni, :bank_register, receipts: [])
+  end
+
+  def pay_app_params
+    params.require(:social_payment_method).permit(
+      :social_raffle_id,
+      :payment_type,
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
+    )
   end
 
   def social_raffle_params

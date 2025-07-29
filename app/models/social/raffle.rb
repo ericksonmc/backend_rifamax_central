@@ -143,6 +143,52 @@ class Social::Raffle < ApplicationRecord
   validate :validates_influencer
   
   # ------ Public logic of model
+  def pay_debt(details:, payment:, )
+    return true unless payment == 'Pago Movil'
+
+    origin_references = details["reference"].to_s
+
+    length = origin_references.length < 9 ? -origin_references.length : -9
+
+    referencia = origin_references[length..]
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
+    monto = (self.app_debt.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
+
+    final_result = if r4_result.nil?
+      false
+    else
+      if (monto.to_f - r4_result.to_f).abs <= 7
+        $redis.del(redis_param)
+        self.collection_payment = {
+          bank: "#{banco_emisor} - #{details["bank"]}",
+          phone: telefono_emisor,
+          payment_date: fecha_hora,
+          monto: monto,
+          reference: origin_references
+        }
+        self.app_debt = 0
+        self.save
+        true
+      else
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f / self.fractions).round(2)}, Monto obtenido #{r4_result}")
+        false
+      end
+    end
+
+    unless final_result
+      errors.add(:base, "Failed to notify payment")
+      throw(:abort)
+    end
+  end
+
   def winners
     return nil if self.has_winners.nil?
     return self.has_winners if self.has_winners.is_a?(Array)
