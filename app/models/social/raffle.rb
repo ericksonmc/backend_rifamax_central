@@ -163,7 +163,7 @@ class Social::Raffle < ApplicationRecord
     r4_result = $redis.get(redis_param)
 
     final_result = if r4_result.nil?
-      false
+      return false
     else
       if (monto.to_f - r4_result.to_f).abs <= 7
         $redis.del(redis_param)
@@ -176,16 +176,16 @@ class Social::Raffle < ApplicationRecord
         }
         self.app_debt = 0
         self.save
-        true
+        return true
       else
         errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f).round(2)}, Monto obtenido #{r4_result}")
-        false
+        return false
       end
     end
 
     unless final_result
       errors.add(:base, "Failed to notify payment")
-      false
+      return false
     end
   end
 
