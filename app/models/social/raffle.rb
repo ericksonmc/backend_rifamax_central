@@ -162,7 +162,7 @@ class Social::Raffle < ApplicationRecord
 
     r4_result = $redis.get(redis_param)
 
-    final_result = if r4_result.nil?
+    if r4_result.nil?
       return false
     else
       if (monto.to_f - r4_result.to_f).abs <= 7
@@ -182,8 +182,6 @@ class Social::Raffle < ApplicationRecord
         return false
       end
     end
-
-    final_result
   end
 
   def winners
