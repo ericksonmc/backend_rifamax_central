@@ -46,6 +46,10 @@ class Social::Influencer < ApplicationRecord
     social_raffles.active
   end
 
+  def to_sell
+    social_raffles.to_sell
+  end
+
   def ongoing_raffles
     social_raffles.ongoing
   end

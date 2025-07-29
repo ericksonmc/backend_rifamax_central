@@ -23,7 +23,7 @@ class Social::RafflesController < ApplicationController
     page = params[:page] || 1
 
     if influencer
-      @raffles = influencer.ongoing_raffles.select { |item| item.has_credit || item.app_debt.to_f <= 0 }
+      @raffles = influencer.to_sell
       @pagy, @records = pagy(@raffles, items: count, page: page)
       render json: { 
         social_raffles: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::RaffleSerializer),
