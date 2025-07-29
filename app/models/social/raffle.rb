@@ -193,11 +193,9 @@ class Social::Raffle < ApplicationRecord
 
     length = origin_references.length < 9 ? -origin_references.length : -9
 
-    lottery_amount = if self.is_lottery_payed 
-       0 
-    else
-      (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
-    end
+    lottery_amount = (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
+
+    return false if self.lottery_is_payed
 
     referencia = origin_references[length..]
     telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
