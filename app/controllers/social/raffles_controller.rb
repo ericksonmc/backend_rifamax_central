@@ -155,6 +155,7 @@ class Social::RafflesController < ApplicationController
     end
 
     if raffle.pay_debt(details: details, payment: payment_type)
+      raffle.update(app_debt: 0.0)
       render json: { message: 'Pago de deuda realizado exitosamente', raffle: raffle }, status: :ok
     else
       render json: { message: 'Error al notificar el pago', errors: raffle.errors.full_messages }, status: :unprocessable_entity
