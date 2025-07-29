@@ -183,10 +183,7 @@ class Social::Raffle < ApplicationRecord
       end
     end
 
-    unless final_result
-      errors.add(:base, "Failed to notify payment")
-      return false
-    end
+    final_result
   end
 
   def winners
