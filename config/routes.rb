@@ -46,6 +46,7 @@ Rails.application.routes.draw do
       post 'reject', on: :collection
       get 'pendings', on: :collection
       post 'pay_app', on: :collection
+      post 'pay_lottery_debt', on: :collection
       post 'confirm', on: :collection
     end
     resources :stats do

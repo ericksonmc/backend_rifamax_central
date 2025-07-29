@@ -16,7 +16,9 @@
 #  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
@@ -47,7 +49,7 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :dni, :rif, :bank_register, :is_playable, :has_credit, :allow_fractions, :receipts, :title, :combos, :draw_type, :lottery, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
+  attributes :id, :ad, :dni, :rif, :bank_register, :lottery_debt, :is_playable, :has_credit, :allow_fractions, :receipts, :title, :combos, :draw_type, :lottery, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
 
   def ad
     return unless object.ad.present?
@@ -58,7 +60,7 @@ class Social::RaffleSerializer < ActiveModel::Serializer
   end
 
   def is_playable
-    object.has_credit || object.app_debt.to_f <= 0
+    (object.has_credit || object.app_debt.to_f <= 0) && object.is_lottery_payed
   end
 
   def lottery
@@ -85,6 +87,13 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     object.bank_register.as_json.merge(
       'url' => "#{ENV['url_base']}/#{object.bank_register.url}"
     )
+  end
+
+  def lottery_debt
+    return 0 unless object.prizes.is_a?(Array)
+    return 0 if object.is_lottery_payed
+  
+    (object.prizes.sum { |item| item['worth'].to_f } * (object.social_lottery.profit_fee / 100))
   end
 
   def receipts

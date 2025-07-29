@@ -16,7 +16,9 @@
 #  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb

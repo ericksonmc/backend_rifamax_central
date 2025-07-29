@@ -16,7 +16,9 @@
 #  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
@@ -59,7 +61,7 @@ class Social::Raffle < ApplicationRecord
   scope :debt, -> { where('app_debt > 0') }
   scope :ongoing, -> { where(status: 'En venta', confirmation: true )}
   scope :to_sell, -> {
-    where(status: 'En venta', confirmation: true)
+    where(status: 'En venta', confirmation: true, is_lottery_payed: true)
       .where('has_credit = ? OR app_debt <= 0', true)
   }
   scope :closing, -> { where(status: 'Finalizando' )}
@@ -175,6 +177,47 @@ class Social::Raffle < ApplicationRecord
           reference: origin_references
         }
         self.app_debt = 0
+        self.save
+        return true
+      else
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f).round(2)}, Monto obtenido #{r4_result}")
+        return false
+      end
+    end
+  end
+
+  def pay_lottery_debt(details:, payment:)
+    return true unless payment == 'Pago Movil'
+
+    origin_references = details["reference"].to_s
+
+    length = origin_references.length < 9 ? -origin_references.length : -9
+
+    referencia = origin_references[length..]
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
+    monto = (self.app_debt.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
+
+    if r4_result.nil?
+      return false
+    else
+      if (monto.to_f - r4_result.to_f).abs <= 7
+        $redis.del(redis_param)
+        self.lottery_payment = {
+          bank: "#{banco_emisor} - #{details["bank"]}",
+          phone: telefono_emisor,
+          payment_date: fecha_hora,
+          monto: monto,
+          reference: origin_references
+        }
+        self.is_lottery_payed = true
         self.save
         return true
       else
