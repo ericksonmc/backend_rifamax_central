@@ -143,7 +143,7 @@ class Social::Raffle < ApplicationRecord
   validate :validates_influencer
   
   # ------ Public logic of model
-  def pay_debt(details:, payment:, )
+  def pay_debt(details:, payment:)
     return true unless payment == 'Pago Movil'
 
     origin_references = details["reference"].to_s
