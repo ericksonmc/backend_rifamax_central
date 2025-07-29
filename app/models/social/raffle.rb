@@ -367,23 +367,25 @@ class Social::Raffle < ApplicationRecord
   private
 
   def initialize_attributes
-    self.limit = 0
-    self.combos = nil
-    self.money = 'USD'
-    self.winners = false
-    self.status = 'En venta'
-    self.draw_type = 'Limitada'
-    self.app_debt = ((tickets_count * price_unit) * 0.05).round(2)
-    self.has_winners = false
-    self.social_fee_id = Social::Fee.last.id
-    self.raffle_type = case tickets_count
-                       when 100
-                         'Terminal'
-                       when 1000
-                         'Triple'
-                       else
-                         'Serie'
-                       end
+    if new_record?
+      self.limit = 0
+      self.combos = nil
+      self.money = 'USD'
+      self.winners = false
+      self.status = 'En venta'
+      self.draw_type = 'Limitada'
+      self.app_debt = ((tickets_count * price_unit) * 0.05).round(2)
+      self.has_winners = false
+      self.social_fee_id = Social::Fee.last.id
+      self.raffle_type = case tickets_count
+                        when 100
+                          'Terminal'
+                        when 1000
+                          'Triple'
+                        else
+                          'Serie'
+                        end
+    end
   end
   
   def initialize_ticket
