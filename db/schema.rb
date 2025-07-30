@@ -353,7 +353,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_30_181049) do
     t.boolean "has_credit", default: false
     t.boolean "is_lottery_payed", default: false
     t.jsonb "lottery_payment", default: {}
-    t.text "content"
+    t.text "content", default: ""
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"

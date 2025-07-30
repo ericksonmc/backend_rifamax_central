@@ -10,7 +10,7 @@
 #  collection_payment   :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
-#  content              :text
+#  content              :text             default("")
 #  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
