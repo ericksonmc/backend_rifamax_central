@@ -313,6 +313,7 @@ class Social::RafflesController < ApplicationController
     params.permit(
       :content
     )
+  end
 
   def social_raffle_params
     params.require(:social_raffle).permit(
