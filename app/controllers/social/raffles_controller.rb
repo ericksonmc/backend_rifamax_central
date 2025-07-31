@@ -265,7 +265,7 @@ class Social::RafflesController < ApplicationController
   def add_content
     @social_raffle = Social::Raffle.find(params[:id])
 
-    if @social_raffle.update(content: add_content_params(:content))
+    if @social_raffle.update(content: add_content_params[:content])
       render json: @social_raffle, status: :ok
     else
       render json: @social_raffle.errors, status: :unprocessable_entity
