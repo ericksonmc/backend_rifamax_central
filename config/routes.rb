@@ -42,6 +42,7 @@ Rails.application.routes.draw do
       get 'profit_dashboard', on: :collection
       get 'list_dashboard', on: :collection
       put 'add_documents', on: :collection
+      put 'add_content', on: :collection
       get 'actives', on: :collection
       post 'reject', on: :collection
       get 'pendings', on: :collection

@@ -4,6 +4,7 @@ class Social::RafflesController < ApplicationController
   before_action :set_social_raffle, only: %i[ show update destroy ]
   before_action :authorize_request, only: %i[ index show list_dashboard profit_dashboard create update destroy only_lotteries confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
+  before_action :only_influencers, only: %i[add_content]
   
   # GET /social/raffles
   def index
@@ -137,7 +138,7 @@ class Social::RafflesController < ApplicationController
     render json: { data: smembers.map(&:to_i), action: params[:actions], message: message }, status: :ok
   end
 
-  # GET /social/raffles/1
+  # GET /social/raffles/{id}
   def show
     render json: @social_raffle
   end
@@ -233,7 +234,7 @@ class Social::RafflesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /social/raffles/1/add_documents
+  # PATCH/PUT /social/raffles/{id}/add_documents
   def add_documents
     @social_raffle = Social::Raffle.find(params[:id])
     new_receipts = params[:receipts]&.values || [] 
@@ -251,7 +252,7 @@ class Social::RafflesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /social/raffles/1
+  # PATCH/PUT /social/raffles/{id}
   def update
     if @social_raffle.update(social_raffle_params)
       render json: @social_raffle
@@ -260,7 +261,18 @@ class Social::RafflesController < ApplicationController
     end
   end
 
-  # DELETE /social/raffles/1
+  # PATCH/PUT /social/raffles/{id}/add_content
+  def add_content
+    @social_raffle = Social::Raffle.find(params[:id])
+
+    if @social_raffle.update(content: add_content_params(:content))
+      render json: @social_raffle, status: :ok
+    else
+      render json: @social_raffle.errors, status: :unprocessable_entity
+    end
+  end
+
+  # DELETE /social/raffles/{id}
   def destroy
     @social_raffle.destroy
   end
@@ -270,6 +282,13 @@ class Social::RafflesController < ApplicationController
   def only_lotteries
     unless @current_user.Loteria?
       render json: { error: 'Only lotteries can perform this action' }, status: :forbidden
+      return
+    end
+  end
+  
+  def only_influencers
+    unless @current_user.Influencer?
+      render json: { error: 'Only influencers can perform this action' }, status: :forbidden
       return
     end
   end
@@ -289,6 +308,11 @@ class Social::RafflesController < ApplicationController
       details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
     )
   end
+
+  def add_content_params
+    params.permit(
+      :content
+    )
 
   def social_raffle_params
     params.require(:social_raffle).permit(
