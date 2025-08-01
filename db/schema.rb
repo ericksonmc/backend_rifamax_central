@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_01_141611) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_01_142901) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -355,6 +355,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_01_141611) do
     t.jsonb "lottery_payment", default: {}
     t.text "content", default: ""
     t.integer "min_ticket_buy", default: 1
+    t.string "custom_link"
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"

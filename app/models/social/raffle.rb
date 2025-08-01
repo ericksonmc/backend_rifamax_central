@@ -11,6 +11,7 @@
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  content              :text             default("")
+#  custom_link          :string
 #  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
@@ -55,6 +56,7 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Initializers
   before_validation :initialize_attributes
+  before_validation :initialize_custom_link
   after_validation :initialize_ticket
 
   # ------ Scope by status
@@ -110,6 +112,10 @@ class Social::Raffle < ApplicationRecord
               less_than_or_equal_to: 100
             },
             if: -> { draw_type == 'Progresiva' }
+
+  validates :custom_link,
+            presence: true,
+            uniqueness: true
 
   validates :tickets_count,
             presence: true,
@@ -434,6 +440,29 @@ class Social::Raffle < ApplicationRecord
                         else
                           'Serie'
                         end
+    end
+  end
+
+  def initialize_custom_link
+    return if self.custom_link.blank?
+  
+    base_link = self.custom_link.parameterize
+  
+    similar_links = Social::Raffle.where("custom_link LIKE ?", "#{base_link}%").where.not(id: self.id).pluck(:custom_link)
+  
+    unless similar_links.include?(base_link)
+      self.custom_link = base_link
+      return
+    end
+  
+    suffix = 1
+    loop do
+      candidate = "#{base_link}-#{suffix}"
+      unless similar_links.include?(candidate)
+        self.custom_link = candidate
+        break
+      end
+      suffix += 1
     end
   end
   

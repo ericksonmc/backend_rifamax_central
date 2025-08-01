@@ -11,6 +11,7 @@
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  content              :text             default("")
+#  custom_link          :string
 #  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
@@ -54,7 +55,7 @@ class Social::RaffleSerializer < ActiveModel::Serializer
   attributes :id, 
              :ad, 
              :dni, 
-             :custom_link
+             :custom_link,
              :rif, 
              :bank_register, 
              :content, 

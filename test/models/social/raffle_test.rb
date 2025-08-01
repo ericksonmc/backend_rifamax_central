@@ -11,6 +11,7 @@
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  content              :text             default("")
+#  custom_link          :string
 #  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
