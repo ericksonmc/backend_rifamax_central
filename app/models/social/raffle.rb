@@ -444,25 +444,27 @@ class Social::Raffle < ApplicationRecord
   end
 
   def initialize_custom_link
-    return if self.custom_link.blank?
-  
-    base_link = self.custom_link.parameterize
-  
-    similar_links = Social::Raffle.where("custom_link LIKE ?", "#{base_link}%").where.not(id: self.id).pluck(:custom_link)
-  
-    unless similar_links.include?(base_link)
-      self.custom_link = base_link
-      return
-    end
-  
-    suffix = 1
-    loop do
-      candidate = "#{base_link}-#{suffix}"
-      unless similar_links.include?(candidate)
-        self.custom_link = candidate
-        break
+    if new_record?
+      return if self.custom_link.blank?
+    
+      base_link = self.custom_link.parameterize
+    
+      similar_links = Social::Raffle.where("custom_link LIKE ?", "#{base_link}%").where.not(id: self.id).pluck(:custom_link)
+    
+      unless similar_links.include?(base_link)
+        self.custom_link = base_link
+        return
       end
-      suffix += 1
+    
+      suffix = 1
+      loop do
+        candidate = "#{base_link}-#{suffix}"
+        unless similar_links.include?(candidate)
+          self.custom_link = candidate
+          break
+        end
+        suffix += 1
+      end
     end
   end
   
