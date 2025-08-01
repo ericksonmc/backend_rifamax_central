@@ -322,6 +322,7 @@ class Social::RafflesController < ApplicationController
       :price_unit,
       :expired_date,
       :has_credit,
+      :min_ticket_buy,
       :tickets_count,
       :social_lottery_id,
       :social_influencer_id,

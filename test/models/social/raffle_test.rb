@@ -20,6 +20,7 @@
 #  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
 #  lottery_payment      :jsonb
+#  min_ticket_buy       :integer          default(1)
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb

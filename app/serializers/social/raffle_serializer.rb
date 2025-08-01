@@ -20,6 +20,7 @@
 #  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
 #  lottery_payment      :jsonb
+#  min_ticket_buy       :integer          default(1)
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
@@ -50,7 +51,42 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :dni, :rif, :bank_register, :content, :lottery_debt, :is_playable, :has_credit, :allow_fractions, :receipts, :title, :combos, :draw_type, :lottery, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
+  attributes :id, 
+             :ad, 
+             :dni, 
+             :custom_link
+             :rif, 
+             :bank_register, 
+             :content, 
+             :lottery_debt, 
+             :is_playable, 
+             :has_credit,
+             :allow_fractions, 
+             :receipts, 
+             :title, 
+             :combos, 
+             :draw_type, 
+             :lottery, 
+             :confirmation, 
+             :min_ticket_buy,
+             :original_app_debt, 
+             :expired_date, 
+             :has_winners, 
+             :init_date, 
+             :limit, 
+             :money, 
+             :price_unit, 
+             :prizes, 
+             :raffle_type, 
+             :social_influencer_id, 
+             :status, 
+             :tickets_count, 
+             :app_debt, 
+             :debt_percentage, 
+             :tickets_available, 
+             :winners, 
+             :created_at, 
+             :updated_at
 
   def ad
     return unless object.ad.present?
