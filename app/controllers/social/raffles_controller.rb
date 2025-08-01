@@ -214,6 +214,7 @@ class Social::RafflesController < ApplicationController
   # POST /social/raffles
   def create
     @social_raffle = Social::Raffle.new(social_raffle_params)
+    @social_raffle.custom_link = @social_raffle.title.parameterize
 
     if @current_user.Loteria?
       @social_raffle.social_lottery_id = Social::Lottery.find_by(shared_user_id: @current_user.id).id
@@ -323,7 +324,6 @@ class Social::RafflesController < ApplicationController
       :expired_date,
       :has_credit,
       :min_ticket_buy,
-      :custom_link,
       :tickets_count,
       :social_lottery_id,
       :social_influencer_id,
