@@ -1,5 +1,5 @@
 class Social::WaWebhookController < ApplicationController
-  # before_action :validates_token_presence
+  before_action :validates_token_presence
 
   def create
     $redis.set("wa_evo_webhook", params[:phone])
