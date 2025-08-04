@@ -28,7 +28,7 @@ Rails.application.routes.draw do
     post 'auth/refresh', to: 'authentication#social_refresh'
     
     resources :wa_webhook do
-      post '/', to: 'wa_webhook#wehook'
+      post '/', to: 'wa_webhook#webhook'
       post 'chats_upsert', on: :collection
       post 'messages_upsert', on: :collection
       post 'send_message', on: :collection
