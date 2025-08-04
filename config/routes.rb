@@ -27,6 +27,8 @@ Rails.application.routes.draw do
     post 'login', to: 'authentication#social_login'
     post 'auth/refresh', to: 'authentication#social_refresh'
     
+    post 'wa_webhook', to: 'wa_webhook#wehook'
+    
     resources :networks
     resources :lotteries do 
       collection do
