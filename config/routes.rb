@@ -30,6 +30,11 @@ Rails.application.routes.draw do
     post 'wa_webhook', to: 'wa_webhook#wehook'
     
     resources :networks
+    resources :wa_webhook do
+      post 'chats_upsert', on: :collection
+      post 'messages_upsert', on: :collection
+      post 'send_message', on: :collection
+    end
     resources :lotteries do 
       collection do
         get :profile
