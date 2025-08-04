@@ -27,10 +27,12 @@ Rails.application.routes.draw do
     post 'login', to: 'authentication#social_login'
     post 'auth/refresh', to: 'authentication#social_refresh'
     
-    post 'webhook', to: 'wa_webhook#wehook'
-    post 'webhook/chats_upsert', to: 'wa_webhook#chats_upsert'
-    post 'webhook/messages_upsert', to: 'wa_webhook#messages_upsert'
-    post 'webhook/send_message', to: 'wa_webhook#send_message'
+    resources :wa_webhook do
+      post '/', to: 'wa_webhook#wehook'
+      post 'chats_upsert', on: :collection
+      post 'messages_upsert', on: :collection
+      post 'send_message', on: :collection
+    end
     
     resources :networks
     resources :lotteries do 
