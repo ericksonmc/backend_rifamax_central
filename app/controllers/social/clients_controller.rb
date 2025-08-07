@@ -21,6 +21,9 @@ class Social::ClientsController < ApplicationController
     else
       render json: { error: 'Client not found' }, status: :not_found
     end
+
+  rescue
+    render json: { message: 'not found' }, status: :ok
   end
 
   # POST /social/clients/dni
