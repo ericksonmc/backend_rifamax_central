@@ -58,6 +58,7 @@ Rails.application.routes.draw do
     end
     resources :clients do 
       post 'dni', on: :collection
+      get 'phone_wa', on: :collection
       get 'phone', on: :collection
       put 'save_email', on: :collection
       put 'change_address', on: :collection

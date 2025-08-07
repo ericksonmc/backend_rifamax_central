@@ -10,7 +10,8 @@ class Social::WaWebhookController < ApplicationController
   private
 
   def validates_token_presence
-    @token = request.headers['WA_ACCESS_TOKEN']
+    @token = request.headers['Authorization']
+    header = header.split(' ').last if header
 
     if @token.nil?
       render json: { message: 'Token not found' }, status: :not_found and return

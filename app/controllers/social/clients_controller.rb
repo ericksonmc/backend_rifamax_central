@@ -13,6 +13,16 @@ class Social::ClientsController < ApplicationController
     render json: @social_client
   end
 
+  # GET /social/clients/phone?phone_wa={params}
+  def phone_wa
+    @social_client = Social::Client.find_by(phone: params[:phone])
+    if @social_client
+      render json: @social_client, status: :ok
+    else
+      render json: { id: 0 }, status: :ok
+    end
+  end
+
   # GET /social/clients/phone?phone={params}
   def phone
     @social_client = Social::Client.find_by(phone: params[:phone])
