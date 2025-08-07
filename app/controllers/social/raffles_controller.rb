@@ -1,7 +1,7 @@
 class Social::RafflesController < ApplicationController
   include Pagy::Backend
 
-  before_action :set_social_raffle, only: %i[ filter_by_custom_link ]
+  before_action :set_social_raffle_by_custom_link, only: %i[ filter_by_custom_link ]
   before_action :set_social_raffle, only: %i[ show update destroy ]
   before_action :authorize_request, only: %i[ index list_dashboard profit_dashboard create update destroy only_influencers only_lotteries add_content confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
