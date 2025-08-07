@@ -1,6 +1,7 @@
 class Social::RafflesController < ApplicationController
   include Pagy::Backend
 
+  before_action :set_social_raffle, only: %i[ filter_by_custom_link ]
   before_action :set_social_raffle, only: %i[ show update destroy ]
   before_action :authorize_request, only: %i[ index list_dashboard profit_dashboard create update destroy only_influencers only_lotteries add_content confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
@@ -141,6 +142,11 @@ class Social::RafflesController < ApplicationController
   # GET /social/raffles/{id}
   def show
     render json: @social_raffle, status: :ok
+  end
+
+  # GET /social/raffles/filter_by_custom_link/{custom_link}
+  def filter_by_custom_link
+    render json: @raffle, status: :ok
   end
 
   # POST /social/raffles/pay_app
@@ -296,6 +302,10 @@ class Social::RafflesController < ApplicationController
 
   def set_social_raffle
     @social_raffle = Social::Raffle.find(params[:id])
+  end
+
+  def set_social_raffle_by_custom_link
+    @raffle = Social::Raffle.find_by(custom_link: params[:custom_link])
   end
 
   def ad_params
