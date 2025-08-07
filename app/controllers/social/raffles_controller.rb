@@ -147,6 +147,14 @@ class Social::RafflesController < ApplicationController
   # GET /social/raffles/filter_by_custom_link/{custom_link}
   def filter_by_custom_link
     render json: @raffle, status: :ok
+
+    if @raffle.nil?
+      render json: { message: 'not found' }, status: :ok
+      return
+    end
+
+  rescue
+    render json: { message: 'not found' }, status: :ok
   end
 
   # POST /social/raffles/pay_app
