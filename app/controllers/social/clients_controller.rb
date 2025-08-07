@@ -19,11 +19,8 @@ class Social::ClientsController < ApplicationController
     if @social_client
       render json: @social_client, status: :ok
     else
-      render json: { error: 'Client not found' }, status: :not_found
+      render json: { error: 'Client not found' }, status: :unprocessable_entity
     end
-
-  rescue
-    render json: { message: 'not found' }, status: :ok
   end
 
   # POST /social/clients/dni
