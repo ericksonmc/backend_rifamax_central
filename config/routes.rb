@@ -46,6 +46,7 @@ Rails.application.routes.draw do
       put 'add_documents', on: :collection
       put 'add_content', on: :collection
       get 'actives', on: :collection
+      get 'filter_by_custom_link', on: :collection
       post 'reject', on: :collection
       get 'pendings', on: :collection
       post 'pay_app', on: :collection
