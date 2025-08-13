@@ -43,9 +43,9 @@ class Social::RafflesController < ApplicationController
 
   # GET /social/raffles/info/{custom_link}
   def info
-    @raffle = Social::Raffle.find_by(custom_link: params[:custom_link])
-    if @raffle
-      render json: @raffle, status: :ok
+    @raffle_custom = Social::Raffle.find_by(custom_link: params[:custom_link])
+    if @raffle_custom
+      render json: @raffle_custom, status: :ok
     else
       render json: { error: 'Raffle not found' }, status: :not_found
     end

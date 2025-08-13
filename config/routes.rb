@@ -47,7 +47,7 @@ Rails.application.routes.draw do
       put 'add_content', on: :collection
       get 'actives', on: :collection
       get 'filter_by_custom_link', on: :collection
-      get 'info', on: :collection
+      get 'info', on: :member
       post 'reject', on: :collection
       get 'pendings', on: :collection
       post 'pay_app', on: :collection
