@@ -11,12 +11,6 @@ class Social::RafflesController < ApplicationController
   def index
     @social_raffles = Social::Raffle.active
 
-    @ai_token = params[:ai_token]
-
-    if @ai_token == ENV["AI_TOKEN"]
-      @current_user = Shared::User.find_by(role: 'Admin')
-    end
-
     if @current_user.role == 'Admin'
       render json: @social_raffles, status: :ok
     else
