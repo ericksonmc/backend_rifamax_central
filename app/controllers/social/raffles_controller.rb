@@ -41,6 +41,16 @@ class Social::RafflesController < ApplicationController
     end
   end
 
+  # GET /social/raffles/info/{custom_link}
+  def info
+    @raffle = Social::Raffle.find_by(custom_link: params[:custom_link])
+    if @raffle
+      render json: @raffle, status: :ok
+    else
+      render json: { error: 'Raffle not found' }, status: :not_found
+    end
+  end
+
   # GET /social/raffles/pendings?content_code={content_code}&count={count}&page={page}
   def pendings
     influencer = Social::Influencer.find_by(content_code: params[:content_code])
