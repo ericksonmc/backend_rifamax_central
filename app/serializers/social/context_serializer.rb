@@ -14,7 +14,33 @@ class Social::ContextSerializer < ActiveModel::Serializer
   def context
     return {} if object.context.nil?
   
-    banks = BanksService.new.as_json["banks"].map { |item| item['value'] }
+    banks = [
+      "100% Banco",
+      "Bancamiga",
+      "Banco Activo",
+      "Banco Bicentenario",
+      "Banco Caroní",
+      "Banco del microempresario",
+      "Banco de Venezuela",
+      "Bancaribe",
+      "Banco del Tesoro",
+      "Banco Exterior",
+      "Mercantil",
+      "Banco Nacional de Crédito",
+      "Banco Occidental de Descuento",
+      "Banco Plaza",
+      "Provincial",
+      "Venezolano de Crédito",
+      "Bancrecer",
+      "Banesco",
+      "Banfanb",
+      "Banplus",
+      "Delsur Banco Universal",
+      "Banco Fondo Común",
+      "Mibanco",
+      "Sofitasa"
+    ]
+    
     today_rate = Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f
   
     raffle_id = object.context['raffle_id']
