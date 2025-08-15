@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_01_142901) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_15_151020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -241,6 +241,13 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_01_142901) do
     t.string "zip_code"
     t.string "address"
     t.string "dni"
+  end
+
+  create_table "social_contexts", force: :cascade do |t|
+    t.string "key"
+    t.jsonb "context"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "social_fees", force: :cascade do |t|
