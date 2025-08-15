@@ -19,8 +19,8 @@ class Social::ContextsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /social/contexts/{key}
-  def update
+  # PATCH/PUT /social/contexts
+  def add
     @social_context = Social::Context.find_by(key: social_context_params[:key])
 
     if @social_context.update(social_context_params.except(:key))

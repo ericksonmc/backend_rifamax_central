@@ -28,7 +28,9 @@ Rails.application.routes.draw do
     post 'auth/refresh', to: 'authentication#social_refresh'
     
     resources :wa_webhook
-    resources :contexts
+    resources :contexts do
+      post 'add', on: :collection
+    end
     
     resources :networks
     resources :lotteries do 
