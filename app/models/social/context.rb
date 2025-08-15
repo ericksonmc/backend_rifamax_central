@@ -62,5 +62,6 @@ class Social::Context < ApplicationRecord
           reference: nil                        # -> 9-12 digits (only on pago movil)
         }
       }
-    end    
+    end   
+  end
 end
