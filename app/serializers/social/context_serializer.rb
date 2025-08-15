@@ -14,7 +14,7 @@ class Social::ContextSerializer < ActiveModel::Serializer
   def context
     return {} if object.context.nil?
   
-    banks = BanksService.new.banks.as_json["banks"].map { |item| item['value'] }
+    banks = BanksService.new.as_json["banks"].map { |item| item['value'] }
     today_rate = Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f
   
     raffle_id = object.context['raffle_id']
