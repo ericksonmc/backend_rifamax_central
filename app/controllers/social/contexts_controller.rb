@@ -36,7 +36,28 @@ class Social::ContextsController < ApplicationController
   end
 
   def social_context_params
-    params.require(:social_context).permit(:key, :context)
+    params.require(:social_context).permit(
+      :key, 
+      context: [
+        :client_id,
+        :raffle_id,
+        :last_agent_response,
+        :last_user_message,
+        :tickets_quantity,
+        :payment_method_selected,
+        :fractions,
+        :current_user_step,
+        payment_method_data: [
+          :name,
+          :email,
+          :phone,
+          :last_digits,
+          :bank,
+          :payment_date,
+          :reference
+        ]
+      ]
+    )
   end
 
   def allow_user_when_admin
