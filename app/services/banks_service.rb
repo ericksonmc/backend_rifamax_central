@@ -32,7 +32,7 @@ class BanksService
     if @banks.empty?
       raise "No banks available"
     end
-
+ 
     if target_value.nil? || target_value.empty?
       raise "Target value cannot be nil or empty"
     end

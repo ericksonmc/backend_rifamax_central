@@ -41,4 +41,26 @@ class Social::Context < ApplicationRecord
   end
 
   private 
+
+  def initialize_context
+    if new_record?
+      self.context = {
+        last_agent_response: nil,               # -> Last response from AI
+        last_user_message: nil,                 # -> Last message from the user
+        raffle_id: nil,                         # -> ID of the raffle
+        client_id: nil,                         # -> ID of the client
+        tickets_quantity: nil,                  # -> Tickets quantity
+        payment_method_selected: nil,           # -> Payment methods between (Pago Movil or Zelle)
+        fractions: nil,                         # -> Default by 1 (only on pago movil)
+        current_user_step: 'VERIFY_RAFFLE',     # -> Current step of the user in the process
+        payment_method_data: {                  # -> Payment data accord to payment methods with
+          name: nil,                            # -> Name of the holder of the payment method *(only on zelle)
+          email: nil,                           # -> email of the holder of the payment method *(only on zelle)
+          bank: nil,                            # -> a bank name in the list of available banks (only on pago movil)
+          phone: nil,                           # -> +58 (412) 000-0000 (only on pago movil)
+          payment_date: nil,                    # -> YYYY-mm-dd (only on pago movil)
+          reference: nil                        # -> 9-12 digits (only on pago movil)
+        }
+      }
+    end    
 end
