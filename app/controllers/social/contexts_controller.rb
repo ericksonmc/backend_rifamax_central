@@ -1,7 +1,6 @@
 class Social::ContextsController < ApplicationController
   before_action :authorize_request
   before_action :allow_user_when_admin
-  before_action :set_social_context, only: %i[ update ]
 
   # POST /social/contexts
   def create
@@ -22,7 +21,9 @@ class Social::ContextsController < ApplicationController
 
   # PATCH/PUT /social/contexts/{key}
   def update
-    if @social_context.update(social_context_params)
+    @social_context = Social::Context.find_by(key: social_context_params[:key])
+
+    if @social_context.update(social_context_params.except(:key))
       render json: @social_context
     else
       render json: @social_context.errors, status: :unprocessable_entity
@@ -30,10 +31,6 @@ class Social::ContextsController < ApplicationController
   end
 
   private
-  
-  def set_social_context
-    @social_context = Social::Context.find_by(key: params[:id])
-  end
 
   def social_context_params
     params.require(:social_context).permit(
