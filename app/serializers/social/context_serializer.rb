@@ -40,9 +40,9 @@ class Social::ContextSerializer < ActiveModel::Serializer
       "Mibanco",
       "Sofitasa"
     ]
-    
-    today_rate = Social::R4ConectaService.new.consultar_tasa_bcv["tipocambio"].to_f
-  
+
+    today_rate = 136.89
+
     raffle_id = object.context['raffle_id']
     tickets_quantity = object.context['tickets_quantity'].to_i
   
