@@ -47,7 +47,7 @@ class Social::ContextsController < ApplicationController
   private
   
   def set_social_context
-    @social_context = Social::Context.by_key(params[:id])
+    @social_context = Social::Context.find_or_create_by(key: params[:id])
   end
 
   def social_context_params
