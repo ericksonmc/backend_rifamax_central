@@ -12,6 +12,9 @@ class Social::Context < ApplicationRecord
 
   # Validations
   validates :key, presence: true, uniqueness: true
+  validates :context, presence: true
+
+  before_validation :initialize_context, on: :create
 
   # Scopes
   scope :by_key, ->(key) { where(key: key) }
