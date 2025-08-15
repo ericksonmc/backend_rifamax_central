@@ -49,7 +49,7 @@ class Social::Context < ApplicationRecord
         last_user_message: nil,                 # -> Last message from the user
         raffle_id: nil,                         # -> ID of the raffle
         client_id: nil,                         # -> ID of the client
-        tickets_quantity: nil,                  # -> Tickets quantity
+        tickets_quantity: 0,                    # -> Tickets quantity
         payment_method_selected: nil,           # -> Payment methods between (Pago Movil or Zelle)
         fractions: nil,                         # -> Default by 1 (only on pago movil)
         current_user_step: 'VERIFY_RAFFLE',     # -> Current step of the user in the process
