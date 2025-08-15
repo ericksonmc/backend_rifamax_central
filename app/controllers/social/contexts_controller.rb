@@ -1,23 +1,17 @@
 class Social::ContextsController < ApplicationController
   before_action :authorize_request
   before_action :allow_user_when_admin
-  before_action :set_social_context, only: %i[ show update destroy ]
-
-  # GET /social/contexts
-  def index
-    @social_contexts = Social::Context.all
-
-    render json: @social_contexts
-  end
-
-  # GET /social/contexts/{key}
-  def show
-    render json: @social_context
-  end
+  before_action :set_social_context, only: %i[ update ]
 
   # POST /social/contexts
   def create
     @social_context = Social::Context.new(social_context_params)
+
+    existing_context = Social::Context.find_by(key: @social_context.key)
+
+    if existing_context
+      render json: existing_context, status: :ok and return
+    end
 
     if @social_context.save
       render json: @social_context, status: :created, location: @social_context
@@ -35,19 +29,10 @@ class Social::ContextsController < ApplicationController
     end
   end
 
-  # DELETE /social/contexts/{key}
-  def destroy
-    if @social_context.destroy
-      render json: { message: "Context deleted", context: @social_context }, status: :ok
-    else
-      render json: @social_context.errors, status: :unprocessable_entity
-    end
-  end
-
   private
   
   def set_social_context
-    @social_context = Social::Context.find_or_create_by(key: params[:id])
+    @social_context = Social::Context.find_by(key: params[:id])
   end
 
   def social_context_params

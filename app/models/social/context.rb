@@ -39,4 +39,6 @@ class Social::Context < ApplicationRecord
     Rails.logger.error("Failed to create or update social context: #{e.message}")
     nil
   end
+
+  private 
 end
