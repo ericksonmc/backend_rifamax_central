@@ -9,7 +9,7 @@
 #  updated_at :datetime         not null
 #
 class Social::ContextSerializer < ActiveModel::Serializer
-  attributes :id, :key, :context
+  attributes :key, :context
 
   def context
     return {} if object.context.nil?

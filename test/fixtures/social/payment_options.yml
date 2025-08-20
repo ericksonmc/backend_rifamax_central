@@ -6,6 +6,7 @@
 #  country              :string
 #  details              :jsonb
 #  name                 :string
+#  rate                 :float            default(1.0)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  social_influencer_id :bigint           not null

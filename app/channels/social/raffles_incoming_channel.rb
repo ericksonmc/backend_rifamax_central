@@ -1,12 +1,12 @@
 class Social::RafflesIncomingChannel < ApplicationCable::Channel
   def subscribed
-    @user = Shared::User.find(params[:id])
+    @user = Shared::User.find_by(id: params[:id])
 
-    reject if @user.nil?
+    reject unless @user
 
     stream_from "social_raffles_incoming_#{@user.id}"
     
-    ActionCable.server.broadcast("social_raffles_incoming_#{@user.id}", Social::Raffle.raffle_emergents_count(@user))
+    transmit Social::Raffle.raffle_emergents_count(@user)
   end
 
   def unsubscribed

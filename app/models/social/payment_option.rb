@@ -6,6 +6,7 @@
 #  country              :string
 #  details              :jsonb
 #  name                 :string
+#  rate                 :float            default(1.0)
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  social_influencer_id :bigint           not null
@@ -26,14 +27,14 @@ class Social::PaymentOption < ApplicationRecord
 
   # ------ Validations
   validates :name,
-            presence: true,
-            inclusion: {
-              in: ['Pago Móvil', 'Paypal', 'Zelle', 'Stripe', 'Western Union']
-            }
+            presence: true
+            # inclusion: {
+            #   in: ['Pago Móvil', 'Paypal', 'Zelle', 'Stripe', 'Western Union']
+            # }
   
   validates :country,
-            presence: true,
-            inclusion: {
-              in: ['Venezuela', 'Estados Unidos']
-            }
+            presence: true
+            # inclusion: {
+            #   in: ['Venezuela', 'Estados Unidos']
+            # }
 end
