@@ -367,8 +367,8 @@ class Social::PaymentMethod < ApplicationRecord
       throw(:abort)
     end
 
-    if Date.parse(payment_date) < Date.current
-      payment_rating = Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: payment_date)["tipocambio"]
+    if payment_option.name != "Pago Móvil"
+      payment_rating = payment_option.rate
     end
     
     self.payment_rate = payment_rating
