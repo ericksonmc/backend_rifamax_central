@@ -62,7 +62,7 @@ class Social::PaymentMethod < ApplicationRecord
 
   # ------ Validations
   validates :payment, 
-            presence: true,
+            presence: true
 
   validates :details, presence: true
 
