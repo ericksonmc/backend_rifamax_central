@@ -364,6 +364,7 @@ class Social::PaymentMethod < ApplicationRecord
 
     if payment_option.nil?
       errors.add(:payment_option, "Payment option does not exist")
+      errors.add(:debug, self)
       throw(:abort)
     end
 
