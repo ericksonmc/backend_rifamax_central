@@ -390,7 +390,7 @@ class Social::PaymentMethod < ApplicationRecord
       self.details = {
         capture: self.capture.url
       }
-      'DEF'
+      'USD'
     end
   end
   
