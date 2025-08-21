@@ -320,8 +320,6 @@ class Social::PaymentMethod < ApplicationRecord
     raffle = Social::Raffle.find(social_raffle_id)
     base_amount = (quantity_requested * raffle.price_unit)
 
-
-
     self.amount =  case currency
     when 'USD'
       base_amount
@@ -388,6 +386,11 @@ class Social::PaymentMethod < ApplicationRecord
       "USD"
     when "Paypal"
       "USD"
+    else
+      self.details = {
+        capture: self.capture.url
+      }
+      'DEF'
     end
   end
   
