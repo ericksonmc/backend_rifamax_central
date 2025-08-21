@@ -372,10 +372,10 @@ class Social::PaymentMethod < ApplicationRecord
     end
     
     self.payment_rate = payment_rating
-  rescue StandardError => e
-    Rails.logger.error("Error initializing exchange rate: #{e.message}")
-    errors.add(:base, "Failed to initialize exchange rate")
-    throw(:abort)
+  # rescue StandardError => e
+  #   Rails.logger.error("Error initializing exchange rate: #{e.message}")
+  #   errors.add(:base, "Failed to initialize exchange rate")
+  #   throw(:abort)
   end
 
   def initialize_currency
