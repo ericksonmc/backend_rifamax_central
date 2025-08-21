@@ -88,9 +88,9 @@ class Social::PaymentMethodsController < ApplicationController
   # POST /social/payment_methods
   def create
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
-    client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
-    raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
-    quantity_requested = social_payment_method_params[:quantity_requested]
+    client = Social::Client.find_by(id: social_payment_method_params[:social_client_id]).to_i
+    raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id]).to_i
+    quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
 
     return render json: { message: 'Client must exists' }, status: :not_found unless client
@@ -100,9 +100,9 @@ class Social::PaymentMethodsController < ApplicationController
 
     @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested))
     @social_payment_method.quantity_requested = quantity_requested
-    @social_payment_method.social_influencer_id = influencer.id
-    @social_payment_method.social_client_id = client.id
-    @social_payment_method.social_raffle_id = raffle.id
+    @social_payment_method.social_influencer_id = influencer.id.to_i
+    @social_payment_method.social_client_id = client.id.to_i
+    @social_payment_method.social_raffle_id = raffle.id.to_i
 
     tickets = [*1..raffle.tickets_count]
     sold_json = $redis.get("social_sold_serie:#{raffle.id}")
@@ -224,6 +224,7 @@ class Social::PaymentMethodsController < ApplicationController
       :status, 
       :payment, 
       :currency, 
+      :capture, # field for image upload
       :fractions,
       :content_code,
       :social_raffle_id,
