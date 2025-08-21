@@ -40,6 +40,8 @@
 #  fk_rails_...  (social_raffle_id => social_raffles.id)
 #
 class Social::PaymentMethod < ApplicationRecord
+  mount_uploader :capture, Social::AdUploader
+
   # ------ Triggers
   before_validation :generate_serial
   before_validation :initialize_status
@@ -60,8 +62,7 @@ class Social::PaymentMethod < ApplicationRecord
 
   # ------ Validations
   validates :payment, 
-            presence: true, 
-            inclusion: { in: ["Stripe", "Pago Movil", "Zelle", "Paypal"] }
+            presence: true,
 
   validates :details, presence: true
 
@@ -81,6 +82,8 @@ class Social::PaymentMethod < ApplicationRecord
   validates :social_raffle_id, presence: true
 
   validate :validates_details
+
+  validate :validate_payment_option
   
   # validate :validates_repeat_payments
   
@@ -317,6 +320,8 @@ class Social::PaymentMethod < ApplicationRecord
     raffle = Social::Raffle.find(social_raffle_id)
     base_amount = (quantity_requested * raffle.price_unit)
 
+
+
     self.amount =  case currency
     when 'USD'
       base_amount
@@ -355,6 +360,13 @@ class Social::PaymentMethod < ApplicationRecord
     payment_rating = Shared::Exchange.get_bsd
     payment_date = self.details["payment_date"] || Date.current
 
+    payment_option = Social::PaymentOption.find_by(id: self.payment_option)
+
+    if payment_option.nil?
+      errors.add(:payment_option, "Payment option does not exist")
+      throw(:abort)
+    end
+
     if Date.parse(payment_date) < Date.current
       payment_rating = Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: payment_date)["tipocambio"]
     end
@@ -387,9 +399,13 @@ class Social::PaymentMethod < ApplicationRecord
       validates_pago_movil
     when "Zelle"
       validates_zelle
-    when "Paypal"
-      validates_paypal
+    else
+      validates_capture
     end
+  end
+
+  def validates_capture
+    errors.add(:capture, "Capture is not present") unless capture.present?
   end
 
   def validates_stripe
@@ -412,6 +428,14 @@ class Social::PaymentMethod < ApplicationRecord
 
   def validates_paypal
     errors.add(:details, "Email is not present") unless details["email"].present?
+  end
+
+  def validate_payment_option
+    if payment_option.nil?
+      errors.add(:payment_option, "Payment option cannot be nil")
+    elsif Social::PaymentOption.find_by(id: payment_option).nil?
+      errors.add(:payment_option, "Payment option does not exist")
+    end
   end
 
   def validates_repeats_zelle
