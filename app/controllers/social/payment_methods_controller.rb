@@ -88,8 +88,8 @@ class Social::PaymentMethodsController < ApplicationController
   # POST /social/payment_methods
   def create
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
-    client = Social::Client.find_by(id: social_payment_method_params[:social_client_id]).to_i
-    raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id]).to_i
+    client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
+    raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
     quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
 
