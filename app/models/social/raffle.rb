@@ -425,7 +425,7 @@ class Social::Raffle < ApplicationRecord
   def initialize_attributes
     if new_record?
       self.limit = 0
-      self.combos = nil
+      self.combo = {}
       self.money = 'USD'
       self.winners = false
       self.status = 'En venta'
