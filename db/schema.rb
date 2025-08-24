@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_08_20_154956) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_24_213314) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -311,6 +311,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_20_154956) do
     t.boolean "is_fractionated", default: false
     t.float "fraction_debt", default: 0.0
     t.bigint "fraction_id"
+    t.string "capture"
+    t.integer "payment_option", default: 0
     t.index ["serial"], name: "index_social_payment_methods_on_serial", unique: true
     t.index ["social_client_id"], name: "index_social_payment_methods_on_social_client_id"
     t.index ["social_influencer_id"], name: "index_social_payment_methods_on_social_influencer_id"
@@ -325,6 +327,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_20_154956) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "rate", default: 1.0
+    t.boolean "is_system_pay", default: false
     t.index ["social_influencer_id"], name: "index_social_payment_options_on_social_influencer_id"
   end
 
@@ -364,6 +367,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_20_154956) do
     t.text "content", default: ""
     t.integer "min_ticket_buy", default: 1
     t.string "custom_link"
+    t.jsonb "combo", default: {}
     t.index ["social_fee_id"], name: "index_social_raffles_on_social_fee_id"
     t.index ["social_influencer_id"], name: "index_social_raffles_on_social_influencer_id"
     t.index ["social_lottery_id"], name: "index_social_raffles_on_social_lottery_id"

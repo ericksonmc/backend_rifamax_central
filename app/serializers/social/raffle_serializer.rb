@@ -8,6 +8,7 @@
 #  app_debt             :float            default(0.0)
 #  bank_register        :string
 #  collection_payment   :jsonb
+#  combo                :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
 #  content              :text             default("")

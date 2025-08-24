@@ -92,7 +92,9 @@ class Social::PaymentMethodsController < ApplicationController
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
     quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
+    payment_option = Social::PaymentOption.find_by(id: social_payment_method[:payment_option])
 
+    return render json: { message: 'Payment option not found' }, status: :not_found unless payment_option
     return render json: { message: 'Client must exists' }, status: :not_found unless client
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
@@ -103,6 +105,7 @@ class Social::PaymentMethodsController < ApplicationController
     @social_payment_method.social_influencer_id = influencer.id.to_i
     @social_payment_method.social_client_id = client.id.to_i
     @social_payment_method.social_raffle_id = raffle.id.to_i
+    @social_payment_method.is_system_pay = payment_option.is_system_pay
 
     tickets = [*1..raffle.tickets_count]
     sold_json = $redis.get("social_sold_serie:#{raffle.id}")
@@ -226,6 +229,7 @@ class Social::PaymentMethodsController < ApplicationController
       :currency, 
       :capture, # field for image upload
       :fractions,
+
       :content_code,
       :social_raffle_id,
       :social_client_id,

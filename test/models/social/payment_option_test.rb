@@ -5,6 +5,7 @@
 #  id                   :bigint           not null, primary key
 #  country              :string
 #  details              :jsonb
+#  is_system_pay        :boolean          default(FALSE)
 #  name                 :string
 #  rate                 :float            default(1.0)
 #  created_at           :datetime         not null

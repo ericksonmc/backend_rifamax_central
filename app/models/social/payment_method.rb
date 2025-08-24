@@ -4,6 +4,7 @@
 #
 #  id                   :bigint           not null, primary key
 #  amount               :float
+#  capture              :string
 #  currency             :string
 #  details              :jsonb
 #  email_send           :boolean          default(FALSE)
@@ -13,6 +14,7 @@
 #  has_fly_amount       :boolean          default(FALSE)
 #  is_fractionated      :boolean          default(FALSE)
 #  payment              :string
+#  payment_option       :integer          default(0)
 #  payment_rate         :float
 #  quantity_requested   :integer
 #  serial               :string
@@ -41,6 +43,8 @@
 #
 class Social::PaymentMethod < ApplicationRecord
   mount_uploader :capture, Social::AdUploader
+
+  attr_accessor :is_system_pay
 
   # ------ Triggers
   before_validation :generate_serial
@@ -275,6 +279,7 @@ class Social::PaymentMethod < ApplicationRecord
 
   def notify_payment
     return true unless payment == 'Pago Movil'
+    return true unless is_system_pay
 
     origin_references = details["reference"].to_s
 
