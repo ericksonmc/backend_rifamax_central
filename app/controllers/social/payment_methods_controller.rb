@@ -92,7 +92,7 @@ class Social::PaymentMethodsController < ApplicationController
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
     quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
-    payment_option = Social::PaymentOption.find_by(id: social_payment_method[:payment_option])
+    payment_option = Social::PaymentOption.find_by(id: social_payment_method_params[:payment_option])
 
     return render json: { message: 'Payment option not found' }, status: :not_found unless payment_option
     return render json: { message: 'Client must exists' }, status: :not_found unless client
