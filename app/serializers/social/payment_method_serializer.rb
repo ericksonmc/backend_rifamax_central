@@ -57,7 +57,7 @@ class Social::PaymentMethodSerializer < ActiveModel::Serializer
   end
 
   def capture 
-    return nil if object.capture.nil?
+    return nil if object.capture.url.nil?
     ENV['url_base'] + object.capture.url
   end
 
