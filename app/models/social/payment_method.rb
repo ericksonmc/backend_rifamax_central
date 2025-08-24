@@ -338,7 +338,9 @@ class Social::PaymentMethod < ApplicationRecord
   def initialize_status
     if new_record?
       if payment == 'Pago Movil'
-        self.status = "accepted"
+        if is_system_pay
+          self.status = "accepted"
+        end
       else
         self.status = "active"
       end
