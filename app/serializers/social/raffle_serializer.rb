@@ -66,7 +66,7 @@ class Social::RaffleSerializer < ActiveModel::Serializer
              :allow_fractions, 
              :receipts, 
              :title, 
-             :combos, 
+             :combo, 
              :draw_type, 
              :lottery, 
              :confirmation, 
