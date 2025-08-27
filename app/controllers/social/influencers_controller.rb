@@ -9,7 +9,7 @@ class Social::InfluencersController < ApplicationController
     @influencer = Social::Influencer.find_by(content_code: params[:content_code])
     
     if @influencer
-      render json: @influencer.shared_user, status: :ok, status: :ok
+      render json: @influencer.shared_user, status: :ok
     else
       render json: { message: 'Influencer not found' }, status: :not_found
     end
