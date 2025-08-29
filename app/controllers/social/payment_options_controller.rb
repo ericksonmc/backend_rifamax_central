@@ -7,6 +7,10 @@ class Social::PaymentOptionsController < ApplicationController
 
     @social_payment_option.social_influencer_id = @current_user.social_influencer.id
 
+    dni_from_params = social_payment_option_params[:details][:dni]
+
+    @social_payment_option.is_system_pay = "J-#{ENV["R4_CONECTA_COMMERCE_ID"]}" == dni_from_params
+
     if @current_user.social_influencer.nil?
       render json: { error: 'User is not an influencer' }, status: :forbidden
       return
