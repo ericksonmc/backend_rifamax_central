@@ -28,7 +28,7 @@
 #
 module Shared
   class UserSerializer < ActiveModel::Serializer
-    attributes :id, :integrator_id, :avatar, :name, :integrator_type, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :structure, :is_first_entry, :welcoming, :show_badge
+    attributes :id, :integrator_id, :avatar, :name, :integrator_type, :email, :dni, :is_active, :phone, :influencer_id, :content_code, :role, :structure, :is_first_entry, :welcoming, :show_badge, :social_payment_options
 
     def influencer_id
       object.social_influencer&.id
@@ -50,6 +50,10 @@ module Shared
 
     def structure
       object&.structure_id === nil ? nil : Shared::Structure.find(object&.structure_id)
+    end
+
+    def social_payment_options
+      object.social_influencer&.payment_options || []
     end
 
     # def riferos

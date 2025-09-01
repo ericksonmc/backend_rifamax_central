@@ -1,5 +1,5 @@
 class Social::ClientsController < ApplicationController
-  before_action :admin_authorize_request, except: %i[phone create change_address save_email]
+  before_action :admin_authorize_request, except: %i[dni phone phone_wa create change_address save_email]
   before_action :set_social_client, only: %i[ show update destroy ]
 
   # GET /social/clients
@@ -13,9 +13,29 @@ class Social::ClientsController < ApplicationController
     render json: @social_client
   end
 
+  # GET /social/clients/phone?phone_wa={params}
+  def phone_wa
+    @social_client = Social::Client.find_by(phone: params[:phone])
+    if @social_client
+      render json: @social_client, status: :ok
+    else
+      render json: { id: 0 }, status: :ok
+    end
+  end
+
   # GET /social/clients/phone?phone={params}
   def phone
     @social_client = Social::Client.find_by(phone: params[:phone])
+    if @social_client
+      render json: @social_client, status: :ok
+    else
+      render json: { error: 'Client not found' }, status: :unprocessable_entity
+    end
+  end
+
+  # POST /social/clients/dni
+  def dni
+    @social_client = Social::Client.find_by(dni: params[:dni])
     if @social_client
       render json: @social_client, status: :ok
     else
@@ -26,6 +46,7 @@ class Social::ClientsController < ApplicationController
   # POST /social/clients
   def create
     @social_client = Social::Client.new(social_client_params)
+    @social_client.country = 'Venezuela'
     if @social_client.save
       render json: @social_client, status: :created
     else
@@ -82,7 +103,7 @@ class Social::ClientsController < ApplicationController
   end
 
   def social_client_params
-    params.require(:social_client).permit(:name, :email, :phone, :address, :country, :province, :zip_code)
+    params.require(:social_client).permit(:name, :dni, :email, :phone, :address, :country, :province, :zip_code)
   end
 
   def change_direction_params

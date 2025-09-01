@@ -15,7 +15,6 @@
 #  limit                   :integer
 #  lotery                  :string
 #  money                   :string
-#  numbers                 :integer
 #  price_unit              :float
 #  prizes                  :jsonb
 #  raffle_type             :string
@@ -39,7 +38,7 @@ module X100
                :raffle_type,
                :price_unit,
                :tickets_count,
-               :lotery,
+               :lottery,
                :expired_date,
                :init_date,
                :prizes,

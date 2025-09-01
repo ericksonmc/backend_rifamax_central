@@ -381,6 +381,7 @@ DEPENDENCIES
   currencyapi (~> 1.0)
   debug
   droplet_kit (~> 3.20)
+  faraday (~> 2.9)
   figaro (~> 1.2)
   haml (~> 6.2)
   httparty

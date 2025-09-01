@@ -4,18 +4,32 @@
 #
 #  id                   :bigint           not null, primary key
 #  ad                   :string
+#  allow_fractions      :boolean          default(FALSE)
 #  app_debt             :float            default(0.0)
+#  bank_register        :string
+#  collection_payment   :jsonb
+#  combo                :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
+#  content              :text             default("")
+#  custom_link          :string
+#  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
+#  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
+#  min_ticket_buy       :integer          default(1)
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
 #  raffle_type          :string
+#  receipts             :json
+#  rejecting_details    :text
+#  rif                  :string
 #  status               :string
 #  tickets_count        :integer
 #  title                :string

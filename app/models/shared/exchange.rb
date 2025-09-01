@@ -58,6 +58,22 @@ module Shared
       dolar_value.gsub(',', '.').to_f.round(2)
     end
 
+    def self.get_bcv
+      url = 'https://www.bcv.org.ve'
+
+      agent = Mechanize.new
+
+      agent.agent.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      html = agent.get(url).body
+
+      doc = Nokogiri::HTML(html)
+
+      dolar_value = doc.at_css('#dolar strong').content.strip
+
+      dolar_value.gsub(',', '.').to_f.round(4)
+    end
+
     def change_exchange
       return unless automatic
 

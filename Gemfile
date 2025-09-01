@@ -104,3 +104,5 @@ gem "rufus-scheduler", "~> 3.9"
 gem "resend", "~> 0.11.0"
 
 gem "remote_lock", "~> 1.1"
+
+gem "faraday", "~> 2.9"

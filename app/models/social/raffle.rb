@@ -4,18 +4,32 @@
 #
 #  id                   :bigint           not null, primary key
 #  ad                   :string
+#  allow_fractions      :boolean          default(FALSE)
 #  app_debt             :float            default(0.0)
+#  bank_register        :string
+#  collection_payment   :jsonb
+#  combo                :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
+#  content              :text             default("")
+#  custom_link          :string
+#  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
+#  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
+#  min_ticket_buy       :integer          default(1)
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
 #  raffle_type          :string
+#  receipts             :json
+#  rejecting_details    :text
+#  rif                  :string
 #  status               :string
 #  tickets_count        :integer
 #  title                :string
@@ -42,12 +56,19 @@ class Social::Raffle < ApplicationRecord
   self.table_name = 'social_raffles'
 
   # ------ Initializers
-  before_create :initialize_ticket
   before_validation :initialize_attributes
+  before_validation :initialize_custom_link
+  after_validation :initialize_ticket
 
   # ------ Scope by status
   scope :active, -> { where(status: 'En venta' )}
+  scope :pending, -> { where(confirmation: false)}
+  scope :debt, -> { where('app_debt > 0') }
   scope :ongoing, -> { where(status: 'En venta', confirmation: true )}
+  scope :to_sell, -> {
+    where(status: 'En venta', confirmation: true, is_lottery_payed: true)
+      .where('has_credit = ? OR app_debt <= 0', true)
+  }
   scope :closing, -> { where(status: 'Finalizando' )}
   scope :closed, -> { where(status: 'Cerrado' )}
 
@@ -68,6 +89,10 @@ class Social::Raffle < ApplicationRecord
 
   # ------ Utils and tools
   mount_uploader :ad, Social::AdUploader
+  mount_uploader :bank_register, Social::AdUploader
+  mount_uploader :rif, Social::AdUploader
+  mount_uploader :dni, Social::AdUploader
+  mount_uploaders :receipts, Social::AdUploader
 
   # ------ Validations
   validates :social_lottery_id,
@@ -88,6 +113,10 @@ class Social::Raffle < ApplicationRecord
               less_than_or_equal_to: 100
             },
             if: -> { draw_type == 'Progresiva' }
+
+  validates :custom_link,
+            presence: true,
+            uniqueness: true
 
   validates :tickets_count,
             presence: true,
@@ -125,6 +154,92 @@ class Social::Raffle < ApplicationRecord
   validate :validates_influencer
   
   # ------ Public logic of model
+  def pay_debt(details:, payment:)
+    return true unless payment == 'Pago Movil'
+
+    origin_references = details["reference"].to_s
+
+    length = origin_references.length < 9 ? -origin_references.length : -9
+
+    referencia = origin_references[length..]
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
+    monto = (self.app_debt.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
+
+    if r4_result.nil?
+      return false
+    else
+      if (monto.to_f - r4_result.to_f).abs <= 7
+        $redis.del(redis_param)
+        self.collection_payment = {
+          bank: "#{banco_emisor} - #{details["bank"]}",
+          phone: telefono_emisor,
+          payment_date: fecha_hora,
+          monto: monto,
+          reference: origin_references
+        }
+        self.app_debt = 0
+        self.save
+        return true
+      else
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f).round(2)}, Monto obtenido #{r4_result}")
+        return false
+      end
+    end
+  end
+
+  def pay_lottery_debt(details:, payment:)
+    return true unless payment == 'Pago Movil'
+
+    origin_references = details["reference"].to_s
+
+    length = origin_references.length < 9 ? -origin_references.length : -9
+
+    lottery_amount = (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
+
+    return false if self.is_lottery_payed
+
+    referencia = origin_references[length..]
+    telefono_emisor = "0#{details["phone"].gsub(/\D/, "")}"
+    banco_emisor = BanksService.new.find_bank(details["bank"])[:code].slice(1, 4)
+    fecha_hora = Date.parse(details["payment_date"]).strftime('%Y-%m-%d')
+    monto = (lottery_amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
+
+    raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+
+    redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
+
+    r4_result = $redis.get(redis_param)
+
+    if r4_result.nil?
+      return false
+    else
+      if (monto.to_f - r4_result.to_f).abs <= 7
+        $redis.del(redis_param)
+        self.lottery_payment = {
+          bank: "#{banco_emisor} - #{details["bank"]}",
+          phone: telefono_emisor,
+          payment_date: fecha_hora,
+          monto: monto,
+          reference: origin_references
+        }
+        self.is_lottery_payed = true
+        self.save
+        return true
+      else
+        errors.add(:base, "Monto errado - Monto esperado #{(monto.to_f).round(2)}, Monto obtenido #{r4_result}")
+        return false
+      end
+    end
+  end
+
   def winners
     return nil if self.has_winners.nil?
     return self.has_winners if self.has_winners.is_a?(Array)
@@ -146,6 +261,122 @@ class Social::Raffle < ApplicationRecord
 
   def add_to_pending(action)
     return $redis.sadd("social_raffles_details_#{action}", self.slice(:id, :title, :price_unit, :status, :init_date, :social_influencer_id).to_json) == 1
+  end
+
+  def self.all_profits(current_user)
+    case current_user.role
+    when 'Loteria'
+      lottery = Social::Lottery.find_by(shared_user_id: current_user.id)
+      return default_profits unless lottery
+  
+      raffles = where(social_lottery_id: lottery.id)
+    when 'Admin'
+      raffles = all
+    when 'Influencer'
+      influencer = current_user.social_influencer
+      return default_profits unless influencer
+  
+      raffles = where(social_influencer_id: influencer.id)
+    else
+      return default_profits
+    end
+  
+    profit_usd = 0.0
+    profit_ves = 0.0
+    ractives_or_tsold = raffles.active.count
+    rcreated_or_tavailable = raffles.count
+  
+    raffles.find_each do |raffle|
+      payments = raffle.social_payment_methods.accepted
+      profit_usd += payments.select { |item| item.currency == 'USD' }.sum(&:amount)
+      profit_ves += payments.select { |item| item.currency == 'VES' }.sum { |item| item.amount * item.payment_rate }
+    end
+  
+    {
+      profit_usd: profit_usd.round(2),
+      profit_ves: profit_ves.round(2),
+      ractives_or_tsold: ractives_or_tsold,
+      rcreated_or_tavailable: rcreated_or_tavailable
+    }
+  end
+  
+  def self.default_profits
+    {
+      profit_usd: 0,
+      profit_ves: 0,
+      ractives_or_tsold: 0,
+      rcreated_or_tavailable: 0
+    }
+  end
+
+  def tickets_sold
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      @tickets
+    end
+  end
+
+  def tickets_sold_count
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      @tickets.count
+    end
+  end
+
+  def self.raffle_emergents(user)
+    case user.role
+    when 'Loteria'
+      where(confirmation: false, social_lottery_id: user.social_lottery.id)
+    when 'Influencer'
+      where(confirmation: false, social_influencer_id: user.social_influencer.id)
+    when 'Admin'
+      where(confirmation: false)
+    else
+      []
+    end
+  end
+  
+  def self.raffle_emergents_count(user)
+    case user.role
+    when 'Loteria'
+      where(confirmation: false, social_lottery_id: user.social_lottery.id)
+    when 'Influencer'
+      where(confirmation: false, social_influencer_id: user.social_influencer.id)
+    when 'Admin'
+      where(confirmation: false)
+    else
+      []
+    end.count
+  end
+
+  def tickets_available_count
+    @tickets = JSON.parse($redis.get("social_sold_serie:#{self.id}"))
+
+    if @tickets.nil?
+      $redis.set("social_sold_serie:#{id}", [])
+    else
+      self.tickets_count - @tickets.count
+    end
+  end
+
+  def profits
+    payments = self.social_payment_methods.accepted
+  
+    profit_usd = payments.select { |item| item.currency == 'USD' }.sum(&:amount)
+    profit_ves = payments.select { |item| item.currency == 'VES' }.sum { |item| item.amount * item.payment_rate }
+  
+    {
+      profit_usd: profit_usd.round(2),
+      profit_ves: profit_ves.round(2),
+      ractives_or_tsold: tickets_sold_count,
+      rcreated_or_tavailable: tickets_available_count
+    }
   end
 
   def stats
@@ -192,28 +423,54 @@ class Social::Raffle < ApplicationRecord
   private
 
   def initialize_attributes
-    self.limit = 0
-    self.combos = nil
-    self.money = 'USD'
-    self.winners = false
-    self.status = 'En venta'
-    self.draw_type = 'Limitada'
-    self.app_debt = ((tickets_count * price_unit) * 0.05).round(2)
-    self.has_winners = false
-    self.social_fee_id = Social::Fee.last.id
-    self.raffle_type = case tickets_count
-                       when 100
-                         'Terminal'
-                       when 1000
-                         'Triple'
-                       else
-                         'Serie'
-                       end
+    if new_record?
+      self.limit = 0
+      self.combo = {}
+      self.money = 'USD'
+      self.winners = false
+      self.status = 'En venta'
+      self.draw_type = 'Limitada'
+      self.app_debt = ((tickets_count * price_unit) * 0.05).round(2)
+      self.has_winners = false
+      self.social_fee_id = Social::Fee.last.id
+      self.raffle_type = case tickets_count
+                        when 100
+                          'Terminal'
+                        when 1000
+                          'Triple'
+                        else
+                          'Serie'
+                        end
+    end
+  end
+
+  def initialize_custom_link
+    if new_record?
+      return if self.custom_link.blank?
+    
+      base_link = self.custom_link.parameterize
+    
+      similar_links = Social::Raffle.where("custom_link LIKE ?", "#{base_link}%").where.not(id: self.id).pluck(:custom_link)
+    
+      unless similar_links.include?(base_link)
+        self.custom_link = base_link
+        return
+      end
+    
+      suffix = 1
+      loop do
+        candidate = "#{base_link}-#{suffix}"
+        unless similar_links.include?(candidate)
+          self.custom_link = candidate
+          break
+        end
+        suffix += 1
+      end
+    end
   end
   
   def initialize_ticket
-    $redis.set("social_preorder_serie:#{self.id}", 0)
-    $redis.set("social_sold_serie:#{self.id}", [])
+    $redis.set("social_sold_serie:#{id}", []) if new_record?
   end
 
   def validates_influencer

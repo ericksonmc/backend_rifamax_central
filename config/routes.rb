@@ -5,6 +5,10 @@ require 'sidekiq/cron/web'
 
 # rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do 
+  # R4 Conecta Webhooks
+  post '/R4consulta', to: 'r4_conecta#handshake' 
+  post '/R4notifica', to: 'r4_conecta#notification'
+
   post '/login', to: 'authentication#login'
   post '/refresh', to: 'authentication#refresh'
   post '/social/login', to: 'authentication#social_login'
@@ -23,6 +27,11 @@ Rails.application.routes.draw do
     post 'login', to: 'authentication#social_login'
     post 'auth/refresh', to: 'authentication#social_refresh'
     
+    resources :wa_webhook
+    resources :contexts do
+      post 'add', on: :collection
+    end
+    
     resources :networks
     resources :lotteries do 
       collection do
@@ -35,16 +44,25 @@ Rails.application.routes.draw do
     end
     resources :raffles do
       get 'live', on: :collection
-      put 'add_ad', on: :collection
+      get 'profit_dashboard', on: :collection
+      get 'list_dashboard', on: :collection
+      put 'add_documents', on: :collection
+      put 'add_content', on: :collection
       get 'actives', on: :collection
+      get 'filter_by_custom_link', on: :collection
+      get 'info', on: :member
       post 'reject', on: :collection
       get 'pendings', on: :collection
+      post 'pay_app', on: :collection
+      post 'pay_lottery_debt', on: :collection
       post 'confirm', on: :collection
     end
     resources :stats do
       get 'specific', on: :collection
     end
     resources :clients do 
+      post 'dni', on: :collection
+      get 'phone_wa', on: :collection
       get 'phone', on: :collection
       put 'save_email', on: :collection
       put 'change_address', on: :collection
@@ -52,12 +70,15 @@ Rails.application.routes.draw do
     resources :payment_methods do
       post 'accept', on: :member
       post 'reject', on: :member
+      post 'search', on: :collection
+      post 'pay_debt', on: :collection
       get 'history', on: :collection
       post 'send_email', on: :collection
       post 'send_whatsapp', on: :collection
     end
     resources :influencers do
       get 'search', on: :collection
+      get 'emergents', on: :collection
       get 'all', on: :collection
     end
     resources :details do

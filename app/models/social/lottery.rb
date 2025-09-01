@@ -2,14 +2,15 @@
 #
 # Table name: social_lotteries
 #
-#  id             :bigint           not null, primary key
-#  key_name       :string
-#  name           :string
-#  profit_fee     :float
-#  status         :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  shared_user_id :bigint           not null
+#  id              :bigint           not null, primary key
+#  key_name        :string
+#  name            :string
+#  payment_details :jsonb
+#  profit_fee      :float
+#  status          :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  shared_user_id  :bigint           not null
 #
 # Indexes
 #
@@ -42,6 +43,7 @@ class Social::Lottery < ApplicationRecord
             inclusion: { in: %w[active inactive] }
 
   # ----- Callbacks
+  # validates :validates_payment_details
   before_validation :initialize_status
 
   # ----- Instance methods
@@ -103,6 +105,13 @@ class Social::Lottery < ApplicationRecord
 
   # ----- Private methods
   private
+
+  # def validates_payment_details
+  #   errors.add(:details, "Bank is not present") unless details["bank"].present?
+  #   errors.add(:details, "Phone is not present") unless details["phone"].present?
+  #   errors.add(:details, "Payment date is not present") unless details["payment_date"].present?
+  #   errors.add(:details, "References is not present") unless details["reference"].present?
+  # end
 
   def initialize_status
     self.status = 'active' if status.nil?

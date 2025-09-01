@@ -1,0 +1,1 @@
+class X100::InfiniteTicketService; end

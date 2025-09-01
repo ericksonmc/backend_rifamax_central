@@ -4,18 +4,32 @@
 #
 #  id                   :bigint           not null, primary key
 #  ad                   :string
+#  allow_fractions      :boolean          default(FALSE)
 #  app_debt             :float            default(0.0)
+#  bank_register        :string
+#  collection_payment   :jsonb
+#  combo                :jsonb
 #  combos               :jsonb
 #  confirmation         :boolean          default(FALSE)
+#  content              :text             default("")
+#  custom_link          :string
+#  dni                  :string
 #  draw_type            :string
 #  expired_date         :datetime
+#  has_credit           :boolean          default(FALSE)
 #  has_winners          :boolean
 #  init_date            :datetime
+#  is_lottery_payed     :boolean          default(FALSE)
 #  limit                :integer
+#  lottery_payment      :jsonb
+#  min_ticket_buy       :integer          default(1)
 #  money                :string
 #  price_unit           :float
 #  prizes               :jsonb
 #  raffle_type          :string
+#  receipts             :json
+#  rejecting_details    :text
+#  rif                  :string
 #  status               :string
 #  tickets_count        :integer
 #  title                :string
@@ -39,7 +53,42 @@
 #  fk_rails_...  (social_lottery_id => social_lotteries.id)
 #
 class Social::RaffleSerializer < ActiveModel::Serializer
-  attributes :id, :ad, :title, :combos, :draw_type, :confirmation, :original_app_debt, :expired_date, :has_winners, :init_date, :limit, :money, :price_unit, :prizes, :raffle_type, :social_influencer_id, :status, :tickets_count, :app_debt, :debt_percentage, :tickets_available, :winners, :created_at, :updated_at
+  attributes :id, 
+             :ad, 
+             :dni, 
+             :custom_link,
+             :rif, 
+             :bank_register, 
+             :content, 
+             :lottery_debt, 
+             :is_playable, 
+             :has_credit,
+             :allow_fractions, 
+             :receipts, 
+             :title, 
+             :combo, 
+             :draw_type, 
+             :lottery, 
+             :confirmation, 
+             :min_ticket_buy,
+             :original_app_debt, 
+             :expired_date, 
+             :has_winners, 
+             :init_date, 
+             :limit, 
+             :money, 
+             :price_unit, 
+             :prizes, 
+             :raffle_type, 
+             :social_influencer_id, 
+             :status, 
+             :tickets_count, 
+             :app_debt, 
+             :debt_percentage, 
+             :tickets_available, 
+             :winners, 
+             :created_at, 
+             :updated_at
 
   def ad
     return unless object.ad.present?
@@ -47,6 +96,52 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     object.ad.as_json.merge(
       'url' => "#{ENV['url_base']}/#{object.ad.url}"
     )
+  end
+
+  def is_playable
+    (object.has_credit || object.app_debt.to_f <= 0) && object.is_lottery_payed
+  end
+
+  def lottery
+    object.social_lottery.name
+  end
+
+  def dni
+    return unless object.dni.present?
+
+    object.dni.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.dni.url}"
+    )
+  end
+
+  def rif
+    return unless object.rif.present?
+    object.rif.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.rif.url}"
+    )
+  end
+
+  def bank_register
+    return unless object.bank_register.present?
+    object.bank_register.as_json.merge(
+      'url' => "#{ENV['url_base']}/#{object.bank_register.url}"
+    )
+  end
+
+  def lottery_debt
+    return 0 unless object.prizes.is_a?(Array)
+    return 0 if object.is_lottery_payed
+  
+    (object.prizes.sum { |item| item['worth'].to_f } * (object.social_lottery.profit_fee / 100))
+  end
+
+  def receipts
+    return unless object.receipts.present?
+    object.receipts.map do |receipt|
+      receipt.as_json.merge(
+        'url' => "#{ENV['url_base']}/#{receipt.url}"
+      )
+    end
   end
 
   def original_app_debt
@@ -64,8 +159,13 @@ class Social::RaffleSerializer < ActiveModel::Serializer
   end
   
   def tickets_available
-    percentage = debt_percentage / 100.0
-    available = object.tickets_count.to_i - (object.tickets_count.to_i * percentage)
-    available.round
+    sold = $redis.get("social_sold_serie:#{object.id}")
+    sold_array = begin
+      JSON.parse(sold) if sold.present?
+    rescue JSON::ParserError
+      []
+    end
+    sold_count = sold_array.is_a?(Array) ? sold_array.length : object.tickets_count
+    object.tickets_count - sold_count
   end
 end

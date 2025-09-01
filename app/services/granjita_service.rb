@@ -3,7 +3,7 @@ class GranjitaService
     response = data_results
     results = JSON.parse(response.body)
 
-    HOURS_TO_PARSED = {
+    hours_to_parsed = {
       '09:00': '09:00 AM',
       '10:00': '10:00 AM',
       '11:00': '11:00 AM',

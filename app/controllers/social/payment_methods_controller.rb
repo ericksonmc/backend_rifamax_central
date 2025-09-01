@@ -2,7 +2,7 @@ class Social::PaymentMethodsController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_payment_method, only: %i[ accept reject show update destroy ]
-  before_action :authorize_request, except: %i[ create send_email send_whatsapp ]
+  before_action :authorize_request, except: %i[ create send_email pay_debt send_whatsapp search ]
   before_action :authorize_role, only: %i[ accept reject ]
 
   # GET /social/payment_methods
@@ -35,8 +35,8 @@ class Social::PaymentMethodsController < ApplicationController
       render json: { message: 'You dont have permission to perform this action' }, status: :forbidden
     else
       if @social_payment_method.accept!
-        @social_payment_method.send_order_email
         @social_payment_method.status = 'accepted'
+        @social_payment_method.update_attribute(:status, 'accepted')
         render json: @social_payment_method, status: :ok
       else
         render json: @social_payment_method.errors, status: :unprocessable_entity
@@ -49,8 +49,20 @@ class Social::PaymentMethodsController < ApplicationController
     unless @current_user.role.in?(@roles_authorized)
       render json: { message: 'You dont have permission to perform this action' }, status: :forbidden
     else
+      # Remove tickets from Redis sold list if present
+      if @social_payment_method.tickets.present? && @social_payment_method.social_raffle_id.present?
+        raffle_id = @social_payment_method.social_raffle_id
+        sold_key = "social_sold_serie:#{raffle_id}"
+        sold_json = $redis.get(sold_key)
+        tickets_sold = JSON.parse(sold_json)
+        updated_sold = tickets_sold - @social_payment_method.tickets
+        $redis.set(sold_key, updated_sold)
+        @social_payment_method.tickets = []
+      end
+  
       @social_payment_method.reject!
       @social_payment_method.status = 'rejected'
+      @social_payment_method.update_attribute(:status, 'rejected')
       render json: @social_payment_method, status: :ok
     end
   end
@@ -78,8 +90,11 @@ class Social::PaymentMethodsController < ApplicationController
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
     client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
-    quantity_requested = social_payment_method_params[:quantity_requested]
+    quantity_requested = social_payment_method_params[:quantity_requested].to_i
+    payment = social_payment_method_params[:payment]
+    payment_option = Social::PaymentOption.find_by(id: social_payment_method_params[:payment_option])
 
+    return render json: { message: 'Payment option not found' }, status: :not_found unless payment_option
     return render json: { message: 'Client must exists' }, status: :not_found unless client
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
@@ -87,22 +102,88 @@ class Social::PaymentMethodsController < ApplicationController
 
     @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested))
     @social_payment_method.quantity_requested = quantity_requested
-    @social_payment_method.social_influencer_id = influencer.id
+    @social_payment_method.social_influencer_id = influencer.id.to_i
+    @social_payment_method.social_client_id = client.id.to_i
+    @social_payment_method.social_raffle_id = raffle.id.to_i
+    @social_payment_method.is_system_pay = payment_option.is_system_pay
+
+    tickets = [*1..raffle.tickets_count]
+    sold_json = $redis.get("social_sold_serie:#{raffle.id}")
+    tickets_sold = sold_json.present? ? JSON.parse(sold_json) : []
+    
+    tickets_final = tickets - tickets_sold
+    
+    tickets_available_count = raffle.tickets_count - tickets_sold.length
+
+    if tickets_final.size < quantity_requested
+      return render json: { message: "Not enough tickets available to fulfill the request." }
+    end
+
+    selected = tickets_final.sample(quantity_requested)
+    @social_payment_method.tickets = selected
+
+    if (quantity_requested > tickets_available_count)
+      return render json: { message: "No hay tickets disponibles para esa cantidad, disponibles: #{tickets_available_count}"}
+    end
+    
     if @social_payment_method.save
+      new_sold = tickets_sold + selected
+      $redis.set("social_sold_serie:#{raffle.id}", new_sold)
+
       render json: @social_payment_method, status: :created
     else
       render json: @social_payment_method.errors, status: :unprocessable_entity
     end
   end
 
+  # POST /social/payment_methods/pay_debt
+  def pay_debt
+    @social_payment_method = Social::PaymentMethod.find(pay_debt_params[:payment_id])
+    
+    @details = pay_debt_params[:details]
+
+    return render json: { message: 'Details not found' }, status: :not_found if @details.nil?
+    return render json: { message: 'Payment not found' }, status: :not_found if @social_payment_method.nil?
+
+    if @social_payment_method.pay_fraction_in_ves(@details)
+      render json: @social_payment_method, status: :ok
+    else
+      render json: { message: "Error al notificar el pago" }, status: :unprocessable_entity
+    end
+  end
+
+  def search
+    count = params[:count] || 6
+    page = params[:page] || 1
+  
+    @result = Social::Client.find_by(dni: params[:dni])
+  
+    if @result.nil?
+      return render json: { message: "Cliente no encontrado" }, status: :not_found
+    end
+  
+    @pagy, @records = pagy(@result.payments.order(created_at: :desc), items: count, page: page)
+  
+    render json: {
+      payments: ActiveModel::Serializer::CollectionSerializer.new(@records, each_serializer: Social::PaymentMethodSerializer),
+      metadata: {
+        page: @pagy.page,
+        count: @pagy.count,
+        items: @pagy.items,
+        pages: @pagy.pages
+      }
+    }, status: :ok
+  end
+
   # POST /social/payment_methods/send_email
   def send_email
     @payment = Social::PaymentMethod.find(send_message_params[:id])
+    email = send_message_params[:email]
 
     if @payment.nil?
       render json: { message: 'Payment not found' }, status: :unprocessable_entity
     else 
-      @payment.send_preorder_email
+      @payment.send_order_email(email)
       render json: { message: "Email was delivered!" }, status: :ok
     end
 
@@ -146,11 +227,31 @@ class Social::PaymentMethodsController < ApplicationController
       :status, 
       :payment, 
       :currency, 
+      :capture, # field for image upload
+      :fractions,
+
       :content_code,
       :social_raffle_id,
       :social_client_id,
       :quantity_requested,
-      details: [:bank, :name, :last_digits, :dni, :phone, :email, :reference]
+      :payment_option,
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
+    )
+  end
+
+  def pay_debt_params
+    params.require(:social_payment_method).permit(
+      :amount, 
+      :status, 
+      :payment, 
+      :currency, 
+      :fractions,
+      :payment_id,
+      :content_code,
+      :social_raffle_id,
+      :social_client_id,
+      :quantity_requested,
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
     )
   end
 

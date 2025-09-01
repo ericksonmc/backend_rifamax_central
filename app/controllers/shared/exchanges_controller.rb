@@ -5,9 +5,9 @@ class Shared::ExchangesController < ApplicationController
 
   # GET /shared/exchanges
   def index
-    @shared_exchanges = Shared::Exchange.last
-
-    render json: @shared_exchanges
+    shared_exchange = Shared::Exchange.last
+ 
+    render json: shared_exchange, serializer: Shared::ExchangeSerializer, status: :ok
   end
 
   # GET /shared/exchanges/1

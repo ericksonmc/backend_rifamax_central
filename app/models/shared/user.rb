@@ -123,6 +123,14 @@ module Shared
       { is_blocked: false }
     end
 
+    def social_lottery
+      if self.role == 'Loteria'
+        Social::Lottery.find_by(shared_user_id: self.id)
+      else
+        nil
+      end
+    end
+
     def self.cda_login(email, password)
       url = 'https://www.testcda.com/api/v1/login'
       body = {

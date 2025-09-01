@@ -19,7 +19,7 @@
 #  fk_rails_...  (shared_user_id => shared_users.id)
 #
 class Social::InfluencerSerializer < ActiveModel::Serializer
-  attributes :id, :influencer_id, :name, :content_code
+  attributes :id, :influencer_id, :name, :content_code, :show_badge, :payment_options
 
   def id
     object.shared_user.id
@@ -31,5 +31,9 @@ class Social::InfluencerSerializer < ActiveModel::Serializer
 
   def influencer_id
     object.id
+  end
+
+  def payment_options
+    Social::PaymentOption.where(social_influencer_id: object.id)
   end
 end

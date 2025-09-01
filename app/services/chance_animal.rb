@@ -1,5 +1,5 @@
 class ChanceAnimal
-  HOURS_TO_PARSED = {
+  hours_to_parsed = {
     '09:00': '09:00 AM',
     '10:00': '10:00 AM',
     '11:00': '11:00 AM',
@@ -31,7 +31,7 @@ class ChanceAnimal
 
       { message: "Lotto Rey: #{date} #{hour}", data: sorted_results }
     else
-      hour_parsed = HOURS_TO_PARSED[hour.to_sym]
+      hour_parsed = hours_to_parsed[hour.to_sym]
       return { error: 'Hora inválida', data: [] } if hour_parsed.nil?
 
       sorteo_actual = results.find { |b| b['desSorteo'] == "CHANCE ANIMALITO #{hour_parsed}" }
