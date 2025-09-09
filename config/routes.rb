@@ -43,6 +43,7 @@ Rails.application.routes.draw do
       end
     end
     resources :raffles do
+      put 'set_combos', on: :collection
       get 'live', on: :collection
       get 'profit_dashboard', on: :collection
       get 'list_dashboard', on: :collection
