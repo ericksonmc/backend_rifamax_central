@@ -278,6 +278,15 @@ class Social::RafflesController < ApplicationController
     end
   end
 
+  # PATCH/PUT /social/raffles/{id}/set_combos
+  def set_combos
+    if @social_raffle.update(combos_params)
+      render json: @social_raffle
+    else
+      render json: @social_raffle.errors, status: :unprocessable_entity
+    end
+  end
+
   # PATCH/PUT /social/raffles/{id}/add_content
   def add_content
     @social_raffle = Social::Raffle.find(params[:id])
@@ -333,6 +342,12 @@ class Social::RafflesController < ApplicationController
   def add_content_params
     params.permit(
       :content
+    )
+  end
+
+  def combos_params
+    params.require(:social_raffle).permit(
+      combo: [:quantity, :value]
     )
   end
 
