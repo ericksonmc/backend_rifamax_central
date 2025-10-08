@@ -76,8 +76,8 @@ Rails.application.routes.draw do
       get 'history', on: :collection
       post 'send_email', on: :collection
       post 'send_whatsapp', on: :collection
-    end
-    resources :influencers do
+      resources :influencers do
+      end
       get 'search', on: :collection
       get 'emergents', on: :collection
       get 'all', on: :collection
@@ -85,7 +85,9 @@ Rails.application.routes.draw do
     resources :details do
       post 'admin', on: :collection
     end
-    resources :payment_options
+    resources :payment_options do
+      get 'all', on: :collection
+    end
   end
 
   # /x100/*

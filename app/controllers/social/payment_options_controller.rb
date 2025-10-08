@@ -1,5 +1,5 @@
 class Social::PaymentOptionsController < ApplicationController
-  before_action :authorize_request, only: %i[ create update ]
+  before_action :authorize_request, only: %i[ create update all ]
   before_action :set_social_payment_option, only: %i[ update destroy ]
  
   def create    
@@ -38,6 +38,33 @@ class Social::PaymentOptionsController < ApplicationController
       render json: @social_payment_option, status: :ok
     else
       render json: @social_payment_option.errors, status: :unprocessable_entity
+    end
+  end
+
+  def all
+    influencer = @current_user.social_influencer
+    
+    if influencer.nil?
+      render json: { 
+        banks: ["Zelle",
+                "Binance",
+                "Zinli",
+                "Western Union",
+                "Paypal",
+                "Nequi",
+                "BanescoPA",
+                "BBVAes",
+                "Banco Falabella", 
+                "BCI",
+                "Bancoppel",
+                "Itau",
+                "Bancolombia",
+                "BCPpe",
+                "Pichincha",
+                "Pago Móvil"]
+      }, status: :ok
+    else
+      render json: { banks: influencer.social_payment_options.map(&:name) }, status: :ok
     end
   end
 
