@@ -31,7 +31,8 @@ Rails.application.routes.draw do
     resources :contexts do
       post 'add', on: :collection
     end
-    
+    resources :influencers do
+    end
     resources :networks
     resources :lotteries do 
       collection do
@@ -67,8 +68,6 @@ Rails.application.routes.draw do
       get 'phone', on: :collection
       put 'save_email', on: :collection
       put 'change_address', on: :collection
-    end
-    resources :influencers do
     end
     resources :payment_methods do
       post 'accept', on: :member
