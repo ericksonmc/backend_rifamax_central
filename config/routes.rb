@@ -68,8 +68,6 @@ Rails.application.routes.draw do
       put 'save_email', on: :collection
       put 'change_address', on: :collection
     end
-    resources :influencers do
-    end
     resources :payment_methods do
       post 'accept', on: :member
       post 'reject', on: :member
@@ -78,6 +76,8 @@ Rails.application.routes.draw do
       get 'history', on: :collection
       post 'send_email', on: :collection
       post 'send_whatsapp', on: :collection
+      resources :influencers do
+      end
       get 'search', on: :collection
       get 'emergents', on: :collection
       get 'all', on: :collection

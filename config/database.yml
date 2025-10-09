@@ -17,18 +17,18 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV["DATABASE_HOST"] || '127.0.0.1' %>
-  port: <%= ENV["DATABASE_PORT"] || 5432 %>
-  username: <%= ENV["DATABASE_USERNAME"] || 'javier'%>
-  password: <%= ENV["DATABASE_PASSWORD"]  || '' %>
+  host: <%= ENV.fetch("DATABASE_HOST")%>
+  port: <%= ENV.fetch("DATABASE_PORT")%>
+  username: <%= ENV.fetch("DATABASE_USERNAME")%>
+  password: <%= ENV.fetch("DATABASE_PASSWORD")%>
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV["RAILS_MAX_THREADS"] { 5 } %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
   <<: *default
-  database: rifaplay_backend_development
-   
+  database: backend_rifaplay
+
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is

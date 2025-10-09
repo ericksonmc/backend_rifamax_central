@@ -90,7 +90,6 @@ class Social::PaymentMethodsController < ApplicationController
     influencer = Social::Influencer.find_by(content_code: social_payment_method_params[:content_code])
     client = Social::Client.find_by(id: social_payment_method_params[:social_client_id])
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
-    combos = raffle.present? ? raffle.combos : []
     quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
     payment_option = Social::PaymentOption.find_by(id: social_payment_method_params[:payment_option])
@@ -228,8 +227,9 @@ class Social::PaymentMethodsController < ApplicationController
       :status, 
       :payment, 
       :currency, 
-      :capture,
+      :capture, # field for image upload
       :fractions,
+
       :content_code,
       :social_raffle_id,
       :social_client_id,
