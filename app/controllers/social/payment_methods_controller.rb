@@ -92,6 +92,7 @@ class Social::PaymentMethodsController < ApplicationController
     raffle = Social::Raffle.find_by(id: social_payment_method_params[:social_raffle_id])
     quantity_requested = social_payment_method_params[:quantity_requested].to_i
     payment = social_payment_method_params[:payment]
+    numbers = social_payment_method_params[:numbers]
     payment_option = Social::PaymentOption.find_by(id: social_payment_method_params[:payment_option])
 
     return render json: { message: 'Payment option not found' }, status: :not_found unless payment_option
@@ -99,8 +100,9 @@ class Social::PaymentMethodsController < ApplicationController
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
     return render json: { message: 'Quantity requested must be greater than 0' }, status: :unprocessable_entity unless quantity_requested && quantity_requested > 0
+    return render json: { message: 'Numbers is mandatory' }, status: :unprocessable_entity unless numbers && raffle.tickets_count != 100
 
-    @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested))
+    @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested, :numbers))
     @social_payment_method.quantity_requested = quantity_requested
     @social_payment_method.social_influencer_id = influencer.id.to_i
     @social_payment_method.social_client_id = client.id.to_i
@@ -114,12 +116,19 @@ class Social::PaymentMethodsController < ApplicationController
     tickets_final = tickets - tickets_sold
     
     tickets_available_count = raffle.tickets_count - tickets_sold.length
-
+    
     if tickets_final.size < quantity_requested
       return render json: { message: "Not enough tickets available to fulfill the request." }
     end
-
-    selected = tickets_final.sample(quantity_requested)
+    
+    if (raffle.tickets_count == 100)
+      selected = tickets_final.sample(quantity_requested)
+    else
+      selected = tickets_final.select do |item|
+        numbers.include?(item)
+      end
+    end
+    
     @social_payment_method.tickets = selected
 
     if (quantity_requested > tickets_available_count)
@@ -229,13 +238,13 @@ class Social::PaymentMethodsController < ApplicationController
       :currency, 
       :capture, # field for image upload
       :fractions,
-
       :content_code,
       :social_raffle_id,
       :social_client_id,
       :quantity_requested,
       :payment_option,
-      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference],
+      numbers: []
     )
   end
 
