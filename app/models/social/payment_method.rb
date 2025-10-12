@@ -111,10 +111,6 @@ class Social::PaymentMethod < ApplicationRecord
     user = Shared::User.find_by(id: user_id)
     raise "Invalid user data type" if user.nil?
     raise "Invalid payment data type" unless payment.is_a?(String)
-
-    payments_accepted =  ["Stripe", "Pago Movil", "Zelle", "Paypal"]
-
-    raise "Invalid payment method" unless payments_accepted.include?(payment)
   
     case user.role
     when "Admin"
