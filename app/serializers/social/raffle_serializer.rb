@@ -64,6 +64,7 @@ class Social::RaffleSerializer < ActiveModel::Serializer
              :is_playable, 
              :has_credit,
              :allow_fractions, 
+             :tickets_sold,
              :receipts, 
              :title, 
              :combo, 
@@ -112,6 +113,20 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     object.dni.as_json.merge(
       'url' => "#{ENV['url_base']}/#{object.dni.url}"
     )
+  end
+
+  def tickets_sold
+    sold = $redis.get("social_sold_serie:#{object.id}")
+
+    return [] if object.tickets_count != 100
+
+    sold_array = begin
+      JSON.parse(sold) if sold.present?
+    rescue JSON::ParserError
+      []
+    end
+
+    sold_array.is_a?(Array) ? sold_array : []
   end
 
   def rif
