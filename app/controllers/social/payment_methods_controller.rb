@@ -243,8 +243,8 @@ class Social::PaymentMethodsController < ApplicationController
       :social_client_id,
       :quantity_requested,
       :payment_option,
-      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference],
-      numbers: []
+      :numbers,
+      details: [:bank, :name, :last_digits, :payment_date, :phone, :email, :reference]
     )
   end
 
