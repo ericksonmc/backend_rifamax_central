@@ -122,11 +122,11 @@ class Social::PaymentMethodsController < ApplicationController
     end
     
     if (raffle.tickets_count == 100)
-      selected = tickets_final.sample(quantity_requested)
-    else
       selected = tickets_final.select do |item|
         numbers.include?(item)
       end
+    else
+      selected = tickets_final.sample(quantity_requested)
     end
     
     @social_payment_method.tickets = selected
