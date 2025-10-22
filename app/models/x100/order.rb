@@ -137,7 +137,7 @@ module X100
             raffle_type: 'Serie',
             price_unit: x100_raffle.price_unit,
             tickets_count: x100_raffle.tickets_count,
-            lotery: x100_raffle.lotery,
+            # lotery: x100_raffle.lotery,
             draw_type: 'Serie',
             expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
           }
@@ -210,7 +210,7 @@ module X100
             raffle_type: 'Serie',
             price_unit: x100_raffle.price_unit,
             tickets_count: x100_raffle.tickets_count,
-            lotery: x100_raffle.lotery,
+            # lotery: x100_raffle.lotery,
             draw_type: 'Serie',
             expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
           }
@@ -296,7 +296,7 @@ module X100
           raffle_type: 'Serie',
           price_unit: x100_raffle.price_unit,
           tickets_count: x100_raffle.tickets_count,
-          lotery: x100_raffle.lotery,
+          # lotery: x100_raffle.lotery,
           draw_type: 'Serie',
           expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
         }
@@ -393,7 +393,7 @@ module X100
             raffle_type: 'Serie',
             price_unit: x100_raffle.price_unit, 
             tickets_count: x100_raffle.tickets_count,
-            lotery: x100_raffle.lotery,
+            # lotery: x100_raffle.lotery,
             draw_type: 'Serie',
             expired_date: x100_raffle.expired_date,
           }

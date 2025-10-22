@@ -292,7 +292,7 @@ module X100
           raffle_type: raffle.raffle_type,
           price_unit: raffle.price_unit,
           tickets_count: raffle.tickets_count,
-          lotery: raffle.lotery,
+          # lotery: raffle.lotery,
           draw_type: raffle.draw_type,
           expired_date: raffle.expired_date == nil ? nil : raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
         }
