@@ -2,7 +2,7 @@ class Social::RafflesController < ApplicationController
   include Pagy::Backend
 
   before_action :set_social_raffle_by_custom_link, only: %i[ filter_by_custom_link ]
-  before_action :set_social_raffle, only: %i[ show update destroy set_combos ]
+  before_action :set_social_raffle, only: %i[ show update destroy set_combos toggle_fractions ]
   before_action :authorize_request, only: %i[ index list_dashboard profit_dashboard create update destroy only_influencers only_lotteries add_content confirm reject ]
   before_action :only_lotteries, only: %i[confirm reject]
   before_action :only_influencers, only: %i[add_content]
@@ -273,6 +273,15 @@ class Social::RafflesController < ApplicationController
   def update
     if @social_raffle.update(social_raffle_params)
       render json: @social_raffle
+    else
+      render json: @social_raffle.errors, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH/PUT /social/raffles/{id}/toggle_fractions
+  def toggle_fractions
+    if @social_raffle.update(fractions: !@social_raffle.allow_fractions)
+      render json: @social_raffle, status: :ok
     else
       render json: @social_raffle.errors, status: :unprocessable_entity
     end
