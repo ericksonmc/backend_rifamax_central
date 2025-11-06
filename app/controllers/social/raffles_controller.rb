@@ -280,7 +280,7 @@ class Social::RafflesController < ApplicationController
 
   # PATCH/PUT /social/raffles/{id}/toggle_fractions
   def toggle_fractions
-    if @social_raffle.update(fractions: !@social_raffle.allow_fractions)
+    if @social_raffle.update(allow_fractions: !@social_raffle.allow_fractions)
       render json: @social_raffle, status: :ok
     else
       render json: @social_raffle.errors, status: :unprocessable_entity
