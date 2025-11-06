@@ -50,7 +50,7 @@ Rails.application.routes.draw do
       get 'list_dashboard', on: :collection
       put 'add_documents', on: :collection
       put 'add_content', on: :collection
-      put 'toggle_fractions', on: :collection
+      post 'toggle_fractions', on: :member
       get 'actives', on: :collection
       get 'filter_by_custom_link', on: :collection
       get 'info', on: :member
