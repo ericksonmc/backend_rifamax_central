@@ -125,6 +125,16 @@ class Social::RafflesController < ApplicationController
     end
   end
 
+  # GET /social/raffles/report
+  def report
+    raffle = Social::Raffle.find_by(id: params[:raffle])
+    return render json: { message: 'Raffle not found' }, status: :not_found unless raffle
+
+    report = raffle.profits
+
+    render json: report, status: :ok
+  end
+
   # GET /social/raffles/live
   def live
     unless $redis.ping == 'PONG'
