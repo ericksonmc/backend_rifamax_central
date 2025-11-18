@@ -24,7 +24,7 @@ $redis.psubscribe('__keyevent@0__:expired') do |on|
         ticket.save!
       end
       
-      url = 'https://api.rifa-max.com/x100/tickets/refresh'
+      url = 'https://api.rifamax.app/x100/tickets/refresh'
 
       HTTParty.post(url)
     when "select:winner"
@@ -33,7 +33,7 @@ $redis.psubscribe('__keyevent@0__:expired') do |on|
 
       raffle.select_winner
 
-      url = 'https://api.rifa-max.com/x100/tickets/refresh'
+      url = 'https://api.rifamax.app/x100/tickets/refresh'
 
       HTTParty.post(url)
     when "dev:stats"

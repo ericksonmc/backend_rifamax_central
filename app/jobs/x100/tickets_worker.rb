@@ -13,7 +13,7 @@ module X100
       #   ticket.turn_available!
       # end
       
-      # url = 'https://api.rifa-max.com/x100/tickets/refresh'
+      # url = 'https://api.rifamax.app/x100/tickets/refresh'
 
       # HTTParty.post(url)
 

@@ -3,7 +3,7 @@ class Shared::StructuresController < ApplicationController
   before_action :verify_is_admin, only: %i[index]
 
   def index
-    @structures = Shared::Structure.where.not(access_to: ['DB']) .order(:id)
+    @structures = Shared::Structure.where.not(access_to: ['DB']).order(:id)
     render json: @structures, status: :ok
   end
 

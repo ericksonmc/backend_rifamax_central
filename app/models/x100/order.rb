@@ -130,7 +130,7 @@ module X100
           currency: money,
           player_id: integrator_player_id,
           x100_raffle: {
-            raffle_image: "https://api.rifa-max.com/#{x100_raffle.ad.url}",
+            raffle_image: "https://api.rifamax.app/#{x100_raffle.ad.url}",
             title: x100_raffle.title,
             status: x100_raffle.status,
             money: x100_raffle.money,
@@ -203,7 +203,7 @@ module X100
           currency: money,
           player_id: integrator_player_id,
           x100_raffle: {
-            raffle_image: "https://api.rifa-max.com/#{x100_raffle.ad.url}",
+            raffle_image: "https://api.rifamax.app/#{x100_raffle.ad.url}",
             title: x100_raffle.title,
             status: x100_raffle.status,
             money: x100_raffle.money,
@@ -289,7 +289,7 @@ module X100
         currency: money,
         player_id: integrator_player_id,
         x100_raffle: {
-          raffle_image: "https://api.rifa-max.com/#{x100_raffle.ad.url}",
+          raffle_image: "https://api.rifamax.app/#{x100_raffle.ad.url}",
           title: x100_raffle.title,
           status: x100_raffle.status,
           money: x100_raffle.money,
@@ -386,7 +386,7 @@ module X100
           player_id: integrator_player_id,
           status: 'refunded',
           x100_raffle: {
-            raffle_image: "https://api.rifa-max.com/#{x100_raffle.ad.url}",
+            raffle_image: "https://api.rifamax.app/#{x100_raffle.ad.url}",
             title: x100_raffle.title,
             status: x100_raffle.status,
             money: x100_raffle.money,

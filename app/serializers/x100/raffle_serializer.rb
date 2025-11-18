@@ -65,7 +65,7 @@ module X100
     def ad
       {
         url: object.ad.url,
-        url_parser: "https://api.rifa-max.com/#{object.ad.url}"
+        url_parser: "https://api.rifamax.app/#{object.ad.url}"
       }
     end
 

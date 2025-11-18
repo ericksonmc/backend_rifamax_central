@@ -187,7 +187,7 @@ module X100
     end
 
     def self.refresh
-      url = 'https://api.rifa-max.com/x100/tickets/refresh'
+      url = 'https://api.rifamax.app/x100/tickets/refresh'
 
       HTTParty.post(url)
     end
