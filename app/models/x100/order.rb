@@ -112,6 +112,8 @@ module X100
           self.destroy
           return
         end
+
+        return true
       end
     end
 
