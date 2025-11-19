@@ -99,6 +99,28 @@ module X100
       self.save
     end
 
+    def self.order_by_structure(datetime: Time.now)
+      structures = Shared::Structure.pluck(:known_as)
+      filter_date = datetime.beginning_of_day..datetime.end_of_day
+
+      orders = X100::Order.includes(:x100_raffle)
+                          .where(integrator: structures, ordered_at: filter_date)
+                          .order(:ordered_at)
+
+      grouped = orders.group_by(&:integrator)
+
+      structures.each_with_object({}) do |structure, result|
+        result[structure] = (grouped[structure] || []).map do |order|
+          {
+            name: order.x100_raffle&.title,
+            profits: order.status == 'active' ? order.amount : -order.amount,
+            currency: order.money,
+            plays: order.products
+          }
+        end
+      end
+    end
+
     def integrator_layer
       unless integrator.nil?
         if self.integrator_job == false

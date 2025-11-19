@@ -32,6 +32,15 @@ module X100
       render json: @x100_order
     end
 
+    # GET /x100/orders/by_structure?date=2024-01-01
+    def by_structure
+      date = Time.parse(params[:date]) || Time.now
+
+      @x100_orders = X100::Order.ordered_by_structure(datetime: date)
+
+      render json: @x100_orders, status: :ok
+    end
+
     # POST /x100/orders
     def create
       @x100_order = X100::Order.new(x100_order_params)

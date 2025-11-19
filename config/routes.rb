@@ -95,6 +95,7 @@ Rails.application.routes.draw do
   namespace :x100 do
     resources :orders, only: [:index] do
       get 'bill', on: :collection
+      get 'by_structure', on: :collection
     end
     resources :raffles do
       get 'progressives', on: :collection
