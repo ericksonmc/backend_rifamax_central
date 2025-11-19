@@ -36,7 +36,7 @@ module X100
     def by_structure
       date = Time.parse(params[:date]) || Time.now
 
-      @x100_orders = X100::Order.ordered_by_structure(datetime: date)
+      @x100_orders = X100::Order.order_by_structure(datetime: date)
 
       render json: @x100_orders, status: :ok
     end
