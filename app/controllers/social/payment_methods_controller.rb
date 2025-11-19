@@ -100,7 +100,7 @@ class Social::PaymentMethodsController < ApplicationController
     return render json: { message: 'Raffle must exists' }, status: :not_found unless raffle
     return render json: { message: 'Influencer must exists' }, status: :not_found unless influencer
     return render json: { message: 'Quantity requested must be greater than 0' }, status: :unprocessable_entity unless quantity_requested && quantity_requested > 0
-    return render json: { message: 'Numbers is mandatory' }, status: :unprocessable_entity unless numbers && raffle.tickets_count == 100
+    # return render json: { message: 'Numbers is mandatory' }, status: :unprocessable_entity unless numbers && raffle.tickets_count == 100
 
     @social_payment_method = Social::PaymentMethod.new(social_payment_method_params.except(:content_code, :quantity_requested, :numbers))
     @social_payment_method.quantity_requested = quantity_requested
