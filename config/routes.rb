@@ -33,6 +33,7 @@ Rails.application.routes.draw do
     end
     resources :influencers do
       get 'all', on: :collection
+      get 'search', on: :collection
     end
     resources :networks
     resources :lotteries do 
