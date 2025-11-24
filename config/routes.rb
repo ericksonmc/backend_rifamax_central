@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       post 'add', on: :collection
     end
     resources :influencers do
+      get 'all', on: :collection
     end
     resources :networks
     resources :lotteries do 
