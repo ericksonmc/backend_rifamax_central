@@ -80,7 +80,7 @@ class Social::RafflesController < ApplicationController
 
     return render json: { error: 'Rifa no encontrada'}, status: :unprocessable_entity if raffle.nil?
     return render json: { error: 'Usuario no es loteria'}, status: :unprocessable_entity if @current_user.role != 'Loteria'
-    return render json: { error: 'Esta no es tu rifa' }, status: :unprocessable_entity if @current_user.social_lottery.id !== raffle.social_lottery.id
+    return render json: { error: 'Esta no es tu rifa' }, status: :unprocessable_entity if @current_user.social_lottery.id != raffle.social_lottery.id
     
     if raffle.update(is_lottery_payed: true)
       render json: { message: "Pago realizado", raffle: raffle }, status: :ok
