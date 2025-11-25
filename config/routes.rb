@@ -62,6 +62,7 @@ Rails.application.routes.draw do
       get 'pendings', on: :collection
       post 'pay_app', on: :collection
       post 'pay_lottery_debt', on: :collection
+      post 'pay_on_taquilla', on: :collection
       post 'confirm', on: :collection
     end
     resources :stats do

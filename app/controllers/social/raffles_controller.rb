@@ -3,7 +3,7 @@ class Social::RafflesController < ApplicationController
 
   before_action :set_social_raffle_by_custom_link, only: %i[ filter_by_custom_link ]
   before_action :set_social_raffle, only: %i[ show update destroy set_combos toggle_fractions ]
-  before_action :authorize_request, only: %i[ index list_dashboard profit_dashboard create update destroy only_influencers only_lotteries add_content confirm reject ]
+  before_action :authorize_request, only: %i[ index list_dashboard profit_dashboard create update destroy only_influencers only_lotteries add_content confirm reject pay_on_taquilla ]
   before_action :only_lotteries, only: %i[confirm reject]
   before_action :only_influencers, only: %i[add_content]
   
@@ -71,6 +71,21 @@ class Social::RafflesController < ApplicationController
       }, status: :ok
     else
       render json: { error: 'Influencer not found' }, status: :not_found
+    end
+  end
+
+  # POST /social/raffles/pay_on_taquilla
+  def pay_on_taquilla
+    raffle = Social::Raffle.find_by(id: params[:raffle_id])
+
+    return render json: { error: 'Rifa no encontrada'}, status: :unprocessable_entity if raffle.nil?
+    return render json: { error: 'Usuario no es loteria'}, status: :unprocessable_entity if @current_user.role !== 'Loteria'
+    return render json: { error: 'Esta no es tu rifa' }, status: :unprocessable_entity if @current_user.social_lottery.id !== raffle.social_lottery.id
+    
+    if raffle.update(is_lottery_payed: true)
+      render json: { message: "Pago realizado", raffle: raffle }, status: :ok
+    else
+      render json: { error: 'Ha ocurrido un error al pagar' }, status: :unprocessable_entity
     end
   end
 
