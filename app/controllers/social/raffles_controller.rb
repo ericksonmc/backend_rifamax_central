@@ -84,7 +84,7 @@ class Social::RafflesController < ApplicationController
 
     @raffles = case @current_user.role
     when 'Influencer'
-      influencer.ongoing_raffles
+      influencer.ongoing_raffles.where(confirmation: true)
     when 'Admin'
       Social::Raffle.all
     when 'Loteria'
