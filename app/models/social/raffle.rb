@@ -195,6 +195,18 @@ class Social::Raffle < ApplicationRecord
     end
   end
 
+  def demo_pay_debt(details:, payment:)
+    self.app_debt = 0
+    self.save
+    return true
+  end
+
+  def demo_pay_lottery_debt(details:, payment:)
+    self.is_lottery_payed = true
+    self.save
+    return true
+  end
+
   def pay_lottery_debt(details:, payment:)
     return true unless payment == 'Pago Movil'
 
@@ -202,7 +214,9 @@ class Social::Raffle < ApplicationRecord
 
     length = origin_references.length < 9 ? -origin_references.length : -9
 
-    lottery_amount = (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
+    # lottery_amount = (self.prizes.sum { |item| item['worth'].to_f } * (self.social_lottery.profit_fee / 100))
+
+    lottery_amount = ((self.tickets_count * self.price_unit) * (self.social_lottery.profit_fee / 100)).round(2)
 
     return false if self.is_lottery_payed
 
@@ -213,6 +227,7 @@ class Social::Raffle < ApplicationRecord
     monto = (lottery_amount.to_f * Social::R4ConectaService.new.consultar_tasa_bcv(fechavalor: fecha_hora)["tipocambio"].to_f).to_s
 
     raise "Bank code not found" if banco_emisor.nil? || banco_emisor.empty?
+    raise "Amount can't be 0" if monto <= 0
 
     redis_param = "R4:#{telefono_emisor}:#{referencia}:#{banco_emisor}:#{fecha_hora}"
 
@@ -425,7 +440,8 @@ class Social::Raffle < ApplicationRecord
   def initialize_attributes
     if new_record?
       self.limit = 0
-      self.combo = {}
+      self.combo = []
+      self.combos = []
       self.money = 'USD'
       self.winners = false
       self.status = 'En venta'

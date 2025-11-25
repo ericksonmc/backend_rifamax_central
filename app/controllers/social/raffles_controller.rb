@@ -181,7 +181,7 @@ class Social::RafflesController < ApplicationController
       return render json: { message: 'Missing payment details or type' }, status: :unprocessable_entity
     end
 
-    if raffle.pay_debt(details: details, payment: payment_type)
+    if raffle.demo_pay_debt(details: details, payment: payment_type)
       render json: { message: 'Pago de deuda realizado exitosamente', raffle: raffle }, status: :ok
     else
       render json: { message: 'Error al notificar el pago', errors: raffle.errors.full_messages }, status: :unprocessable_entity
@@ -200,7 +200,7 @@ class Social::RafflesController < ApplicationController
       return render json: { message: 'Missing payment details or type' }, status: :unprocessable_entity
     end
 
-    if raffle.pay_lottery_debt(details: details, payment: payment_type)
+    if raffle.demo_pay_lottery_debt(details: details, payment: payment_type)
       render json: { message: 'Pago de deuda realizado exitosamente', raffle: raffle }, status: :ok
     else
       render json: { message: 'Error al notificar el pago', errors: raffle.errors.full_messages }, status: :unprocessable_entity

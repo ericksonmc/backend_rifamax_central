@@ -147,7 +147,8 @@ class Social::RaffleSerializer < ActiveModel::Serializer
     return 0 unless object.prizes.is_a?(Array)
     return 0 if object.is_lottery_payed
   
-    (object.prizes.sum { |item| item['worth'].to_f } * (object.social_lottery.profit_fee / 100))
+    # (object.prizes.sum { |item| item['worth'].to_f } * (object.social_lottery.profit_fee / 100))
+    ((object.tickets_count * object.price_unit) * (object.social_lottery.profit_fee / 100)).round(2)
   end
 
   def receipts
