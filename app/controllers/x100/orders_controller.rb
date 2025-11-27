@@ -74,7 +74,7 @@ class X100::OrdersController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def x100_order_params
-    params.require(:x100_order).permit(:products, :amount, :serial, :ordered_at, :shared_user_id, :x100_client_id)
+    params.require(:x100_order).permit(:products, :selected_method, :amount, :serial, :ordered_at, :shared_user_id, :x100_client_id)
   end
 
   def fetch_order

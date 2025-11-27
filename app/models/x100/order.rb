@@ -41,14 +41,14 @@ module X100
     require 'uri'
 
     attr_accessor :tickets_serie
+    attr_accessor :selected_method
 
     belongs_to :shared_user, class_name: 'Shared::User', foreign_key: 'shared_user_id'
     belongs_to :x100_client, class_name: 'X100::Client', foreign_key: 'x100_client_id'
     belongs_to :x100_raffle, class_name: 'X100::Raffle', foreign_key: 'x100_raffle_id'
     belongs_to :shared_exchange, class_name: 'Shared::Exchange', foreign_key: 'shared_exchange_id'
 
-    before_save :generate_serie, if: -> { x100_raffle.raffle_type == 'Infinito' }
-    # after_commit :integrator_layer
+    before_save :generate_serie, if: -> { x100_raffle.raffle_type == 'Infinito' && new_record? }
   
     validates :money,
               presence: true,
@@ -121,9 +121,9 @@ module X100
       end
     end
 
-    def integrator_layer
+    def integrator_layer(tx: 'DEBIT')
       unless integrator.nil?
-        if self.integrator_job == false
+        if self.integrator_job(tx: tx) == false
           X100::Ticket.where(position: self.products, x100_raffle_id: self.x100_raffle_id).update_all(
             price: nil,
             money: nil,
@@ -132,7 +132,7 @@ module X100
             x100_client_id: nil
           )
           self.destroy
-          return
+          raise StandardError.new "Error processing transaction: INTEGRATOR LAYER"
         end
 
         return true
@@ -146,32 +146,8 @@ module X100
 
       case integrator
       when 'CDA'
-        @payload = {
-          amount: amount,
-          serial: serial,
-          tickets: serie_tickets,
-          tx_transaction: 'DEBIT',
-          currency: money,
-          player_id: integrator_player_id,
-          x100_raffle: {
-            raffle_image: "https://api.rifamax.app/#{x100_raffle.ad.url}",
-            title: x100_raffle.title,
-            status: x100_raffle.status,
-            money: x100_raffle.money,
-            raffle_type: 'Serie',
-            price_unit: x100_raffle.price_unit,
-            tickets_count: x100_raffle.tickets_count,
-            lotery: x100_raffle.lotery,
-            draw_type: 'Serie',
-            expired_date: x100_raffle.expired_date == nil ? nil : x100_raffle.expired_date.strftime("%d/%m/%Y - %H:%M"),
-          }
-        }
-        url = "#{cda_url}/wallets_rifas/debit"
+        integrator_layer(tx: 'DEBIT')
 
-        response = HTTParty.post(url, :body => @payload.to_json, :headers => { 'Content-Type' => 'application/json' })
-
-        return { raffle: x100_raffle, tickets: @payload, message: 'Purchase successfully' } if response.code == 200
-        
         self.products.each do |product|
           product_parsed = product.to_s.rjust(4, '0')
 
@@ -188,6 +164,8 @@ module X100
           $redis.hset("serie:#{self.id}", product_parsed, data.to_json)
           $redis.set("sold_serie:#{self.id}", serie_sold)
         end
+       
+        return { raffle: x100_raffle, tickets: @payload, message: 'Purchase successfully' } if response.code == 200
         return false
       else
         raise StandardError.new "Integrator not found"
@@ -208,21 +186,12 @@ module X100
         else
           1
         end
-
+        
         @payload = {
-          id: id,
+          selected_method: selected_method,
           amount: amount,
           serial: serial,
-          tickets: x100_tickets.map do |ticket|
-            {
-              id: ticket[:id],
-              position: ticket[:position],
-              serial: ticket[:serial],
-              price: x100_raffle.price_unit * @selected_currency,
-              money: money,
-              status: 'sold'
-            }
-          end,
+          tickets: serie_tickets,
           tx_transaction: 'DEBIT',
           currency: money,
           player_id: integrator_player_id,
@@ -294,22 +263,13 @@ module X100
       (self.price_without_discount_from_logs - self.transform_amount_to_dolar) / self.price_without_discount_from_logs
     end
 
-    def cda_payload(tx_transaction)
+    def cda_payload(tx: 'DEBIT')
       return {
-        # id: id,
+        selected_method: selected_method,
         amount: amount,
         serial: serial,
-        tickets: x100_tickets.map do |ticket|
-          {
-            id: ticket[:id],
-            position: ticket[:position],
-            serial: ticket[:serial],
-            price: ticket[:price],
-            money: ticket[:money],
-            status: ticket[:status]
-          }
-        end,
-        tx_transaction: tx_transaction,
+        tickets: serie_tickets,
+        tx_transaction: tx,
         currency: money,
         player_id: integrator_player_id,
         x100_raffle: {
@@ -327,38 +287,19 @@ module X100
       }
     end
 
-    def integrator_job
+    def integrator_job(tx: 'DEBIT')
       return false unless (integrator.present? || integrator_player_id.present?)
       url = ENV['cda_url_base']
 
       case integrator
       when 'CDA'
-        @payload = cda_payload('DEBIT')
+        @payload = cda_payload(tx)
 
         url_parse = "#{url}/wallets_rifas/debit"
 
         response = HTTParty.post(url_parse, :body => @payload.to_json, :headers => { 'Content-Type' => 'application/json' })
 
         Rails.logger.info(response.body.as_json)
-
-        return true if response.code == 200
-        return false
-      else
-        return true
-      end
-    end
-
-    def integrator_credit_job
-      return false unless (integrator.present? || integrator_player_id.present?)
-      url = ENV['cda_url_base']
-
-      case integrator
-      when 'CDA'
-        @payload = cda_payload('CREDIT')
-
-        url_parse = "#{url}/wallets_rifas/credit"
-
-        response = HTTParty.post(url_parse, :body => @payload.to_json, :headers => { 'Content-Type' => 'application/json' })
 
         return true if response.code == 200
         return false
