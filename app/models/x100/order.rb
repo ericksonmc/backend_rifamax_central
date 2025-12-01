@@ -146,7 +146,7 @@ module X100
 
       case integrator
       when 'CDA'
-        integrator_layer(tx: 'DEBIT')
+        integrator_layer = integrator_layer(tx: 'DEBIT')
 
         self.products.each do |product|
           product_parsed = product.to_s.rjust(4, '0')
@@ -165,7 +165,7 @@ module X100
           $redis.set("sold_serie:#{self.id}", serie_sold)
         end
        
-        return { raffle: x100_raffle, tickets: @payload, message: 'Purchase successfully' } if response.code == 200
+        return { raffle: x100_raffle, tickets: @payload, message: 'Purchase successfully' } if integrator_layer
         return false
       else
         raise StandardError.new "Integrator not found"
