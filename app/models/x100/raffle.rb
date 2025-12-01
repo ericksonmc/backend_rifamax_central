@@ -281,8 +281,8 @@ module X100
 
           raise StandardError.new "Error when generate order"
         }
-      rescue StandardError => e
-        return { error: e.message }
+      # rescue StandardError => e
+      #   return { error: e.message, exception: e.backtrace }
       end
     end
 
