@@ -293,7 +293,7 @@ module X100
 
       case integrator
       when 'CDA'
-        @payload = cda_payload(tx)
+        @payload = cda_payload(tx: tx)
 
         url_parse = "#{url}/wallets_rifas/debit"
 
