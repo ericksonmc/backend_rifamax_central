@@ -29,6 +29,7 @@ module X100
         integrator = sell_series_ticket_params[:integrator]
         raffle_id = sell_series_ticket_params[:raffle_id]
         quantity = sell_series_ticket_params[:quantity]
+        selected_method = sell_series_ticket_params[:selected_method]
         currency = sell_series_ticket_params[:money]
 
         @raffle = X100::Raffle.find(raffle_id)
@@ -43,7 +44,8 @@ module X100
           currency,
           client_id,
           integrator,
-          @client_integrator.id
+          @client_integrator.id,
+          selected_method
         )
 
         render json: @result, status: :ok
@@ -303,7 +305,7 @@ module X100
     end
 
     def sell_series_ticket_params
-      params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator, :money, :quantity)
+      params.require(:series_ticket).permit(:raffle_id, :client_id, :integrator, :money, :quantity, :selected_method)
     end
 
     def process_ticket_sale(raffle, success_sold)

@@ -186,7 +186,7 @@ module X100
       }
     end
 
-    def sell_series(quantity, currency, integrator_id, integrator_type, client_id)
+    def sell_series(quantity, currency, integrator_id, integrator_type, client_id, selected_method = nil)
       begin
         @semaphore ||= Mutex.new
 
@@ -269,6 +269,7 @@ module X100
             ordered_at: DateTime.now,
             tickets_serie: result,
             money: currency,
+            selected_method: selected_method,
             integrator_player_id: integrator_id,
             x100_raffle_id: self.id,
             x100_client_id: client_id,

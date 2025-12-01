@@ -21,7 +21,7 @@ class ApplicationController < ActionController::API
     header = header.split(' ').last if header
     begin
       structure = Shared::Structure.find_by(token: header.to_s)
-
+      
       if structure
         @current_user = structure.shared_user
       else
