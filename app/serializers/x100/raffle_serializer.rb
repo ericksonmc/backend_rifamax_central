@@ -97,12 +97,12 @@ module X100
 
       object.combos.map do |combo|
         real_price = object.price_unit * combo['quantity']
-        discount = real_price - combo['price']
+        savings = real_price - combo['price']
 
         {
           price: combo['price'],
           quantity: combo['quantity'],
-          discount: discount
+          savings: savings
         }
       end
     end
