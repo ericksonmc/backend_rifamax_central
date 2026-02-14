@@ -92,6 +92,21 @@ module X100
       object.draw_type == 'Infinito' ? object.tickets_count : X100::Ticket.where(x100_raffle_id: object.id, status: 'sold').count
     end
 
+    def combos
+      return [] if object.combos.empty?
+
+      object.combos.map do |combo|
+        real_price = object.price_unit * combo['quantity']
+        discount = real_price - combo['price']
+
+        {
+          price: combo['price'],
+          quantity: combo['quantity'],
+          discount: discount
+        }
+      end
+    end
+
     def updated_at
       object.updated_at.strftime('%d/%m/%Y %H:%M:%S')
     end
