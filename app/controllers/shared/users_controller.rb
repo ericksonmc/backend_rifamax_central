@@ -28,6 +28,13 @@ module Shared
       end
     end
 
+    # GET /shared/users/rafflers_list
+    def rafflers_list
+      rafflers = @current_user.rafflers_list
+
+      render json: { data: rafflers }, status: :ok
+    end
+
     # GET /shared/users/rafflers
     def rafflers
       rafflers = @current_user.rafflers

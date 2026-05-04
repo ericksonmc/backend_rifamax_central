@@ -178,6 +178,7 @@ Rails.application.routes.draw do
       put 'change_password', on: :collection
       get 'profile', on: :collection
       get 'rafflers', on: :collection
+      get 'rafflers_list', on: :collection
     end
   end
 

@@ -200,6 +200,17 @@ module Shared
       end
     end
 
+    def rafflers_list
+      return "Can't show riferos, user are not taquilla or admin." unless %w[Taquilla Admin].include?(role)
+
+      case role
+      when 'Taquilla'
+        Shared::User.where(id: rifero_ids).map {|u| { value: u.id, label: u.name }}
+      when 'Admin'
+        Shared::User.where(role: 'Rifero').map {|u| { value: u.id, label: u.name }}
+      end
+    end  
+
     def rafflers
       return "Can't show riferos, user are not taquilla or admin." unless %w[Taquilla Admin].include?(role)
 
