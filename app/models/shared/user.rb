@@ -238,7 +238,7 @@ module Shared
     def add_seller(id)
       @seller = Shared::User.find(id)
 
-      raise NotAllowedException.new "Seller is not having sufficient permissions", "unprocessable_entity", 12, unless ['Taquilla', 'Admin'].include?(self.role)
+      raise NotAllowedException.new("Seller is not having sufficient permissions", "unprocessable_entity", 12) unless ['Taquilla', 'Admin'].include?(self.role)
       raise NotAllowedException.new "Seller already registered", "unprocessable_entity", 22 if self.rifero_ids.include?(id)
       raise NotAllowedException.new "Seller don't exist", "not_found", 33 if @seller.nil?
       raise NotAllowedException.new "This user is not a seller", "forbidden", 44 unless @seller.role == 'Rifero'
