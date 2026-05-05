@@ -205,9 +205,9 @@ module Shared
 
       case role
       when 'Taquilla'
-        Shared::User.where(id: rifero_ids).map {|u| { value: u.id, label: u.name }}
+        Shared::User.where(id: rifero_ids).map {|u| { value: u.id.to_s, label: u.name }}
       when 'Admin'
-        Shared::User.where(role: 'Rifero').map {|u| { value: u.id, label: u.name }}
+        Shared::User.where(role: 'Rifero').map {|u| { value: u.id.to_s, label: u.name }}
       end
     end  
 
