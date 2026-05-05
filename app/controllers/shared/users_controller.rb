@@ -115,7 +115,7 @@ module Shared
           end
         else
           ActiveRecord::Rollback
-          render json: { message: 'Oops! somenthing has been happened', err: @shared_user.errors.full_message }, status: :unprocessable_entity
+          render json: { message: 'Oops! somenthing has been happened', err: @shared_user.errors }, status: :unprocessable_entity
         end
       end
     end
