@@ -243,7 +243,7 @@ module Rifamax
     def create
       @rifamax_raffle = Rifamax::Raffle.new(rifamax_raffle_params)
       @rifamax_raffle.user_id = @current_user.id
-      @rifamax_raffle.need_buy = true
+      @rifamax_raffle.need_buy = false
 
       if @rifamax_raffle.save
         render json: @rifamax_raffle, status: :created, location: @rifamax_raffle
