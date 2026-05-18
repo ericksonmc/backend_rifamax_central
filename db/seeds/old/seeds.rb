@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-@user_data = JSON.parse(File.open('users_data.json').read)
-@belongs = JSON.parse(File.open('dump_belongs.json').read)
+@user_data = JSON.parse(File.open('./old/users_data.json').read)
+@belongs = JSON.parse(File.open('./old/dump_belongs.json').read)
 
 @new_all_data = []
 

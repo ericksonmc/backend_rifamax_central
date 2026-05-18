@@ -2,7 +2,7 @@
 
 # db/seeds.rb
 
-module_to_run = ENV['MODULE']
+module_to_run = 'all'
 
 if module_to_run.blank?
   puts "Please provide the module name using the MODULE environment variable, e.g. 'rifamax' \n"
