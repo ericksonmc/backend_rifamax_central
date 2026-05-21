@@ -1,4 +1,3 @@
-# PostgreSQL. Versions 9.3 and up are supported.
 #
 # Install the pg driver:
 #   gem install pg
@@ -14,20 +13,20 @@
 # Configure Using Gemfile
 # gem "pg"
 #
+
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV.fetch("DATABASE_HOST")%>
-  port: <%= ENV.fetch("DATABASE_PORT")%>
-  username: <%= ENV.fetch("DATABASE_USERNAME")%>
-  password: <%= ENV.fetch("DATABASE_PASSWORD")%>
-  # For details on connection pooling, see Rails configuration guide
-  # https://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch('DATABASE_HOST', '127.0.0.1') %>
+  port: <%= Integer(ENV.fetch('DATABASE_PORT', 5432)) %>
+  username: <%= ENV.fetch('DATABASE_USERNAME', 'postgres') %>
+  password: <%= ENV.fetch('DATABASE_PASSWORD', '') %>
+  prepared_statements: false
+  pool: 5
 
 development:
   <<: *default
-  database: backend_rifaplay
+  database: rifamax_central
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -60,8 +59,7 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: rifaplay_backend_test
+  database: rifamax_backend_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -85,4 +83,4 @@ test:
 #
 production:
   <<: *default
-  database: backend_rifaplay
+  database: rifamax_central

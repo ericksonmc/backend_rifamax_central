@@ -165,7 +165,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_24_213314) do
 
   create_table "shared_structures", force: :cascade do |t|
     t.string "name"
-    t.string "token", default: "rm_live_eb488efd-15e5-4439-a342-156aeb1886ba"
+    t.string "token", default: "rm_live_2a411784-4c73-4b43-9c66-ddcc5ffdc7ea"
     t.string "access_to", default: [], array: true
     t.bigint "shared_user_id", null: false
     t.datetime "created_at", null: false
@@ -210,7 +210,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_08_24_213314) do
   end
 
   create_table "shared_wallets", force: :cascade do |t|
-    t.string "token", default: "76dc9513-e1cd-4bd5-a181-3badaffb48b8"
+    t.string "token", default: "92e01def-76fe-4ff2-a93a-f439727aca52"
     t.float "found", default: 0.0
     t.float "debt", default: 0.0
     t.float "debt_limit", default: 20.0
