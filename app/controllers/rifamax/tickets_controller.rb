@@ -2,7 +2,7 @@
 
 module Rifamax
   class TicketsController < ApplicationController
-    before_action :authorize_request, only: %i[sell_all sell_some]
+    before_action :authorize_request, only: %i[sell_all sell_some sell_all_tickets]
     before_action :set_rifamax_ticket, only: %i[show update destroy]
 
     # GET /rifamax/tickets
@@ -77,8 +77,26 @@ module Rifamax
         @raffle.user_who_requested = @current_user.id
         render json: @raffle.sell_some_tickets(@tickets_ids), status: :ok
       rescue StandardError => e
-        render json: { message: e }, status: :unauthorized
+        render json: { message: e }, status: :unprocessable_entity
       end  
+    end
+
+    def sell_all_tickets
+      @raffle = Rifamax::Raffle.find(params[:raffle_id])
+      @raffle.user_who_requested = @current_user.id
+
+      @raffle.sell_all_tickets_withoud_paid
+
+      @tickets_strings = Rifamax::TicketsString.new(@raffle.tickets).generate_strings
+
+      render json: {
+        message: "All tickets have been sold!",
+        tickets: Rifamax::TicketSerializer.new(@raffle.tickets).object,
+        tickets_strings: @tickets_strings
+      }, status: :ok
+
+    rescue StandardError => e
+      render json: { message: e }, status: :unprocessable_entity
     end
 
     # DELETE /rifamax/tickets/1

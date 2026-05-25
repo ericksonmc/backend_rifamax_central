@@ -152,6 +152,7 @@ Rails.application.routes.draw do
       get 'get_tickets', on: :collection
       post 'sell_all', on: :collection
       put 'sell_some', on: :collection
+      post 'sell_all_tickets', on: :collection
     end
   end
 
