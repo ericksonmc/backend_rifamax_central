@@ -219,10 +219,26 @@ class Rifamax::Raffle < ApplicationRecord
   end
   
   def sell_all_tickets
-    raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested  
+    raise StandardError.new "You are not the seller! This incident will be reported to admins." unless self.seller_id == self.user_who_requested
     validate_payment_before_selling!
     raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
-    raise StandardError.new "Ticket list is empty" if tickets_ids.empty?
+    raise StandardError.new "Ticket list is empty" if self.tickets.empty?
+
+    self.update(
+      sell_status: 2
+    )
+
+    self.tickets.update_all(
+      is_sold: true
+    )  
+
+    return { message: "Ticket has been sold!", tickets: Rifamax::TicketSerializer.new(self.tickets).object }
+  end
+
+  def sell_all_tickets_withoud_paid
+    # validate_payment_before_selling!
+    raise StandardError.new "Tickets has been sold!" if self.sell_status == 'sold'
+    raise StandardError.new "Ticket list is empty" if self.tickets.empty?
 
     self.update(
       sell_status: 2
