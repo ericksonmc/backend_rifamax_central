@@ -47,20 +47,20 @@ class Rifamax::TicketsString
     lines << center('RIFAMAX')
     lines << double_line
     lines << pad_between("  N° #{format('%03d', ticket.number.to_i)}", "Precio: #{format_price(raffle.price, raffle.currency)}  ")
-    lines << ''
-    lines << center("Signo: #{ticket.wildcard}") if ticket.wildcard.present?
     lines << labeled('Premio', main_prize[:award])
-    lines << labeled('Sin Signo', main_prize[:plate]) if main_prize[:plate].present?
-    lines << ''
+    if ticket.wildcard.present? && main_prize[:plate].present?
+      lines << two_col('Signo', ticket.wildcard, 'Sin Sig', main_prize[:plate])
+    elsif ticket.wildcard.present?
+      lines << labeled('Signo', ticket.wildcard)
+    elsif main_prize[:plate].present?
+      lines << labeled('Sin Signo', main_prize[:plate])
+    end
     lines << center("Caduca en #{days_left} día#{'s' if days_left != 1}. Escanee aquí:")
     lines << center("[QR:#{ticket.uniq_identifier_serial}]")
     lines << single_line
-    lines << labeled('Agencia',  agency_name)
-    lines << labeled('Serie',    serie_code)
-    lines << labeled('Fecha',    raffle.created_at&.strftime('%d/%m/%Y'))
-    lines << labeled('Hora',     raffle.created_at&.strftime('%I:%M %p'))
-    lines << labeled('Lotería',  raffle.lotery)
-    lines << labeled('Rifero',   rifero_name)
+    lines << two_col('Agencia',  agency_name,                              'Serie',  serie_code)
+    lines << two_col('Fecha',    raffle.created_at&.strftime('%d/%m/%Y'), 'Hora',   raffle.created_at&.strftime('%I:%M %p'))
+    lines << two_col('Lotería',  raffle.lotery,                            'Rifero', rifero_name)
     lines << labeled('Teléfono', rifero_phone)
     lines << double_line
     lines.join("\n")
@@ -68,6 +68,13 @@ class Rifamax::TicketsString
 
   def labeled(label, value)
     "#{(label + ':').ljust(11)}#{value}".slice(0, CHARS_PER_LINE)
+  end
+
+  def two_col(label1, value1, label2, value2)
+    col = CHARS_PER_LINE / 2
+    left  = "#{(label1 + ':').ljust(9)}#{value1.to_s}".slice(0, col).ljust(col)
+    right = "#{(label2 + ':').ljust(9)}#{value2.to_s}".slice(0, col)
+    left + right
   end
 
   def first_prize
