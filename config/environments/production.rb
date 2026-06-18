@@ -114,6 +114,12 @@ Rails.application.configure do
     logger           = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  else
+    # El server arranca como daemon (`rails server -d`), STDOUT se descarta.
+    # Logueamos a archivo para poder hacer `tail -f log/production.log`.
+    logger           = ActiveSupport::Logger.new(Rails.root.join('log', 'production.log'))
+    logger.formatter = config.log_formatter
+    config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
 
   config.active_record.dump_schema_after_migration = false

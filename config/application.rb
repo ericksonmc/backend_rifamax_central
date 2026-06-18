@@ -30,7 +30,11 @@ module RifamaxCentralBackend
     config.global_thread = Mutex.new
     config.global_queue = []
 
-    config.logger = Logger.new(STDOUT)
+    # En desarrollo/test logueamos a STDOUT para ver todo en la terminal.
+    # En producción NO: el server corre como daemon (`rails server -d`) y STDOUT
+    # se descarta, por lo que el logger se configura en config/environments/production.rb
+    # para escribir en log/production.log.
+    config.logger = Logger.new(STDOUT) unless Rails.env.production?
 
     # Configuration for the application, engines, and railties goes here.
     #
